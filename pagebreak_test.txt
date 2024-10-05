@@ -1,0 +1,215 @@
+
+
+Sub pagebreak_test()
+
+   
+
+Const MARGIN_PAGEBREAK As Integer = 20  '　次の改ページまで20行以上ある場合、改ページセット
+
+  
+Debug.Print "ActiveSheet.Name: " & ActiveSheet.Name
+Debug.Print "Last: " & Range("B" & ActiveSheet.Rows.Count).End(xlUp).Row
+
+ActiveSheet.ResetAllPageBreaks
+'Worksheets("まとめ").ResetAllPageBreaks  'なぜかダメ
+
+'End
+
+
+
+Dim Required_pagebreakList As New Collection     '必須の改ページの行を格納
+
+Dim aLine As Integer, bLine As Integer, cLine As Integer
+aLine = getLineNum("(a)運転時間　期間毎")
+bLine = getLineNum("(b)運転時間　シフト毎")
+cLine = getLineNum("(c)運転条件")
+
+
+
+
+
+
+
+Debug.Print "***「(a)運転時間　期間毎」ゾーン"
+Call SetPagebreak(aLine, bLine - 1)
+
+
+Debug.Print "***「(b)運転時間　シフト毎」ゾーン"
+ActiveSheet.Rows(bLine).PageBreak = xlPageBreakManual
+Required_pagebreakList.Add bLine
+Call SetPagebreak(bLine, cLine - 1)
+
+
+Debug.Print "*** 「(c)運転条件」ゾーン"
+ActiveSheet.Rows(cLine).PageBreak = xlPageBreakManual
+Required_pagebreakList.Add cLine
+Call SetPagebreak(cLine, Range("B" & ActiveSheet.Rows.Count).End(xlUp).Row - 1)
+
+
+
+For p = 1 To ActiveSheet.HPageBreaks.Count
+    Debug.Print "Page = " & p & "   ActiveSheet.HPageBreaks(p).Location.Row = " & ActiveSheet.HPageBreaks(p).Location.Row
+Next p
+
+'End
+
+  
+
+
+  
+Debug.Print "============================================================================================================"
+Debug.Print "改ページの行数と必須かどうかを2次元配列PagebreakListに格納して、それを基に改めて改ページをセットし直す======"
+Debug.Print "============================================================================================================"
+
+Dim PagebreakList(10, 1) As Integer
+
+Debug.Print "~~~~~~~~~~~~~~~~~~~~~    ActiveSheet.HPageBreaks.Count " & ActiveSheet.HPageBreaks.Count
+Debug.Print "~~~~~~~~~~~~~~~~~~~~~    Required_pagebreakList.Count " & Required_pagebreakList.Count
+For Each Value In Required_pagebreakList
+    Debug.Print "Required_pagebreakList: " & Value
+Next
+
+
+For p = 1 To ActiveSheet.HPageBreaks.Count
+    'Debug.Print "Page = " & p & "   ActiveSheet.HPageBreaks(p).Location.Row = " & ActiveSheet.HPageBreaks(p).Location.Row
+    PagebreakList(p - 1, 0) = ActiveSheet.HPageBreaks(p).Location.Row
+    PagebreakList(p - 1, 1) = 0  'とりあえず、必須でない0を入れとく
+    
+    For Each Value In Required_pagebreakList
+        If ActiveSheet.HPageBreaks(p).Location.Row = Value Then
+            PagebreakList(p - 1, 1) = 1 '必須
+        End If
+    Next
+    Debug.Print "PagebreakList:   " & PagebreakList(p - 1, 0) & "    " & PagebreakList(p - 1, 1)
+Next p
+
+
+
+'一旦改ページを削除
+ActiveSheet.ResetAllPageBreaks
+
+
+
+For i = LBound(PagebreakList, 1) To UBound(PagebreakList, 1) - 1
+    'Debug.Print ">PagebreakList(" & i; "," & j & "):   " & PagebreakList(i, 0) & "  " & PagebreakList(i, 1)
+
+    If (PagebreakList(i + 1, 0) - PagebreakList(i, 0)) > MARGIN_PAGEBREAK Then   '次の改ページまで20行以上ある場合、改ページセット
+        ActiveSheet.Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
+        Debug.Print "Set PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next:" & PagebreakList(i + 1, 0)
+    Else
+        'Debug.Print "Not Set PagebreakList(" & i & "," & "):   " & PagebreakList(i, 0) & "  " & PagebreakList(i + 1, 0)
+    End If
+    
+
+    If (PagebreakList(i, 1)) = 1 Then  '必須の改ページの場合、改ページセット
+        ActiveSheet.Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
+        Debug.Print "Set Required PagebreakList(" & i & "," & "):   " & PagebreakList(i, 0) & "  " & PagebreakList(i + 1, 0)
+    End If
+    
+Next
+
+
+
+
+ActiveSheet.DisplayPageBreaks = True
+'ActiveSheet.PrintPreview
+Debug.Print "================================================================================================================="
+  
+'MsgBox "メッセージボックス" & i
+
+
+End Sub
+
+
+
+
+
+
+
+
+
+
+
+
+'==============================================================================================================================
+Function getLineNum(ByVal str As String) As Integer
+'    Debug.Print "str = "; str
+    
+    For i = 1 To Range("B" & ActiveSheet.Rows.Count).End(xlUp).Row
+'        Debug.Print "i = " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value
+        If Cells(i, 2).Value = str Then '
+            getLineNum = i
+            Exit For
+        End If
+    Next
+
+End Function
+
+
+
+
+
+
+'改行は***行ごとくらいでいれる==============================================================================================================================
+Function SetPagebreak(ByVal startLine As Integer, ByVal endLine As Integer)
+    Debug.Print "startLine = "; startLine
+    
+    Const LINE_CNT_PAGEBREAK As Integer = 50  '　この行数くらいで改行   80行にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
+    Dim line_cnt As Integer
+    line_cnt = 0
+
+    For i = startLine To endLine
+        Debug.Print "i = " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value
+        
+        line_cnt = line_cnt + 1
+        If line_cnt > LINE_CNT_PAGEBREAK Then
+        
+'            If IsEmpty(Cells(i, 2).Value) Then
+'
+'                If Cells(i, 2).MergeCells Then  '  B列が結合されている
+'    '                Debug.Print "セルに値が入ってなくて、、結合されている、、"
+'                Else
+'                        Debug.Print "値が入ってなくて、結合されてない　貝: i = " & i
+'                        ActiveSheet.Rows(i).PageBreak = xlPageBreakManual
+'                        line_cnt = 0
+'                End If
+'
+'            Else
+'
+'                If Cells(i, 2).MergeCells Then  '  B列が結合されている
+'                        Debug.Print "値が入って、結合されている     結合行：" & Cells(i, 2).MergeArea.Rows.Count
+'                        ActiveSheet.Rows(i + Cells(i, 2).MergeArea.Rows.Count).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
+'                        line_cnt = 0
+'                Else
+'                        Debug.Print "値が入って、結合されてない: i = " & i
+'                        ActiveSheet.Rows(i).PageBreak = xlPageBreakManual
+'                        line_cnt = 0
+'                End If
+'
+'            End If
+            
+            
+            
+            If IsEmpty(Cells(i, 2).Value) And Cells(i, 2).MergeCells Then
+                Debug.Print "セルが空っぽで、結合されている、、"
+            Else
+            
+                If Cells(i, 2).MergeCells Then  '  B列が結合されている
+                    Debug.Print "値が入って、結合されている     結合行の下に貝：" & Cells(i, 2).MergeArea.Rows.Count
+                    ActiveSheet.Rows(i + Cells(i, 2).MergeArea.Rows.Count).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
+                Else
+                    Debug.Print "値が入ってなくて、結合されてない　貝: i = " & i
+                    ActiveSheet.Rows(i).PageBreak = xlPageBreakManual
+                End If
+                line_cnt = 0
+            
+            End If
+            
+            
+            
+        End If
+     
+    Next
+
+End Function
+
