@@ -2,11 +2,11 @@
 
 Sub pagebreak_test()
 
-Const SIZE_PAGEBREAK As Integer = 100  '　トータルの改ページ数　適宜要変更　とりあえず、多めに100個
 Const TARGET_COL As Integer = 2  ' 対象列
 Const LINE_CNT_PAGEBREAK As Integer = 50  '　この行数くらいで改行   80行にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
 Const MARGIN_PAGEBREAK As Integer = 20  '　次の改ページまで20行以上ある場合、改ページセット
 Const WNAME As String = "まとめ "        'なんだよこれ、まとめの後ろに半角スペースが入ってるよ
+
 Dim Required_pagebreakList As New Collection     '必須の改ページの行を格納
 Dim aLine As Integer, bLine As Integer, cLine As Integer
 
@@ -22,6 +22,15 @@ End If
 Debug.Print "Worksheets(WNAME).Name: " & Worksheets(WNAME).Name
 Debug.Print "Last: " & Cells(Rows.Count, TARGET_COL).End(xlUp).Row
 
+'テスト
+'Dim Required_pagebreak_collection As New Collection     '必須の改ページ Required_pagebreak_collection
+'Required_pagebreak_collection.Add Key:="(a)運転時間　期間毎", Item:=getLineNum("(a)運転時間　期間毎", TARGET_COL, Worksheets(WNAME))
+'Required_pagebreak_collection.Add Key:="(b)運転時間　シフト毎", Item:=getLineNum("(b)運転時間　シフト毎", TARGET_COL, Worksheets(WNAME))
+'Required_pagebreak_collection.Add Key:="(c)運転条件", Item:=getLineNum("(c)運転条件", TARGET_COL, Worksheets(WNAME))
+'For i = 1 To Required_pagebreak_collection.Count
+'   Debug.Print "Required_pagebreak_collection.Item: " & Required_pagebreak_collection.Item(i)
+'Next
+'Debug.Print "Required_pagebreak_collection.Item((a)運転時間　期間毎): " & Required_pagebreak_collection.Item("(a)運転時間　期間毎")
 
 
 
@@ -62,12 +71,7 @@ Debug.Print "===================================================================
 Debug.Print "改ページの行数と必須かどうかを2次元配列PagebreakListに格納して、それを基に改めて改ページをセットし直す======"
 Debug.Print "============================================================================================================"
 
-
-If Worksheets(WNAME).HPageBreaks.Count > SIZE_PAGEBREAK Then
-    MsgBox "改ページが多くて、配列のサイズを越える可能性があります。サイズを大きくして下さい"
-End If
-
-Dim PagebreakList(SIZE_PAGEBREAK, 1) As Integer
+Dim PagebreakList() As Variant
 
 Debug.Print "~~~~~~~~~~~~~~~~~~~~~    Worksheets(WNAME).HPageBreaks.Count " & Worksheets(WNAME).HPageBreaks.Count
 Debug.Print "~~~~~~~~~~~~~~~~~~~~~    Required_pagebreakList.Count " & Required_pagebreakList.Count
@@ -75,7 +79,7 @@ For Each Value In Required_pagebreakList
     Debug.Print "Required_pagebreakList: " & Value
 Next
 
-
+ReDim PagebreakList(Worksheets(WNAME).HPageBreaks.Count, 1)
 For p = 1 To Worksheets(WNAME).HPageBreaks.Count
     'Debug.Print "Page = " & p & "   Worksheets(WNAME).HPageBreaks(p).Location.Row = " & Worksheets(WNAME).HPageBreaks(p).Location.Row
     PagebreakList(p - 1, 0) = Worksheets(WNAME).HPageBreaks(p).Location.Row
