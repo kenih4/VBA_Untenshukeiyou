@@ -1,131 +1,122 @@
 
 
 Sub pagebreak_test()
-
-Const TARGET_COL As Integer = 2  ' 対象列
-Const LINE_CNT_PAGEBREAK As Integer = 50  '　この行数くらいで改行   80行にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
-Const MARGIN_PAGEBREAK As Integer = 20  '　次の改ページまで20行以上ある場合、改ページセット
-Const WNAME As String = "まとめ "        'なんだよこれ、まとめの後ろに半角スペースが入ってるよ
-
-Dim Required_pagebreakList As New Collection     '必須の改ページの行を格納
-Dim aLine As Integer, bLine As Integer, cLine As Integer
-
-For i = 1 To Worksheets.Count
-    Debug.Print "WorkSheet.Name: " & Worksheets(i).Name
-Next i
-
-If flgExsistSheet(WNAME) = False Then
-    MsgBox "ワークシートが存在しません"
-    End
-End If
-
-Debug.Print "Worksheets(WNAME).Name: " & Worksheets(WNAME).Name
-Debug.Print "Last: " & Cells(Rows.Count, TARGET_COL).End(xlUp).Row
-
-'テスト
-'Dim Required_pagebreak_collection As New Collection     '必須の改ページ Required_pagebreak_collection
-'Required_pagebreak_collection.Add Key:="(a)運転時間　期間毎", Item:=getLineNum("(a)運転時間　期間毎", TARGET_COL, Worksheets(WNAME))
-'Required_pagebreak_collection.Add Key:="(b)運転時間　シフト毎", Item:=getLineNum("(b)運転時間　シフト毎", TARGET_COL, Worksheets(WNAME))
-'Required_pagebreak_collection.Add Key:="(c)運転条件", Item:=getLineNum("(c)運転条件", TARGET_COL, Worksheets(WNAME))
-'For i = 1 To Required_pagebreak_collection.Count
-'   Debug.Print "Required_pagebreak_collection.Item: " & Required_pagebreak_collection.Item(i)
-'Next
-'Debug.Print "Required_pagebreak_collection.Item((a)運転時間　期間毎): " & Required_pagebreak_collection.Item("(a)運転時間　期間毎")
-
-
-
-aLine = getLineNum("(a)運転時間　期間毎", TARGET_COL, Worksheets(WNAME))
-bLine = getLineNum("(b)運転時間　シフト毎", TARGET_COL, Worksheets(WNAME))
-cLine = getLineNum("(c)運転条件", TARGET_COL, Worksheets(WNAME))
-
-
-Worksheets(WNAME).ResetAllPageBreaks
-
-Debug.Print "***「(a)運転時間　期間毎」ゾーン"
-Call SetPagebreak(aLine, bLine - 1, TARGET_COL, LINE_CNT_PAGEBREAK, Worksheets(WNAME))
-
-
-Debug.Print "***「(b)運転時間　シフト毎」ゾーン"
-Worksheets(WNAME).Rows(bLine).PageBreak = xlPageBreakManual
-Required_pagebreakList.Add bLine
-Call SetPagebreak(bLine, cLine - 1, TARGET_COL, LINE_CNT_PAGEBREAK, Worksheets(WNAME))
-
-Debug.Print "*** 「(c)運転条件」ゾーン"
-Worksheets(WNAME).Rows(cLine).PageBreak = xlPageBreakManual
-Required_pagebreakList.Add cLine
-Call SetPagebreak(cLine, Range("B" & Worksheets(WNAME).Rows.Count).End(xlUp).Row - 1, TARGET_COL, LINE_CNT_PAGEBREAK, Worksheets(WNAME))
-
-
-
-For p = 1 To Worksheets(WNAME).HPageBreaks.Count
-    Debug.Print "Page = " & p & "   Worksheets(WNAME).HPageBreaks(p).Location.Row = " & Worksheets(WNAME).HPageBreaks(p).Location.Row
-Next p
-
-'End
-
-  
-
-
-  
-Debug.Print "============================================================================================================"
-Debug.Print "改ページの行数と必須かどうかを2次元配列PagebreakListに格納して、それを基に改めて改ページをセットし直す======"
-Debug.Print "============================================================================================================"
-
-Dim PagebreakList() As Variant
-
-Debug.Print "~~~~~~~~~~~~~~~~~~~~~    Worksheets(WNAME).HPageBreaks.Count " & Worksheets(WNAME).HPageBreaks.Count
-Debug.Print "~~~~~~~~~~~~~~~~~~~~~    Required_pagebreakList.Count " & Required_pagebreakList.Count
-For Each Value In Required_pagebreakList
-    Debug.Print "Required_pagebreakList: " & Value
-Next
-
-ReDim PagebreakList(Worksheets(WNAME).HPageBreaks.Count, 1)
-For p = 1 To Worksheets(WNAME).HPageBreaks.Count
-    'Debug.Print "Page = " & p & "   Worksheets(WNAME).HPageBreaks(p).Location.Row = " & Worksheets(WNAME).HPageBreaks(p).Location.Row
-    PagebreakList(p - 1, 0) = Worksheets(WNAME).HPageBreaks(p).Location.Row
-    PagebreakList(p - 1, 1) = 0  'とりあえず、必須でない0を入れとく
     
-    For Each Value In Required_pagebreakList
-        If Worksheets(WNAME).HPageBreaks(p).Location.Row = Value Then
-            PagebreakList(p - 1, 1) = 1 '必須
-        End If
+    Const TARGET_COL As Integer = 2  ' 対象列
+    Const LINE_CNT_PAGEBREAK As Integer = 50  '　この行数くらいで改行   80行にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
+    Const MARGIN_PAGEBREAK As Integer = 20  '　次の改ページまで20行以上ある場合、改ページセット
+    Const WNAME As String = "まとめ "        'なんだよこれ、まとめの後ろに半角スペースが入ってるよ
+    
+    
+    Dim RPL() As Variant ' RequiredPagebreakList  必須の改ページのリスト
+    ReDim RPL(3, 1) ' 配列サイズ設定
+    RPL(0, 0) = "(a)運転時間　期間毎"
+    RPL(0, 1) = getLineNum(RPL(0, 0), TARGET_COL, Worksheets(WNAME))
+    
+    RPL(1, 0) = "(b)運転時間　シフト毎"
+    RPL(1, 1) = getLineNum(RPL(1, 0), TARGET_COL, Worksheets(WNAME))
+    
+    RPL(2, 0) = "(c)運転条件"
+    RPL(2, 1) = getLineNum(RPL(2, 0), TARGET_COL, Worksheets(WNAME))
+    
+    Debug.Print "Worksheets(WNAME).Name: " & Worksheets(WNAME).Name
+    Debug.Print "Last: " & Cells(Rows.Count, TARGET_COL).End(xlUp).Row
+    
+    
+    If flgExsistSheet(WNAME) = False Then
+        MsgBox "ワークシートが存在しません"
+        End
+    End If
+    
+    Worksheets(WNAME).ResetAllPageBreaks ' 全ての改ページをクリア
+    
+    For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
+        Debug.Print "RPL(i, 0) : " & RPL(i, 0) & "  " & RPL(i, 1)
+        Worksheets(WNAME).Rows(RPL(i, 1)).PageBreak = xlPageBreakManual ' 必須の改ページをセット
+        Call SetPagebreak(RPL(i, 1), RPL(i + 1, 1) - 1, TARGET_COL, LINE_CNT_PAGEBREAK, Worksheets(WNAME))
     Next
-    Debug.Print "PagebreakList:   " & PagebreakList(p - 1, 0) & "    " & PagebreakList(p - 1, 1)
-Next p
-
-
-
-'一旦改ページを削除
-Worksheets(WNAME).ResetAllPageBreaks
-
-
-
-For i = LBound(PagebreakList, 1) To UBound(PagebreakList, 1) - 1
-    'Debug.Print ">PagebreakList(" & i; "," & j & "):   " & PagebreakList(i, 0) & "  " & PagebreakList(i, 1)
-
-    If (PagebreakList(i + 1, 0) - PagebreakList(i, 0)) > MARGIN_PAGEBREAK Then   '次の改ページまで MARGIN_PAGEBREAK 行以上ある場合、改ページセット
-        Worksheets(WNAME).Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
-        Debug.Print "Set PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next: " & PagebreakList(i + 1, 0)
-    Else
-        'Debug.Print "Not Set PagebreakList(" & i & "," & "):   " & PagebreakList(i, 0) & "  " & PagebreakList(i + 1, 0)
-    End If
     
-
-    If (PagebreakList(i, 1)) = 1 Then  '必須の改ページの場合、改ページセット
-        Worksheets(WNAME).Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
-        Debug.Print "Set Required PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next: " & PagebreakList(i + 1, 0)
-    End If
     
-Next
-
-
-
-
-Worksheets(WNAME).DisplayPageBreaks = True
-'Worksheets(WNAME).PrintPreview
-Debug.Print "================================================================================================================="
-
-
+    For p = 1 To Worksheets(WNAME).HPageBreaks.Count
+        Debug.Print "Page = " & p & "   Worksheets(WNAME).HPageBreaks(p).Location.Row = " & Worksheets(WNAME).HPageBreaks(p).Location.Row
+    Next p
+    
+    
+      
+    
+    
+      
+    Debug.Print "============================================================================================================"
+    Debug.Print "改ページの行数と必須かどうかを2次元配列PagebreakListに格納して、それを基に改めて改ページをセットし直す======"
+    Debug.Print "============================================================================================================"
+    
+    Dim PagebreakList() As Integer
+    ReDim PagebreakList(Worksheets(WNAME).HPageBreaks.Count, 1) '配列サイズ設定
+    
+    Debug.Print "~~~~~~~~~~~~~~~~~~~~~    トータルの改ページ数：" & Worksheets(WNAME).HPageBreaks.Count
+    Debug.Print "~~~~~~~~~~~~~~~~~~~~~    必須の改ページ数： " & UBound(RPL, 1)
+    
+    For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
+        Debug.Print "RPL(i, 0) : " & RPL(i, 0) & "  " & RPL(i, 1)
+    Next
+    
+    For p = 1 To Worksheets(WNAME).HPageBreaks.Count  ''''''''''''''''''''''ここここここ
+        'Debug.Print "Page = " & p & "   Worksheets(WNAME).HPageBreaks(p).Location.Row = " & Worksheets(WNAME).HPageBreaks(p).Location.Row
+        
+        If Worksheets(WNAME).HPageBreaks(p).Location.Row > MARGIN_PAGEBREAK Then  'さらにセットする改ページが MARGIN_PAGEBREAK 行より下の場合、改ページセット
+                
+            PagebreakList(p - 1, 0) = Worksheets(WNAME).HPageBreaks(p).Location.Row
+            PagebreakList(p - 1, 1) = 0  'とりあえず、必須でない改ページ:0を入れとく
+            
+            For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
+                If Worksheets(WNAME).HPageBreaks(p).Location.Row = RPL(i, 1) Then
+                    'Debug.Print "必須RPL(i, 0) = " & RPL(i, 0) & "  RPL(i, 1)=" & RPL(i, 1) & " Worksheets(WNAME).HPageBreaks(p).Location.Row= " & Worksheets(WNAME).HPageBreaks(p).Location.Row
+                    PagebreakList(p - 1, 1) = 1 '必須の改ページのところにフラグ:1を立てる
+                End If
+            Next
+        
+            Debug.Print "PagebreakList:   " & PagebreakList(p - 1, 0) & "    " & PagebreakList(p - 1, 1)
+        End If
+            
+    Next p
+    
+    
+    
+    '一旦改ページを削除
+    Worksheets(WNAME).ResetAllPageBreaks
+    
+    
+    
+    For i = 1 To UBound(PagebreakList, 1) - 1
+        Debug.Print ">PagebreakList(" & i; ",):   " & PagebreakList(i, 0) & "  " & PagebreakList(i, 1)
+    
+        If (PagebreakList(i + 1, 0) - PagebreakList(i, 0)) > MARGIN_PAGEBREAK Then   '次の改ページまで MARGIN_PAGEBREAK 行以上ある場合、改ページセット
+        
+'            If PagebreakList(i, 0) > MARGIN_PAGEBREAK Then  'さらにセットする改ページが MARGIN_PAGEBREAK 行より下の場合、改ページセット
+                Worksheets(WNAME).Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
+                Debug.Print "Set PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next: " & PagebreakList(i + 1, 0)
+'            End If
+            
+        Else
+            'Debug.Print "Not Set PagebreakList(" & i & "," & "):   " & PagebreakList(i, 0) & "  " & PagebreakList(i + 1, 0)
+        End If
+        
+    
+        If (PagebreakList(i, 1)) = 1 Then  '必須の改ページの場合、改ページセット
+            Worksheets(WNAME).Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
+            Debug.Print "Set Required PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next: " & PagebreakList(i + 1, 0)
+        End If
+        
+    Next
+    
+    
+    
+    
+    Worksheets(WNAME).DisplayPageBreaks = True
+    'Worksheets(WNAME).PrintPreview
+    Debug.Print "================================================================================================================="
+    
+    
 
 End Sub
 
