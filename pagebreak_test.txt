@@ -60,22 +60,24 @@ Sub pagebreak_test()
         Debug.Print "RPL(i, 0) : " & RPL(i, 0) & "  " & RPL(i, 1)
     Next
     
+    Dim totalP As Integer
+    totalP = 0
     For p = 1 To Worksheets(WNAME).HPageBreaks.Count  ''''''''''''''''''''''ここここここ
         'Debug.Print "Page = " & p & "   Worksheets(WNAME).HPageBreaks(p).Location.Row = " & Worksheets(WNAME).HPageBreaks(p).Location.Row
         
         If Worksheets(WNAME).HPageBreaks(p).Location.Row > MARGIN_PAGEBREAK Then  'さらにセットする改ページが MARGIN_PAGEBREAK 行より下の場合、改ページセット
-                
-            PagebreakList(p - 1, 0) = Worksheets(WNAME).HPageBreaks(p).Location.Row
-            PagebreakList(p - 1, 1) = 0  'とりあえず、必須でない改ページ:0を入れとく
+            PagebreakList(totalP, 0) = Worksheets(WNAME).HPageBreaks(p).Location.Row
+            PagebreakList(totalP, 1) = 0  'とりあえず、必須でない改ページ:0を入れとく
             
             For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
                 If Worksheets(WNAME).HPageBreaks(p).Location.Row = RPL(i, 1) Then
                     'Debug.Print "必須RPL(i, 0) = " & RPL(i, 0) & "  RPL(i, 1)=" & RPL(i, 1) & " Worksheets(WNAME).HPageBreaks(p).Location.Row= " & Worksheets(WNAME).HPageBreaks(p).Location.Row
-                    PagebreakList(p - 1, 1) = 1 '必須の改ページのところにフラグ:1を立てる
+                    PagebreakList(totalP, 1) = 1 '必須の改ページのところにフラグ:1を立てる
                 End If
             Next
         
-            Debug.Print "PagebreakList:   " & PagebreakList(p - 1, 0) & "    " & PagebreakList(p - 1, 1)
+            Debug.Print "* PagebreakList" & totalP & ": " & PagebreakList(totalP, 0) & "    " & PagebreakList(totalP, 1)
+            totalP = totalP + 1
         End If
             
     Next p
