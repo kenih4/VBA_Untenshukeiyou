@@ -1,6 +1,6 @@
 
 
-Sub pagebreak_test()
+Sub Auto_pagebreak()
     
     Dim RPL() As Variant ' RequiredPagebreakList  必須の改ページのリスト
     
@@ -38,6 +38,10 @@ Sub pagebreak_test()
     Worksheets(WNAME).Activate
     Debug.Print "Worksheets(WNAME).Name: " & Worksheets(WNAME).Name
     Debug.Print "Last: " & Cells(Rows.Count, TARGET_COL).End(xlUp).Row
+    For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
+        Debug.Print "RPL(i, 0) : " & RPL(i, 0) & "  " & RPL(i, 1)
+    Next
+    
     Debug.Print "============================================================================================================"
 
     
@@ -52,7 +56,7 @@ Sub pagebreak_test()
     For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
         Debug.Print "RPL(" & i & ", *) : 「" & RPL(i, 0) & "」   は      " & RPL(i, 1) & " 行目にあります"
         Worksheets(WNAME).Rows(RPL(i, 1)).PageBreak = xlPageBreakManual ' 必須の改ページをセット
-        If i = (UBound(RPL, 1) - 1) Then
+        If i = (UBound(RPL, 1) - 1) Then ' RPL配列の最後の場合
             Call SetPagebreak(RPL(i, 1), Cells(Rows.Count, TARGET_COL).End(xlUp).Row, TARGET_COL, LINE_CNT_PAGEBREAK, Worksheets(WNAME))
         Else
             Call SetPagebreak(RPL(i, 1), RPL(i + 1, 1) - 1, TARGET_COL, LINE_CNT_PAGEBREAK, Worksheets(WNAME))
@@ -66,24 +70,22 @@ Sub pagebreak_test()
         Debug.Print "Page = " & p & "   Worksheets(WNAME).HPageBreaks(p).Location.Row = " & Worksheets(WNAME).HPageBreaks(p).Location.Row
     Next p
     
+    Debug.Print "~~~~~~~~~~~~~~~~~~~~~    とりあえずのトータルの改ページ数：" & Worksheets(WNAME).HPageBreaks.Count
+    Debug.Print "~~~~~~~~~~~~~~~~~~~~~    必須の改ページ数： " & UBound(RPL, 1)
     
       
     
     
       
     Debug.Print "============================================================================================================"
-    Debug.Print "改ページの行数と必須かどうかを2次元配列PagebreakListに格納して、それを基に改めて改ページをセットし直す======"
+    Debug.Print "===改ページの行数と必須かどうかを2次元配列PagebreakListに格納して、それを基に改めて改ページをセットし直す==="
     Debug.Print "============================================================================================================"
     
     Dim PagebreakList() As Integer
     ReDim PagebreakList(Worksheets(WNAME).HPageBreaks.Count, 1) '配列サイズ設定
     
-    Debug.Print "~~~~~~~~~~~~~~~~~~~~~    トータルの改ページ数：" & Worksheets(WNAME).HPageBreaks.Count
-    Debug.Print "~~~~~~~~~~~~~~~~~~~~~    必須の改ページ数： " & UBound(RPL, 1)
     
-    For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
-        Debug.Print "RPL(i, 0) : " & RPL(i, 0) & "  " & RPL(i, 1)
-    Next
+
     
     '改ページの行数と必須かどうかを2次元配列PagebreakListに格納
     Dim totalP As Integer
@@ -102,7 +104,7 @@ Sub pagebreak_test()
                 End If
             Next
         
-            Debug.Print "* PagebreakList" & totalP & ": " & PagebreakList(totalP, 0) & "    " & PagebreakList(totalP, 1)
+            Debug.Print "* PagebreakList " & totalP & ":    " & PagebreakList(totalP, 0) & "   行目      必須フラグ: " & PagebreakList(totalP, 1)
             totalP = totalP + 1
         End If
             
@@ -173,8 +175,7 @@ End Function
 
 '改行は***行ごとくらいでいれる==============================================================================================================================
 Function SetPagebreak(ByVal startLine As Integer, ByVal endLine As Integer, ByVal TARGET_COL As Integer, ByVal LINE_CNT_PAGEBREAK As Integer, ByVal sheetname As Worksheet)
-    Debug.Print "SetPagebreak~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~startLine = "; startLine & "       endLine: " & endLine
-    
+    'Debug.Print "SetPagebreak~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~startLine = "; startLine & "       endLine: " & endLine
     If (endLine - startLine) <= 0 Then
         MsgBox "引数異常"
         End
@@ -186,8 +187,8 @@ Function SetPagebreak(ByVal startLine As Integer, ByVal endLine As Integer, ByVa
     For i = startLine To endLine
         'Debug.Print "行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value
         
-        line_cnt = line_cnt + 1
         If line_cnt > LINE_CNT_PAGEBREAK Then
+        
             If IsEmpty(Cells(i, TARGET_COL).Value) And Cells(i, TARGET_COL).MergeCells Then
                 'Debug.Print "セルが空っぽで、結合されている、、"
             Else
@@ -203,10 +204,9 @@ Function SetPagebreak(ByVal startLine As Integer, ByVal endLine As Integer, ByVa
             
             End If
 
-
         End If
         
-        
+        line_cnt = line_cnt + 1
     Next
 
 End Function
