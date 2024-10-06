@@ -2,57 +2,49 @@
 
 Sub pagebreak_test()
 
-   
-
+Const SIZE_PAGEBREAK As Integer = 100  '　トータルの改ページ数　適宜要変更　とりあえず、多めに100個
+Const TARGET_COL As Integer = 2  ' 対象列
+Const LINE_CNT_PAGEBREAK As Integer = 50  '　この行数くらいで改行   80行にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
 Const MARGIN_PAGEBREAK As Integer = 20  '　次の改ページまで20行以上ある場合、改ページセット
-Const WNAME As String = "まとめ "
-
-  
-Debug.Print "Worksheets(WNAME).Name: " & Worksheets(WNAME).Name
-Debug.Print "Last: " & Range("B" & Worksheets(WNAME).Rows.Count).End(xlUp).Row
+Const WNAME As String = "まとめ "        'なんだよこれ、まとめの後ろに半角スペースが入ってるよ
+Dim Required_pagebreakList As New Collection     '必須の改ページの行を格納
+Dim aLine As Integer, bLine As Integer, cLine As Integer
 
 For i = 1 To Worksheets.Count
     Debug.Print "WorkSheet.Name: " & Worksheets(i).Name
 Next i
 
-
-If flgExsistSheet("まとめ ") = True Then      'なんだよこれ、まとめの後ろに半角スペースが入ってるよ
-    Debug.Print "存在します"
-Else
-    Debug.Print "存在しません"
+If flgExsistSheet(WNAME) = False Then
+    MsgBox "ワークシートが存在しません"
+    End
 End If
+
+Debug.Print "Worksheets(WNAME).Name: " & Worksheets(WNAME).Name
+Debug.Print "Last: " & Cells(Rows.Count, TARGET_COL).End(xlUp).Row
+
+
+
+
+aLine = getLineNum("(a)運転時間　期間毎", TARGET_COL, Worksheets(WNAME))
+bLine = getLineNum("(b)運転時間　シフト毎", TARGET_COL, Worksheets(WNAME))
+cLine = getLineNum("(c)運転条件", TARGET_COL, Worksheets(WNAME))
 
 
 Worksheets(WNAME).ResetAllPageBreaks
 
-
-
-Dim Required_pagebreakList As New Collection     '必須の改ページの行を格納
-
-Dim aLine As Integer, bLine As Integer, cLine As Integer
-aLine = getLineNum("(a)運転時間　期間毎", Worksheets(WNAME))
-bLine = getLineNum("(b)運転時間　シフト毎", Worksheets(WNAME))
-cLine = getLineNum("(c)運転条件", Worksheets(WNAME))
-
-
-
-
-
-
-
 Debug.Print "***「(a)運転時間　期間毎」ゾーン"
-Call SetPagebreak(aLine, bLine - 1, Worksheets(WNAME))
+Call SetPagebreak(aLine, bLine - 1, TARGET_COL, LINE_CNT_PAGEBREAK, Worksheets(WNAME))
 
 
 Debug.Print "***「(b)運転時間　シフト毎」ゾーン"
 Worksheets(WNAME).Rows(bLine).PageBreak = xlPageBreakManual
 Required_pagebreakList.Add bLine
-Call SetPagebreak(bLine, cLine - 1, Worksheets(WNAME))
+Call SetPagebreak(bLine, cLine - 1, TARGET_COL, LINE_CNT_PAGEBREAK, Worksheets(WNAME))
 
 Debug.Print "*** 「(c)運転条件」ゾーン"
 Worksheets(WNAME).Rows(cLine).PageBreak = xlPageBreakManual
 Required_pagebreakList.Add cLine
-Call SetPagebreak(cLine, Range("B" & Worksheets(WNAME).Rows.Count).End(xlUp).Row - 1, Worksheets(WNAME))
+Call SetPagebreak(cLine, Range("B" & Worksheets(WNAME).Rows.Count).End(xlUp).Row - 1, TARGET_COL, LINE_CNT_PAGEBREAK, Worksheets(WNAME))
 
 
 
@@ -70,7 +62,12 @@ Debug.Print "===================================================================
 Debug.Print "改ページの行数と必須かどうかを2次元配列PagebreakListに格納して、それを基に改めて改ページをセットし直す======"
 Debug.Print "============================================================================================================"
 
-Dim PagebreakList(10, 1) As Integer
+
+If Worksheets(WNAME).HPageBreaks.Count > SIZE_PAGEBREAK Then
+    MsgBox "改ページが多くて、配列のサイズを越える可能性があります。サイズを大きくして下さい"
+End If
+
+Dim PagebreakList(SIZE_PAGEBREAK, 1) As Integer
 
 Debug.Print "~~~~~~~~~~~~~~~~~~~~~    Worksheets(WNAME).HPageBreaks.Count " & Worksheets(WNAME).HPageBreaks.Count
 Debug.Print "~~~~~~~~~~~~~~~~~~~~~    Required_pagebreakList.Count " & Required_pagebreakList.Count
@@ -102,9 +99,9 @@ Worksheets(WNAME).ResetAllPageBreaks
 For i = LBound(PagebreakList, 1) To UBound(PagebreakList, 1) - 1
     'Debug.Print ">PagebreakList(" & i; "," & j & "):   " & PagebreakList(i, 0) & "  " & PagebreakList(i, 1)
 
-    If (PagebreakList(i + 1, 0) - PagebreakList(i, 0)) > MARGIN_PAGEBREAK Then   '次の改ページまで20行以上ある場合、改ページセット
+    If (PagebreakList(i + 1, 0) - PagebreakList(i, 0)) > MARGIN_PAGEBREAK Then   '次の改ページまで MARGIN_PAGEBREAK 行以上ある場合、改ページセット
         Worksheets(WNAME).Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
-        Debug.Print "Set PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next:" & PagebreakList(i + 1, 0)
+        Debug.Print "Set PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next: " & PagebreakList(i + 1, 0)
     Else
         'Debug.Print "Not Set PagebreakList(" & i & "," & "):   " & PagebreakList(i, 0) & "  " & PagebreakList(i + 1, 0)
     End If
@@ -112,7 +109,7 @@ For i = LBound(PagebreakList, 1) To UBound(PagebreakList, 1) - 1
 
     If (PagebreakList(i, 1)) = 1 Then  '必須の改ページの場合、改ページセット
         Worksheets(WNAME).Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
-        Debug.Print "Set Required PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  " & PagebreakList(i + 1, 0)
+        Debug.Print "Set Required PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next: " & PagebreakList(i + 1, 0)
     End If
     
 Next
@@ -123,8 +120,7 @@ Next
 Worksheets(WNAME).DisplayPageBreaks = True
 'Worksheets(WNAME).PrintPreview
 Debug.Print "================================================================================================================="
-  
-'MsgBox "メッセージボックス" & i
+
 
 
 End Sub
@@ -141,12 +137,11 @@ End Sub
 
 
 '指定さてた文字列が存在する行を取得==============================================================================================================================
-Function getLineNum(ByVal str As String, ByVal sheetname As Worksheet) As Integer
-'    Debug.Print "str = "; str
+Function getLineNum(ByVal str As String, ByVal TARGET_COL As Integer, ByVal sheetname As Worksheet) As Integer
     
-    For i = 1 To Range("B" & sheetname.Rows.Count).End(xlUp).Row
+    For i = 1 To Cells(Rows.Count, TARGET_COL).End(xlUp).Row
 '        Debug.Print "i = " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value
-        If Cells(i, 2).Value = str Then '
+        If Cells(i, TARGET_COL).Value = str Then '
             getLineNum = i
             Exit For
         End If
@@ -160,10 +155,9 @@ End Function
 
 
 '改行は***行ごとくらいでいれる==============================================================================================================================
-Function SetPagebreak(ByVal startLine As Integer, ByVal endLine As Integer, ByVal sheetname As Worksheet)
+Function SetPagebreak(ByVal startLine As Integer, ByVal endLine As Integer, ByVal TARGET_COL As Integer, ByVal LINE_CNT_PAGEBREAK As Integer, ByVal sheetname As Worksheet)
     Debug.Print "startLine = "; startLine
     
-    Const LINE_CNT_PAGEBREAK As Integer = 50  '　この行数くらいで改行   80行にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
     Dim line_cnt As Integer
     line_cnt = 0
 
@@ -199,12 +193,12 @@ Function SetPagebreak(ByVal startLine As Integer, ByVal endLine As Integer, ByVa
             
             
             
-            If IsEmpty(Cells(i, 2).Value) And Cells(i, 2).MergeCells Then
+            If IsEmpty(Cells(i, TARGET_COL).Value) And Cells(i, TARGET_COL).MergeCells Then
                 Debug.Print "セルが空っぽで、結合されている、、"
             Else
             
-                If Cells(i, 2).MergeCells Then  '  B列が結合されている
-                    Debug.Print "値が入って、結合されている     結合行の下に貝：" & Cells(i, 2).MergeArea.Rows.Count
+                If Cells(i, TARGET_COL).MergeCells Then  '  B列が結合されている
+                    Debug.Print "値が入って、結合されている     結合行の下に貝：" & Cells(i, TARGET_COL).MergeArea.Rows.Count
                     sheetname.Rows(i + Cells(i, 2).MergeArea.Rows.Count).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
                 Else
                     Debug.Print "値が入ってなくて、結合されてない　貝: i = " & i
