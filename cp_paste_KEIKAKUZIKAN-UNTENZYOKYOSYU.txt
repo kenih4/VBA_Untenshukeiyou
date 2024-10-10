@@ -1,13 +1,13 @@
 Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
 
-
     Dim BNAME As String
     Dim SNAME As String
     Dim targetline As Integer
     
-    'MsgBox "現在アクティブなブック名：" & ActiveWorkbook.Name
-    BNAME = "計画時間.xlsm"
-    
+    If ActiveWorkbook.Name <> "計画時間.xlsx" Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & ActiveWorkbook.Name
+        End
+    End If
     
     
     Const BL As String = "BL3"  ' 対象BL
@@ -25,9 +25,9 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             Debug.Print ">>>BL3"
             
             '「シート GUN HV OFF」をコピーして貼り付け
+            BNAME = "計画時間.xlsx"
             SNAME = "GUN HV OFF"
             Workbooks(BNAME).Worksheets(SNAME).Activate
-            
             
             Debug.Print "Worksheets(SNAME).Name: " & Worksheets(SNAME).Name
 
@@ -52,7 +52,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             
             
             '「シート bl3」をコピーして貼り付け
-            BNAME = "計画時間.xlsm"
+            BNAME = "計画時間.xlsx"
             SNAME = "bl3"
             Workbooks(BNAME).Worksheets("bl3").Activate
             Range("A2:C" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Select
@@ -60,20 +60,19 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             If MsgBox("選択部分をコピーしました。" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
 
             SNAME = "運転予定時間"
-'            Set wb1 = Workbooks.Open(BNAME, ReadOnly:=False)
             wb1.Worksheets(SNAME).Activate
-            wb1.Worksheets(SNAME).Cells(3, 2).End(xlDown).Activate       ' セルB2[運転種別]から最終行へ
-            Debug.Print "wb1 Last: " & wb1.Worksheets(SNAME).Cells(3, 2).End(xlDown).Row
-            targetline = wb1.Worksheets(SNAME).Cells(3, 2).End(xlDown).Row + 1
+            wb1.Worksheets(SNAME).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ
+            Debug.Print "wb1 Last: " & wb1.Worksheets(SNAME).Range("B3").End(xlDown).Row
+            targetline = wb1.Worksheets(SNAME).Range("B3").End(xlDown).Row + 1
             wb1.Worksheets(SNAME).Cells(targetline, 2).Activate
             If MsgBox("ここに値を貼り付けますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
-                wb1.Worksheets(SNAME).Cells(wb1.Worksheets(SNAME).Cells(3, 2).End(xlDown).Row + 1, 2).PasteSpecial Paste:=xlPasteValues
+                wb1.Worksheets(SNAME).Cells(targetline, 2).PasteSpecial Paste:=xlPasteValues
             End If
             If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
 
             
-            
-            BNAME = "計画時間.xlsm"
+            '「シート bl3の備考列」をコピーして貼り付け
+            BNAME = "計画時間.xlsx"
             SNAME = "bl3"
             Workbooks(BNAME).Worksheets("bl3").Activate
             Range("D2:D" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Select
@@ -81,14 +80,45 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             If MsgBox("選択部分をコピーしました。" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
             SNAME = "運転予定時間"
             wb1.Worksheets(SNAME).Activate
-            wb1.Worksheets(SNAME).Cells(3, 2).End(xlDown).Activate       ' セルB2[運転種別]から最終行へ
+            wb1.Worksheets(SNAME).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ
             wb1.Worksheets(SNAME).Cells(targetline, 7).Activate
             If MsgBox("ここに値を貼り付けますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
                 wb1.Worksheets(SNAME).Cells(targetline, 7).PasteSpecial Paste:=xlPasteValues
             End If
+                       
             
             
-                        
+            
+            Dim before_unit As String
+            Dim latest_unit As Integer
+            Dim newunit As String
+            wb1.Worksheets(SNAME).Cells(targetline - 1, 1).Select
+            before_unit = wb1.Worksheets(SNAME).Cells(targetline - 1, 1)
+            Debug.Print "before_unit: " & before_unit
+            arr = Split(before_unit, "-")
+            If Not IsNumeric(arr(1)) Then
+                MsgBox "新しいユニット名を見繕うとしましたがユニット名がヘンです。 " & before_unit & vbCrLf & "終了します。", Buttons:=vbInformation
+                End
+            End If
+            latest_unit = Val(arr(1))
+            latest_unit = latest_unit + 1
+            newunit = arr(0) + "-" + Str(latest_unit)
+            Debug.Print "newunit: " & newunit
+            SNAME = "運転予定時間"
+            wb1.Worksheets(SNAME).Activate
+            wb1.Worksheets(SNAME).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ
+            Debug.Print "wb1 Last: " & wb1.Worksheets(SNAME).Range("B3").End(xlDown).Row
+            targetline = wb1.Worksheets(SNAME).Range("B3").End(xlDown).Row
+            wb1.Worksheets(SNAME).Cells(targetline, 1).Activate
+            If MsgBox("ここに新しいユニット " & newunit & "を入れていいですか？？", vbYesNo + vbQuestion, "newunit") = vbYes Then
+                wb1.Worksheets(SNAME).Cells(targetline, 1) = newunit
+            End If
+            
+            
+            End
+            
+            
+            
                         
         Case Else
             Debug.Print "Zzz..."
