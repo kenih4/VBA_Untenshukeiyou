@@ -1,5 +1,13 @@
 Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
 
+
+'    End
+    
+    
+    
+    
+    
+    
     Dim BL As Integer  ' 対象BL
     'BL = 3
     BL = InputBox("BLを入力してください")
@@ -37,13 +45,38 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
     
             wb1.Worksheets("集計記録").Range("C8").End(xlDown).Activate       ' セルC8「開始時間」から最終行へ
             targetline = wb1.Worksheets("集計記録").Range("C8").End(xlDown).Row + 1
-            wb1.Worksheets("集計記録").Cells(targetline, 3).Activate
-            If MsgBox("ここに値「fault.txt」を貼り付けていいですか？", vbYesNo + vbQuestion, "確認") = vbYes Then
-                wb1.Worksheets("集計記録").Cells(targetline, 3).PasteSpecial Paste:=xlPasteValues
-                If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
-            End If
+            wb1.Worksheets("集計記録").Cells(targetline, 1).Activate
+            MsgBox "ここに　Ctrl+Cして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。", Buttons:=vbInformation
 
 
+'なぜか貼り付け不能。
+'            If MsgBox("ここに値「fault.txt」を貼り付けていいですか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+'                Dim CB As Variant, i As Long
+'                CB = Application.ClipboardFormats
+'                If CB(1) = True Then
+'                    MsgBox "クリップボードは空です。python getBlFaultSummary_LOCALTEST.pyを走らせたら何かしらクリップボードに入るはずなのでなにかおかしいです。"
+'                Else
+'                    With New DataObject
+'                        .GetFromClipboard
+'                        tempText = .GetText
+'                    End With
+'                    MsgBox tempText
+'                    wb1.Worksheets("集計記録").Cells(targetline, 1).Paste
+'上の行では、貼り付けできないのでダメなので一旦以下のように、クリップボードに再度いれてみたがだめ
+'                    Dim cbData As New DataObject
+'                    Dim cbFormat As Variant
+'                    'DataObjectにメッセージを格納
+'                    cbData.SetText tempText
+'                    'DataObjectのデータをクリップボードに格納
+'                    cbData.PutInClipboard
+'                    wb1.Worksheets("集計記録").Cells(targetline, 1).Paste
+'DAME                    wb1.Worksheets("集計記録").Cells(targetline, 1).PasteSpecial Paste:=xlPasteValues
+'                End If
+'            End If
+    
+    
+    
+    
     
     
     Debug.Print "============================================================================================================"
@@ -52,3 +85,15 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
 
 
 End Sub
+
+
+
+
+
+
+
+
+
+
+'================================================================================================
+
