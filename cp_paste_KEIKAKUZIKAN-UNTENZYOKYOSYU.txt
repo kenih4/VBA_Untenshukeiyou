@@ -17,12 +17,10 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     
     BNAME_KEIKAKU = "計画時間.xlsx"
     Workbooks(BNAME_KEIKAKU).Activate
-'    MsgBox "ActiveWorkbook.Name:  " & ActiveWorkbook.Name, Buttons:=vbInformation
-    If ActiveWorkbook.Name <> BNAME_KEIKAKU Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & ActiveWorkbook.Name
+    If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
         End
     End If
-    
     
     Debug.Print "============================================================================================================"
 
@@ -70,8 +68,8 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             wb1.Worksheets("GUN HV OFF時間記録").Cells(targetline, 3).Activate
             If MsgBox("ここに値「GUN HV OFF時間」を貼り付けていいですか？", vbYesNo + vbQuestion, "GUN HV OFF") = vbYes Then
                 wb1.Worksheets("GUN HV OFF時間記録").Cells(wb1.Worksheets("GUN HV OFF時間記録").Cells(Rows.Count, 3).End(xlUp).Row + 1, 3).PasteSpecial Paste:=xlPasteValues
+                If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
             End If
-            If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
             
             '「シート bl*」をコピーして貼り付け
             SNAME = "運転予定時間"
@@ -87,7 +85,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             If MsgBox("ここに値を貼り付けていいですか？", vbYesNo + vbQuestion, "確認") = vbYes Then
                 wb1.Worksheets(SNAME).Cells(targetline, 2).PasteSpecial Paste:=xlPasteValues
             End If
-            If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
+
 
             '「シート bl*の備考列」をコピーして貼り付け
             Workbooks(BNAME_KEIKAKU).Worksheets(SNAME_KEIKAKU_BL).Activate
@@ -99,6 +97,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             wb1.Worksheets(SNAME).Cells(targetline, 7).Activate
             If MsgBox("ここに値を貼り付けていいですか？", vbYesNo + vbQuestion, "確認") = vbYes Then
                 wb1.Worksheets(SNAME).Cells(targetline, 7).PasteSpecial Paste:=xlPasteValues
+                If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
             End If
             
             Dim before_unit As String
@@ -114,7 +113,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             End If
             latest_unit = Val(arr(1))
             latest_unit = latest_unit + 1
-            newunit = arr(0) + "-" + Str(latest_unit)
+            newunit = arr(0) + "-" + str(latest_unit)
             Debug.Print "newunit: " & newunit
             wb1.Worksheets(SNAME).Activate
             wb1.Worksheets(SNAME).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ

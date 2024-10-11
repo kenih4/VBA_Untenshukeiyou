@@ -1,0 +1,54 @@
+Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
+
+    Dim BL As Integer  ' 対象BL
+    'BL = 3
+    BL = InputBox("BLを入力してください")
+    
+    Select Case BL
+        Case 1
+            Debug.Print "SCSS+"
+        Case 2
+            Debug.Print "BL2"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2.xlsm"
+            SNAME_KEIKAKU_BL = "bl2"
+        Case 3
+            Debug.Print ">>>BL3"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL3.xlsm"
+            SNAME_KEIKAKU_BL = "bl3"
+        Case Else
+            Debug.Print "Zzz..."
+            End
+    End Select
+    
+    
+    
+
+    
+    
+            Set wb1 = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+            wb1.Worksheets("集計記録").Activate
+            
+            
+            If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
+                MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
+                End
+            End If
+    
+    
+            wb1.Worksheets("集計記録").Range("C8").End(xlDown).Activate       ' セルC8「開始時間」から最終行へ
+            targetline = wb1.Worksheets("集計記録").Range("C8").End(xlDown).Row + 1
+            wb1.Worksheets("集計記録").Cells(targetline, 3).Activate
+            If MsgBox("ここに値「fault.txt」を貼り付けていいですか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+                wb1.Worksheets("集計記録").Cells(targetline, 3).PasteSpecial Paste:=xlPasteValues
+                If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
+            End If
+
+
+    
+    
+    Debug.Print "============================================================================================================"
+
+
+
+
+End Sub
