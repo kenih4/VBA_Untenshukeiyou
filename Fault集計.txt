@@ -2,7 +2,12 @@
 
 SACLA運転状況集計BL3.xlsm付属のマクロ改修
 
+
+
+
 Sub Fault集計()
+
+'-------------------------
 
     Dim 最終行 As Integer
     
@@ -32,12 +37,20 @@ Sub Fault集計()
     
     
     '追加部分
+
+        'MsgBox "Deub" & Worksheets("利用時間（期間）").Range("B2")
+        For i = 8 To 10000
+            If Worksheets("Fault集計(BL3)").Range("B" & i).Value = Worksheets("利用時間（期間）").Range("B2") Then
+                Debug.Print i & "   Hit " & Worksheets("Fault集計(BL3)").Range("B" & i).MergeArea.Rows.Count
+                Worksheets("Fault集計(BL3)").Range("B" & i, "I" & i + Worksheets("Fault集計(BL3)").Range("B" & i).MergeArea.Rows.Count - 1).Select
+                Worksheets("Fault集計(BL3)").Range("B" & i, "I" & i + Worksheets("Fault集計(BL3)").Range("B" & i).MergeArea.Rows.Count - 1).Copy
+                Exit For
+            End If
+        Next
     If MsgBox("SACLA運転状況集計まとめ.xlsmを開きますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
         BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-        Set Wb_matome = Workbooks.Open(BNAME_MATOME, ReadOnly:=True)
+        Set Wb_matome = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
         Wb_matome.Worksheets("Fault集計").Activate
     End If
-    
-
 
 End Sub

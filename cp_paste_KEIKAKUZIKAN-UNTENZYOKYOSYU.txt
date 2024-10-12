@@ -14,10 +14,11 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     'BL = 3
     BL = InputBox("BLを入力してください")
     
-    
-    BNAME_KEIKAKU = "計画時間.xlsx"
-    Workbooks(BNAME_KEIKAKU).Activate
-    If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
+    BNAME_KEIKAKU = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
+    Set Wb_keikaku = Workbooks.Open(BNAME_KEIKAKU, ReadOnly:=True)
+    Wb_keikaku.Worksheets("GUN HV OFF").Activate
+    ActiveWindow.WindowState = xlMaximized
+    If InStr(ActiveWorkbook.Name, BNAME_KEIKAKU) Then
         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
         End
     End If
@@ -42,7 +43,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             RANGE_GUN_HV_OFF = "G3:I"
             COL_GUN_HV_OFF = 7
         Case Else
-            Debug.Print "Zzz..."
+            MsgBox "BLが不正です" & vbCrLf & "！", Buttons:=vbInformation
             End
     End Select
     
@@ -55,8 +56,8 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     
     
             '「シート GUN HV OFF」をコピーして貼り付け
-            Workbooks(BNAME_KEIKAKU).Worksheets("GUN HV OFF").Select '最前面に表示
-            Workbooks(BNAME_KEIKAKU).Worksheets("GUN HV OFF").Activate
+            Wb_keikaku.Worksheets("GUN HV OFF").Select '最前面に表示
+            Wb_keikaku.Worksheets("GUN HV OFF").Activate
             Range(RANGE_GUN_HV_OFF & Cells(Rows.Count, COL_GUN_HV_OFF).End(xlUp).Row).Copy
             Range(RANGE_GUN_HV_OFF & Cells(Rows.Count, COL_GUN_HV_OFF).End(xlUp).Row).Select
             If MsgBox("選択部分をコピーしました。" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
@@ -71,9 +72,15 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
                 If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
             End If
             
+            
+            
+            
+            
+            
+            
             '「シート bl*」をコピーして貼り付け
             SNAME = "運転予定時間"
-            Workbooks(BNAME_KEIKAKU).Worksheets(SNAME_KEIKAKU_BL).Activate
+            Wb_keikaku.Worksheets(SNAME_KEIKAKU_BL).Activate
             Range("A2:C" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Select
             Range("A2:C" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Copy
             If MsgBox("選択部分をコピーしました。" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
@@ -88,7 +95,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
 
 
             '「シート bl*の備考列」をコピーして貼り付け
-            Workbooks(BNAME_KEIKAKU).Worksheets(SNAME_KEIKAKU_BL).Activate
+            Wb_keikaku.Worksheets(SNAME_KEIKAKU_BL).Activate
             Range("D2:D" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Select
             Range("D2:D" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Copy
             If MsgBox("選択部分をコピーしました。" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
@@ -100,9 +107,10 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
                 If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then End
             End If
             
-            Dim before_unit As String
-            Dim latest_unit As Integer
-            Dim newunit As String
+            '「新しいユニット名を計算」
+            'Dim before_unit As String
+            'Dim latest_unit As Integer
+            'Dim newunit As String
             wb1.Worksheets(SNAME).Cells(targetline - 1, 1).Select
             before_unit = wb1.Worksheets(SNAME).Cells(targetline - 1, 1)
             Debug.Print "before_unit: " & before_unit
@@ -113,10 +121,10 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             End If
             latest_unit = Val(arr(1))
             latest_unit = latest_unit + 1
-            newunit = arr(0) + "-" + str(latest_unit)
+            newunit = arr(0) + "-" + CStr(latest_unit)
             Debug.Print "newunit: " & newunit
             wb1.Worksheets(SNAME).Activate
-            wb1.Worksheets(SNAME).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ
+            wb1.Worksheets(SNAME).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ  セルB3からCtrl+下を押したのと同様　ここではいいが数式があるとこのやり方は使えない
             targetline = wb1.Worksheets(SNAME).Range("B3").End(xlDown).Row
             wb1.Worksheets(SNAME).Cells(targetline, 1).Activate
             If MsgBox("ここに新しいユニット " & newunit & "を入れていいですか？？", vbYesNo + vbQuestion, "newunit") = vbYes Then
