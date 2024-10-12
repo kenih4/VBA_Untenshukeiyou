@@ -47,8 +47,12 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
             targetline = wb1.Worksheets("集計記録").Range("C8").End(xlDown).Row + 1
             wb1.Worksheets("集計記録").Cells(targetline, 1).Activate
             MsgBox "ここに　Ctrl+Cして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。", Buttons:=vbInformation
-
-
+            'If MsgBox("ここに値「fault.txt」を貼り付けていいですか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+           ' 危険    'Application.SendKeys "^v" ' Ctrl+Vで貼り付け
+            'End If
+            
+    
+    
 'なぜか貼り付け不能。
 '            If MsgBox("ここに値「fault.txt」を貼り付けていいですか？", vbYesNo + vbQuestion, "確認") = vbYes Then
 '                Dim CB As Variant, i As Long

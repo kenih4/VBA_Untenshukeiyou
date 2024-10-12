@@ -17,7 +17,6 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     BNAME_KEIKAKU = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
     Set Wb_keikaku = Workbooks.Open(BNAME_KEIKAKU, ReadOnly:=True)
     Wb_keikaku.Worksheets("GUN HV OFF").Activate
-    ActiveWindow.WindowState = xlMaximized
     If InStr(ActiveWorkbook.Name, BNAME_KEIKAKU) Then
         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
         End
@@ -75,6 +74,38 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             
             
             
+'いらない
+'            'シート「GUN HV OFF時間記録」で新しいユニット名を計算
+'            Dim before_unit As String
+'            Dim latest_unit As Integer
+'            Dim newunit As String
+'            wb1.Worksheets("GUN HV OFF時間記録").Cells(targetline - 1, 2).Select
+'            before_unit = wb1.Worksheets("GUN HV OFF時間記録").Cells(targetline - 1, 2)
+'            Debug.Print "before_unit: " & before_unit
+'            arr = Split(before_unit, "-")
+'            If Not IsNumeric(arr(1)) Then
+'                MsgBox "新しいユニット名を見繕うとしましたがユニット名がヘンです。 " & before_unit & vbCrLf & "終了します。", Buttons:=vbInformation
+'                End
+'            End If
+'            latest_unit = Val(arr(1))
+'            latest_unit = latest_unit + 1
+'            newunit = arr(0) + "-" + CStr(latest_unit)
+'            Debug.Print "newunit: " & newunit
+'            wb1.Worksheets("GUN HV OFF時間記録").Activate
+'            wb1.Worksheets("GUN HV OFF時間記録").Range("B5").End(xlDown).Activate       ' セルB5[ユニット]から最終行へ
+'            Debug.Print "A: "
+'            End
+'            targetline = wb1.Worksheets("GUN HV OFF時間記録").Range("B5").End(xlDown).Row
+'            Debug.Print "B: " & targetline
+'            wb1.Worksheets("GUN HV OFF時間記録").Cells(targetline, 1).Activate
+'            If MsgBox("ここに新しいユニット " & newunit & "を入れていいですか？？", vbYesNo + vbQuestion, "newunit") = vbYes Then
+'                wb1.Worksheets("GUN HV OFF時間記録").Cells(targetline, 2) = newunit
+'            End If
+            
+            
+            
+            
+            
             
             
             
@@ -108,9 +139,9 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             End If
             
             '「新しいユニット名を計算」
-            'Dim before_unit As String
-            'Dim latest_unit As Integer
-            'Dim newunit As String
+            Dim before_unit As String
+            Dim latest_unit As Integer
+            Dim newunit As String
             wb1.Worksheets(SNAME).Cells(targetline - 1, 1).Select
             before_unit = wb1.Worksheets(SNAME).Cells(targetline - 1, 1)
             Debug.Print "before_unit: " & before_unit
@@ -124,7 +155,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             newunit = arr(0) + "-" + CStr(latest_unit)
             Debug.Print "newunit: " & newunit
             wb1.Worksheets(SNAME).Activate
-            wb1.Worksheets(SNAME).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ  セルB3からCtrl+下を押したのと同様　ここではいいが数式があるとこのやり方は使えない
+            wb1.Worksheets(SNAME).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ
             targetline = wb1.Worksheets(SNAME).Range("B3").End(xlDown).Row
             wb1.Worksheets(SNAME).Cells(targetline, 1).Activate
             If MsgBox("ここに新しいユニット " & newunit & "を入れていいですか？？", vbYesNo + vbQuestion, "newunit") = vbYes Then
@@ -136,5 +167,9 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             MsgBox "終了しました。" & vbCrLf & "次は、getBlFaultSummary.pyに進みましょう！", Buttons:=vbInformation
     
     
+            If MsgBox("次の準備の為に、 シート「利用時間（期間）」" & newunit & "を入れていいですか？？", vbYesNo + vbQuestion, "newunit") = vbYes Then
+                wb1.Worksheets("利用時間（期間）").Range("B2") = newunit
+            End If
+            
     
 End Sub
