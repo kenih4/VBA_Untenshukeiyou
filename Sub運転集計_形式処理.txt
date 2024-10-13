@@ -1,4 +1,33 @@
 Sub 運転集計_形式処理()
+    
+
+'/追加部分----------------------------
+    Dim BL As Integer
+    BL = 3
+'    BL = InputBox("BLを入力してください")
+    Select Case BL
+        Case 1
+            Debug.Print "SCSS+"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SCSS\SCSS運転状況集計BL1.xlsm"
+        Case 2
+            Debug.Print "BL2"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2.xlsm"
+        Case 3
+            Debug.Print ">>>BL3"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL3.xlsm"
+        Case Else
+            Debug.Print "Zzz..."
+            End
+    End Select
+    Set wb_SHUKEI = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+    wb_SHUKEI.Worksheets("運転状況(対象ユニット)").Activate
+    If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
+        End
+    End If
+'追加部分----------------------------/
+
+
     Dim 最終行 As Integer
     Dim シート名 As String
 
@@ -14,7 +43,7 @@ Sub 運転集計_形式処理()
     End If
     Application.DisplayAlerts = True   '--- 確認メッセージを表示
 
-    Sheets("運転状況(対象ユニット)").Copy After:=ActiveSheet 'シートのコピー'
+    Sheets("運転状況(対象ユニット)").Copy after:=ActiveSheet 'シートのコピー'
     ActiveSheet.Name = シート名 'シート名変更'
     Range("A1:P" & 最終行).Value = Range("A1:P" & 最終行).Value '数式⇒値へ変換'
 
@@ -34,7 +63,20 @@ Sub 運転集計_形式処理()
     Columns("O:P").Delete
 
     Call 高速化処理終了
-    
-    
 
+
+
+    '/追加部分----------------------------
+    If MsgBox("今表示さているシートが作成されたものです。" & vbCrLf & "これを「SACLA運転状況集計まとめ.xlsm」にコピーしますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+        BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+        Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+        wb_SHUKEI.Worksheets(シート名).Copy after:=wb_MATOME.Worksheets("まとめ ")
+        wb_MATOME.Worksheets(シート名).Activate
+        MsgBox "コピーまで完了しまた。" & vbCrLf & "BL2/BL3両方終わったらマージしましょう！", Buttons:=vbInformation
+    End If
+    
+    End
+    '追加部分----------------------------/
+    
+    
 End Sub
