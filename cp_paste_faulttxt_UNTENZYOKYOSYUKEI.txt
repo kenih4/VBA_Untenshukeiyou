@@ -60,7 +60,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
                     .GetFromClipboard
                     tempText = .GetText
                 End With
-                MsgBox "ここに　Ctrl+Cして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。" & vbCrLf & "クリップボードの中身は以下です。「" & vbCrLf & tempText & "」", Buttons:=vbInformation
+                MsgBox "ここに　Ctrl+Vして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。" & vbCrLf & "クリップボードの中身は以下です。「" & vbCrLf & tempText & "」", Buttons:=vbInformation
             End If
 
 

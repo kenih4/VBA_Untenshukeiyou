@@ -2,9 +2,18 @@
 Sub Fault集計()
 
     '/追加部分----------------------------
-    Dim BL As Integer
-'    BL = 3
-    BL = InputBox("このマクロはシート「Fault集計(BL*)」を作成します。" & vbCrLf & "BLを入力してください")
+    Dim BL As Integer  ' 対象BL
+    Dim s
+    s = Application.InputBox("SACLA\SACLA運転状況集計BL*.xlsmにシート「Fault集計(BL*)」を作るマクロです。" & vbCrLf & "BLを入力してください", "タイトル")
+    If s = False Then
+        End
+    ElseIf s = "" Then
+        MsgBox "何も入力されていません"
+        End
+    Else
+        BL = s
+    End If
+
     Select Case BL
         Case 1
             Debug.Print "SCSS+"

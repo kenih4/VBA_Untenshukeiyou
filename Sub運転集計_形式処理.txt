@@ -3,13 +3,18 @@
 Sub 運転集計_形式処理()
 
     '/追加部分----------------------------
-    If MsgBox("選択されてるユニット(Worksheets(利用時間（期間）).Range(B2))は    " & Worksheets("利用時間（期間）").Range("B2") & "   です。 " & vbCrLf & "進にはYESを押して下さい", vbYesNo + vbQuestion, "確認") = vbNo Then
+    Dim BL As Integer  ' 対象BL
+    Dim s
+    s = Application.InputBox("ひな形シート「運転状況（対象ユニット）」からシート「24-*(BL*)」を作成します。" & vbCrLf & "BLを入力してください", "タイトル")
+    If s = False Then
         End
+    ElseIf s = "" Then
+        MsgBox "何も入力されていません"
+        End
+    Else
+        BL = s
     End If
-
-    Dim BL As Integer
-'    BL = 3
-    BL = InputBox("ひな形シート「運転状況（対象ユニット）」からシート「24-*(BL*)」を作成します。" & vbCrLf & "BLを入力してください")
+    
     Select Case BL
         Case 1
             Debug.Print "SCSS+"
@@ -30,6 +35,11 @@ Sub 運転集計_形式処理()
         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
         End
     End If
+    
+    If MsgBox("選択されてるユニット(wb_SHUKEI.Worksheets(利用時間（期間）).Range(B2))は    " & wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2") & "   です。 " & vbCrLf & "進にはYESを押して下さい", vbYesNo + vbQuestion, "確認") = vbNo Then
+        End
+    End If
+    
     '追加部分----------------------------/
 
 
