@@ -37,7 +37,6 @@ Sub Fault集計()
     
     
     '追加部分
-
         'MsgBox "Deub" & Worksheets("利用時間（期間）").Range("B2")
         For i = 8 To 10000
             If Worksheets("Fault集計(BL3)").Range("B" & i).Value = Worksheets("利用時間（期間）").Range("B2") Then
