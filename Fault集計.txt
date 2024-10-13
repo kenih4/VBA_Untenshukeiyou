@@ -7,7 +7,36 @@ SACLA運転状況集計BL3.xlsm付属のマクロ改修
 
 Sub Fault集計()
 
-'-------------------------
+
+
+
+'/追加部分----------------------------
+    Dim BL As Integer
+    BL = 3
+'    BL = InputBox("BLを入力してください")
+    Select Case BL
+        Case 1
+            Debug.Print "SCSS+"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SCSS\SCSS運転状況集計BL1.xlsm"
+        Case 2
+            Debug.Print "BL2"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2.xlsm"
+        Case 3
+            Debug.Print ">>>BL3"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL3.xlsm"
+        Case Else
+            Debug.Print "Zzz..."
+            End
+    End Select
+    Set wb_SHUKEI = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+    wb_SHUKEI.Worksheets("Fault間隔(ユニット) ").Activate
+    If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
+        End
+    End If
+'追加部分----------------------------/
+
+
 
     Dim 最終行 As Integer
     
@@ -36,7 +65,8 @@ Sub Fault集計()
     Call 高速化処理終了
     
     
-    '追加部分
+    
+    '/追加部分----------------------------
         'MsgBox "Deub" & Worksheets("利用時間（期間）").Range("B2")
         For i = 8 To 10000
             If Worksheets("Fault集計(BL3)").Range("B" & i).Value = Worksheets("利用時間（期間）").Range("B2") Then
@@ -46,10 +76,21 @@ Sub Fault集計()
                 Exit For
             End If
         Next
-    If MsgBox("SACLA運転状況集計まとめ.xlsmを開きますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+    If MsgBox("選択されてる部分をコピーしました" & vbCrLf & "「SACLA運転状況集計まとめ.xlsm」の「Fault集計」に張り付けて下さい" & vbCrLf & "開きますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
         BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
         Set Wb_matome = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
-        Wb_matome.Worksheets("Fault集計").Activate
+        Wb_matome.Worksheets("Fault集計").Range("B6").End(xlDown).Activate  ' セルB6「ユニット」から最終行へ
+        End
+        targetline = Wb_matome.Worksheets("Fault集計").Range("B6").End(xlDown).Row + 1
+        Debug.Print "== " & targetline
+        Wb_matome.Worksheets("Fault集計").Cells(targetline, 2).Activate
     End If
+    '追加部分----------------------------/
 
 End Sub
+
+
+
+
+
+

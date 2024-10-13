@@ -2,6 +2,7 @@ Sub 運転集計_形式処理()
     
 
 '/追加部分----------------------------
+    MsgBox "選択されたユニットは    " & Worksheets("利用時間（期間）").Range("B2") & "    です。間違いないですか"
     Dim BL As Integer
     BL = 3
 '    BL = InputBox("BLを入力してください")
