@@ -1,8 +1,11 @@
 Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
+
     
     Dim BL As Integer  ' 対象BL
+    
     Dim s
-    s = Application.InputBox("falut.txtをSACLA運転状況集計BL*.xlsmのシート「集計記録」に張り付けるマクロです。" & vbCrLf & "BLを入力してください", "タイトル")
+    s = Application.InputBox("python getBlFaultSummary_LOCALTEST.pyを実行しましたか？？？？？" & vbCrLf & "falut.txtをSACLA運転状況集計BL*.xlsmのシート「集計記録」に張り付けるマクロです。" & vbCrLf & "文字を入力してください", "タイトル")
+    
     If s = False Then
         End
     ElseIf s = "" Then
@@ -11,9 +14,6 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
     Else
         BL = s
     End If
-    
-    
-    
     
     Select Case BL
         Case 1
@@ -60,7 +60,11 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
                     .GetFromClipboard
                     tempText = .GetText
                 End With
-                MsgBox "ここに　Ctrl+Vして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。" & vbCrLf & "クリップボードの中身は以下です。「" & vbCrLf & tempText & "」", Buttons:=vbInformation
+                MsgBox "ここに　Ctrl+Cして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。" & vbCrLf & "クリップボードの中身は以下です。" & vbCrLf & tempText, Buttons:=vbInformation
+            
+                MsgBox "貼り付け終わったらシート「利用時間(User)」にエネルギーなどを手動入力しましょう！！" & vbCrLf & "ね", Buttons:=vbInformation
+            
+            
             End If
 
 
@@ -106,16 +110,3 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
 
 
 End Sub
-
-
-
-
-
-
-
-
-
-
-'================================================================================================
-
-
