@@ -1,9 +1,9 @@
 Sub Fault集計()
 
-'/追加部分----------------------------
+    '/追加部分----------------------------
     Dim BL As Integer
-    BL = 3
-'    BL = InputBox("BLを入力してください")
+'    BL = 3
+    BL = InputBox("BLを入力してください")
     Select Case BL
         Case 1
             Debug.Print "SCSS+"
@@ -24,7 +24,7 @@ Sub Fault集計()
         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
         End
     End If
-'追加部分----------------------------/
+    '追加部分----------------------------/
 
     Dim 最終行 As Integer
     

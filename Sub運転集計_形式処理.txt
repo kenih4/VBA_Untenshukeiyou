@@ -1,11 +1,10 @@
 Sub 運転集計_形式処理()
-    
 
-'/追加部分----------------------------
-    MsgBox "選択されたユニットは    " & Worksheets("利用時間（期間）").Range("B2") & "    です。間違いないですか"
+    '/追加部分----------------------------
+    MsgBox "選択されたユニットは    " & Worksheets("利用時間（期間）").Range("B2") & "    です。間違いないですか？？"
     Dim BL As Integer
-    BL = 3
-'    BL = InputBox("BLを入力してください")
+'    BL = 3
+    BL = InputBox("BLを入力してください")
     Select Case BL
         Case 1
             Debug.Print "SCSS+"
@@ -26,7 +25,7 @@ Sub 運転集計_形式処理()
         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
         End
     End If
-'追加部分----------------------------/
+    '追加部分----------------------------/
 
 
     Dim 最終行 As Integer
@@ -64,8 +63,6 @@ Sub 運転集計_形式処理()
     Columns("O:P").Delete
 
     Call 高速化処理終了
-
-
 
     '/追加部分----------------------------
     If MsgBox("今表示さているシートが作成されたものです。" & vbCrLf & "これを「SACLA運転状況集計まとめ.xlsm」にコピーしますか？", vbYesNo + vbQuestion, "確認") = vbYes Then

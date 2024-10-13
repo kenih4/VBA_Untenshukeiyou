@@ -14,12 +14,16 @@ Sub Auto_pagebreak()
 
     BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
 
+    Set Wb_matome = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+    If InStr(ActiveWorkbook.Name, BNAME_MATOME) Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_MATOME:  " & BNAME_MATOME
+        End
+    End If
 
     Dim WNAME As String
     WNAME = ActiveSheet.Name
 
-    MsgBox "シート「" & WNAME & "」" & vbCrLf & "いい所に改ページいれます", Buttons:=vbInformation
-
+    MsgBox "シート「" & WNAME & "」" & vbCrLf & "適切な所に改ページいれます", Buttons:=vbInformation
 
     Select Case WNAME
         Case "まとめ "
@@ -261,13 +265,6 @@ End Function
 
 
 
-
-
-
-
-
-
-    
 
 
 
