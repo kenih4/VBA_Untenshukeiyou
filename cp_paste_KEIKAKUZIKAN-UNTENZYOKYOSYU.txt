@@ -9,10 +9,19 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     
     
 
-'   Const BL As String = "BL3"  ' 対象BL
     Dim BL As Integer  ' 対象BL
-    'BL = 3
-    BL = InputBox("BLを入力してください")
+    Dim s
+    s = Application.InputBox("計画時間.xlsxをSACLA運転状況集計BL*.xlsmシート「GUN HV OFF」と「運転予定時間」に張り付けるマクロです。" & vbCrLf & "BLを入力してください", "タイトル")
+    If s = False Then
+        End
+    ElseIf s = "" Then
+        MsgBox "何も入力されていません"
+        End
+    Else
+        BL = s
+    End If
+    
+    
     
     BNAME_KEIKAKU = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
     Set Wb_keikaku = Workbooks.Open(BNAME_KEIKAKU, ReadOnly:=True)
@@ -164,7 +173,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             
             
             
-            MsgBox "終了しました。" & vbCrLf & "次は、getBlFaultSummary.pyに進みましょう！", Buttons:=vbInformation
+            MsgBox "終了しました。" & vbCrLf & "次は、python getBlFaultSummary.pyに進みましょう！", Buttons:=vbInformation
     
     
             If MsgBox("次の準備の為に、 シート「利用時間（期間）」" & newunit & "を入れていいですか？？", vbYesNo + vbQuestion, "newunit") = vbYes Then
