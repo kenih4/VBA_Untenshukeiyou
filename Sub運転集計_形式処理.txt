@@ -1,10 +1,15 @@
+
+
 Sub 運転集計_形式処理()
 
     '/追加部分----------------------------
-    MsgBox "選択されたユニットは    " & Worksheets("利用時間（期間）").Range("B2") & "    です。間違いないですか？？"
+    If MsgBox("選択されてるユニット(Worksheets(利用時間（期間）).Range(B2))は    " & Worksheets("利用時間（期間）").Range("B2") & "   です。 " & vbCrLf & "進にはYESを押して下さい", vbYesNo + vbQuestion, "確認") = vbNo Then
+        End
+    End If
+
     Dim BL As Integer
 '    BL = 3
-    BL = InputBox("BLを入力してください")
+    BL = InputBox("ひな形シート「運転状況（対象ユニット）」からシート「24-*(BL*)」を作成します。" & vbCrLf & "BLを入力してください")
     Select Case BL
         Case 1
             Debug.Print "SCSS+"
@@ -70,7 +75,7 @@ Sub 運転集計_形式処理()
         Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
         wb_SHUKEI.Worksheets(シート名).Copy after:=wb_MATOME.Worksheets("まとめ ")
         wb_MATOME.Worksheets(シート名).Activate
-        MsgBox "コピーまで完了しまた。" & vbCrLf & "BL2/BL3両方終わったらマージしましょう！", Buttons:=vbInformation
+        MsgBox "シートのコピーが完了しまた。" & vbCrLf & "BL2/BL3両方終わったら手動でマージしましょう！", Buttons:=vbInformation
     End If
     
     End

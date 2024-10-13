@@ -1,9 +1,10 @@
+
 Sub Fault集計()
 
     '/追加部分----------------------------
     Dim BL As Integer
 '    BL = 3
-    BL = InputBox("BLを入力してください")
+    BL = InputBox("このマクロはシート「Fault集計(BL*)」を作成します。" & vbCrLf & "BLを入力してください")
     Select Case BL
         Case 1
             Debug.Print "SCSS+"
@@ -36,7 +37,7 @@ Sub Fault集計()
     End If
     Application.DisplayAlerts = True   '--- 確認メッセージを表示
     
-    ActiveSheet.Copy After:=ActiveSheet 'シートのコピー'
+    ActiveSheet.Copy after:=ActiveSheet 'シートのコピー'
     ActiveSheet.Name = "Fault集計(BL3)" 'シート名変更'
     
     最終行 = Cells(Rows.Count, 8).End(xlUp).Row
@@ -44,7 +45,6 @@ Sub Fault集計()
     Range("A1:R" & 最終行).Value = Range("A1:R" & 最終行).Value '値の代入'
     
     Call Fault_セル結合
-
     
     Call 空白削除(8, 1000, 7)
     Call Fault_合計セル挿入
@@ -61,25 +61,19 @@ Sub Fault集計()
            Exit For
        End If
     Next
-    If MsgBox("選択されてる部分をコピーしました" & vbCrLf & "「SACLA運転状況集計まとめ.xlsm」の「Fault集計」に張り付けて下さい" & vbCrLf & "開きますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+    If MsgBox("選択されてる部分をコピーしました" & vbCrLf & "「SACLA運転状況集計まとめ.xlsm」の「Fault集計」に張り付け(コピーしたセルを挿入)して下さい" & vbCrLf & "開きますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
         BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-        Set Wb_matome = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+        Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
         'BL3 の場合はB列の最終行でいいのだが、、、
-        Wb_matome.Worksheets("Fault集計").Activate 'これ大事
+        wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
         Dim xlLastRow As Long       'Excel自体の最終行
         Dim LastRow As Long         '最終行
-        xlLastRow = Wb_matome.Worksheets("Fault集計").Cells(Wb_matome.Worksheets("Fault集計").Rows.Count, 1).Row  'Excelの最終行を取得
-        LastRow = Wb_matome.Worksheets("Fault集計").Cells(xlLastRow, 2).End(xlUp).Row   'B列の最終行を取得
-        targetline = LastRow + Wb_matome.Worksheets("Fault集計").Cells(LastRow, 2).MergeArea.Rows.Count
+        xlLastRow = wb_MATOME.Worksheets("Fault集計").Cells(wb_MATOME.Worksheets("Fault集計").Rows.Count, 1).Row  'Excelの最終行を取得
+        LastRow = wb_MATOME.Worksheets("Fault集計").Cells(xlLastRow, 2).End(xlUp).Row   'B列の最終行を取得
+        targetline = LastRow + wb_MATOME.Worksheets("Fault集計").Cells(LastRow, 2).MergeArea.Rows.Count
         Debug.Print "== " & targetline
-        Wb_matome.Worksheets("Fault集計").Cells(targetline, 2).Select
+        wb_MATOME.Worksheets("Fault集計").Cells(targetline, 2).Select
     End If
     '追加部分----------------------------/
     
 End Sub
-
-
-
-
-
-
