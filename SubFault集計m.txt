@@ -2,8 +2,9 @@ Sub Fault集計m()
 
     '/追加部分----------------------------
     Dim BL As Integer  ' 対象BL
+    Dim SNAME_FAULT As String
     Dim s
-    s = Application.InputBox("SACLA\SACLA運転状況集計BL*.xlsmにシート「Fault集計(BL*)」を作るマクロです。" & vbCrLf & "BLを入力してください", "タイトル")
+    s = Application.InputBox("SACLA運転状況集計BL*.xlsmにシート「Fault集計(BL*)」を作るマクロです。" & vbCrLf & "BLを入力してください", "タイトル")
     If s = False Then
         End
     ElseIf s = "" Then
@@ -17,12 +18,15 @@ Sub Fault集計m()
         Case 1
             Debug.Print "SCSS+"
             BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SCSS\SCSS運転状況集計BL1.xlsm"
+            SNAME_FAULT = "Fault集計(BL1)"
         Case 2
             Debug.Print "BL2"
             BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2.xlsm"
+            SNAME_FAULT = "Fault集計(BL2)"
         Case 3
             Debug.Print ">>>BL3"
             BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL3.xlsm"
+            SNAME_FAULT = "Fault集計(BL3)"
         Case Else
             Debug.Print "Zzz..."
             End
@@ -40,13 +44,13 @@ Sub Fault集計m()
     Call 高速化処理開始
 
     Application.DisplayAlerts = False  '--- 確認メッセージを非表示
-    If SheetDetect("Fault集計(BL3)") Then
-            Worksheets("Fault集計(BL3)").Delete
+    If SheetDetect(SNAME_FAULT) Then
+            Worksheets(SNAME_FAULT).Delete
     End If
     Application.DisplayAlerts = True   '--- 確認メッセージを表示
     
     ActiveSheet.Copy after:=ActiveSheet 'シートのコピー'
-    ActiveSheet.Name = "Fault集計(BL3)" 'シート名変更'
+    ActiveSheet.Name = SNAME_FAULT 'シート名変更'
     
     最終行 = Cells(Rows.Count, 8).End(xlUp).Row
     
@@ -62,10 +66,10 @@ Sub Fault集計m()
         
     '/追加部分----------------------------
     For i = 8 To 10000
-       If Worksheets("Fault集計(BL3)").Range("B" & i).Value = Worksheets("利用時間（期間）").Range("B2") Then
-           Debug.Print i & "   Hit " & Worksheets("Fault集計(BL3)").Range("B" & i).MergeArea.Rows.Count
-           Worksheets("Fault集計(BL3)").Range("B" & i, "I" & i + Worksheets("Fault集計(BL3)").Range("B" & i).MergeArea.Rows.Count - 1).Select
-           Worksheets("Fault集計(BL3)").Range("B" & i, "I" & i + Worksheets("Fault集計(BL3)").Range("B" & i).MergeArea.Rows.Count - 1).Copy
+       If Worksheets(SNAME_FAULT).Range("B" & i).Value = Worksheets("利用時間（期間）").Range("B2") Then
+           Debug.Print i & "   Hit " & Worksheets(SNAME_FAULT).Range("B" & i).MergeArea.Rows.Count
+           Worksheets(SNAME_FAULT).Range("B" & i, "I" & i + Worksheets(SNAME_FAULT).Range("B" & i).MergeArea.Rows.Count - 1).Select
+           Worksheets(SNAME_FAULT).Range("B" & i, "I" & i + Worksheets(SNAME_FAULT).Range("B" & i).MergeArea.Rows.Count - 1).Copy
            Exit For
        End If
     Next
@@ -83,5 +87,101 @@ Sub Fault集計m()
         wb_MATOME.Worksheets("Fault集計").Cells(targetline, 2).Select
     End If
     '追加部分----------------------------/
+    
+End Sub
+
+
+
+Sub 運転集計_形式処理m()
+
+    '/追加部分----------------------------
+    Dim BL As Integer  ' 対象BL
+    Dim s
+    s = Application.InputBox("ひな形シート「運転状況（対象ユニット）」からシート「24-*(BL*)」を作成します。" & vbCrLf & "BLを入力してください", "タイトル")
+    If s = False Then
+        End
+    ElseIf s = "" Then
+        MsgBox "何も入力されていません"
+        End
+    Else
+        BL = s
+    End If
+    
+    Select Case BL
+        Case 1
+            Debug.Print "SCSS+"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SCSS\SCSS運転状況集計BL1.xlsm"
+        Case 2
+            Debug.Print "BL2"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2.xlsm"
+        Case 3
+            Debug.Print ">>>BL3"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL3.xlsm"
+        Case Else
+            Debug.Print "Zzz..."
+            End
+    End Select
+    Set wb_SHUKEI = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+    wb_SHUKEI.Worksheets("運転状況(対象ユニット)").Activate
+    If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
+        End
+    End If
+    
+    If MsgBox("選択されてるユニット(wb_SHUKEI.Worksheets(利用時間（期間）).Range(B2))は    " & wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2") & "   です。 " & vbCrLf & "進にはYESを押して下さい", vbYesNo + vbQuestion, "確認") = vbNo Then
+        End
+    End If
+    
+    '追加部分----------------------------/
+
+
+    Dim 最終行 As Integer
+    Dim シート名 As String
+
+    最終行 = Cells(Rows.Count, 16).End(xlUp).Row
+    シート名 = (Cells(8, 2).Value & "(BL3)")
+
+    Call 高速化処理開始
+    
+    'シートの重複処理'
+    Application.DisplayAlerts = False  '--- 確認メッセージを非表示
+    If SheetDetect(シート名) Then
+            Worksheets(シート名).Delete
+    End If
+    Application.DisplayAlerts = True   '--- 確認メッセージを表示
+
+    Sheets("運転状況(対象ユニット)").Copy after:=ActiveSheet 'シートのコピー'
+    ActiveSheet.Name = シート名 'シート名変更'
+    Range("A1:P" & 最終行).Value = Range("A1:P" & 最終行).Value '数式⇒値へ変換'
+
+    If Cells(Range("P1:P500").Find("条件_開始行").Row + 1, 7) = "" Then 'ユーザーがいないとき'
+       Rows(Range("P1:P500").Find("シフト毎_開始行").Row + 1 & ":" & Range("P1:P500").Find("シフト毎_終了行").Row).Delete
+       Rows(Range("P1:P500").Find("条件_開始行").Row + 1 & ":" & Range("P1:P500").Find("シフトユーザー_終了行").Row).Delete
+    Else
+       Call 空白削除(Range("P1:P500").Find("シフト毎_開始行").Row + 1, Range("P1:P500").Find("シフト毎_終了行").Row - 1, 3)  'シフト毎_空白削除'
+       Call 空白削除(Range("P1:P500").Find("条件_開始行").Row + 1, Range("P1:P500").Find("条件_終了行").Row - 1, 3) '条件_空白削除'
+       Call シフトユーザー行挿入
+       Call シフトユーザー行_削除
+       Call 条件行_罫線
+    End If
+
+    Call 印刷設定
+
+    Columns("O:P").Delete
+
+    Call 高速化処理終了
+
+    '/追加部分----------------------------
+    If MsgBox("今表示さているシート「" & シート名 & "」が作成されたものです。" & vbCrLf & "これを「SACLA運転状況集計まとめ.xlsm」にコピーしますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+        BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+        Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+        wb_SHUKEI.Worksheets(シート名).Copy after:=wb_MATOME.Worksheets("まとめ ")
+        wb_MATOME.Worksheets(シート名).Activate
+        MsgBox "シートのコピーが完了しまた。" & vbCrLf & "BL2/BL3両方終わったら手動でマージしましょう！", Buttons:=vbInformation
+    End If
+    
+    End
+    '追加部分----------------------------/
+    
     
 End Sub

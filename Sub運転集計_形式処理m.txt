@@ -45,7 +45,7 @@ Sub 運転集計_形式処理m()
     Dim シート名 As String
 
     最終行 = Cells(Rows.Count, 16).End(xlUp).Row
-    シート名 = (Cells(8, 2).Value & "(BL3)")
+    シート名 = (Cells(8, 2).Value & "(BL" & BL & ")")
 
     Call 高速化処理開始
     
@@ -78,7 +78,7 @@ Sub 運転集計_形式処理m()
     Call 高速化処理終了
 
     '/追加部分----------------------------
-    If MsgBox("今表示さているシートが作成されたものです。" & vbCrLf & "これを「SACLA運転状況集計まとめ.xlsm」にコピーしますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+    If MsgBox("今表示さているシート「" & シート名 & "」が作成されたものです。" & vbCrLf & "これを「SACLA運転状況集計まとめ.xlsm」にコピーしますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
         BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
         Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
         wb_SHUKEI.Worksheets(シート名).Copy after:=wb_MATOME.Worksheets("まとめ ")
