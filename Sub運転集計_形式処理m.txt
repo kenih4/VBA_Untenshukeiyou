@@ -3,7 +3,7 @@ Sub 運転集計_形式処理m()
     '/追加部分----------------------------
     Dim BL As Integer  ' 対象BL
     Dim s
-    s = Application.InputBox("ひな形シート「運転状況（対象ユニット）」からシート「24-*(BL*)」を作成します。" & vbCrLf & "BLを入力してください", "タイトル")
+    s = Application.InputBox("ひな形シート「運転状況（対象ユニット）」からシート「24-*(BL*)」を作成します。" & vbCrLf & "BLを入力してください", "確認")
     If s = False Then
         End
     ElseIf s = "" Then
