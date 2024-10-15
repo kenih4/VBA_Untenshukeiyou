@@ -74,10 +74,9 @@ Sub Fault集計m()
        End If
     Next
     
-    If MsgBox("選択されてる部分をコピーしました" & vbCrLf & "「SACLA運転状況集計まとめ.xlsm」の「Fault集計」に張り付け(コピーしたセルを挿入)して下さい" & vbCrLf & "開きますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+    If MsgBox("選択されてる部分をコピーしました" & vbCrLf & "次は、「SACLA運転状況集計まとめ.xlsm」の「Fault集計」の張り付けです。" & vbCrLf & "ファイルを開きますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
         BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
         Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
-
         wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
         Select Case BL
             Case 1
@@ -92,8 +91,7 @@ Sub Fault集計m()
                             End If
                 Next
             Case 3
-                Debug.Print ">>>BL3"
-                'BL3 の場合はB列の最終行でいいのだが、、、
+                Debug.Print ">>>BL3" 'BL3 の場合はB列の最終行からさかのぼる                
                 Dim xlLastRow As Long       'Excel自体の最終行
                 Dim LastRow As Long         '最終行
                 xlLastRow = wb_MATOME.Worksheets("Fault集計").Cells(wb_MATOME.Worksheets("Fault集計").Rows.Count, 1).Row  'Excelの最終行を取得
@@ -105,7 +103,7 @@ Sub Fault集計m()
         End Select
         
         wb_MATOME.Worksheets("Fault集計").Cells(targetline, 2).Select
-        If MsgBox("ここに貼り付けします。いいですか？" & vbCrLf & "？", vbYesNo + vbQuestion, "確認") = vbYes Then
+        If MsgBox("ここに貼り付けします。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
             wb_MATOME.Worksheets("Fault集計").Cells(targetline, 2).Insert xlDown
         End If
     
