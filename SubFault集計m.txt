@@ -1,5 +1,4 @@
-
-Sub Fault集計()
+Sub Fault集計m()
 
     '/追加部分----------------------------
     Dim BL As Integer  ' 対象BL
