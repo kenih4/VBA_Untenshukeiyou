@@ -45,7 +45,7 @@ Sub Fault集計m()
 
     Application.DisplayAlerts = False  '--- 確認メッセージを非表示
     If SheetDetect(SNAME_FAULT) Then
-            Worksheets(SNAME_FAULT).Delete
+            wb_SHUKEI.Worksheets(SNAME_FAULT).Delete
     End If
     Application.DisplayAlerts = True   '--- 確認メッセージを表示
     
@@ -66,10 +66,10 @@ Sub Fault集計m()
         
     '/追加部分----------------------------
     For i = 8 To 10000
-       If Worksheets(SNAME_FAULT).Range("B" & i).Value = Worksheets("利用時間（期間）").Range("B2") Then
-           Debug.Print i & "   Hit " & Worksheets(SNAME_FAULT).Range("B" & i).MergeArea.Rows.Count
-           Worksheets(SNAME_FAULT).Range("B" & i, "I" & i + Worksheets(SNAME_FAULT).Range("B" & i).MergeArea.Rows.Count - 1).Select
-           Worksheets(SNAME_FAULT).Range("B" & i, "I" & i + Worksheets(SNAME_FAULT).Range("B" & i).MergeArea.Rows.Count - 1).Copy
+       If wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & i).Value = wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2") Then
+           Debug.Print i & "   Hit " & wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & i).MergeArea.Rows.Count
+           wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & i, "I" & i + wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & i).MergeArea.Rows.Count - 1).Select
+           wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & i, "I" & i + wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & i).MergeArea.Rows.Count - 1).Copy
            Exit For
        End If
     Next
@@ -91,10 +91,13 @@ Sub Fault集計m()
                             End If
                 Next
             Case 3
-                Debug.Print ">>>BL3" 'BL3 の場合はB列の最終行からさかのぼる                
+                Debug.Print ">>>BL3" 'BL3 の場合はB列の最終行からさかのぼる
                 Dim xlLastRow As Long       'Excel自体の最終行
                 Dim LastRow As Long         '最終行
-                xlLastRow = wb_MATOME.Worksheets("Fault集計").Cells(wb_MATOME.Worksheets("Fault集計").Rows.Count, 1).Row  'Excelの最終行を取得
+'重い           xlLastRow = wb_MATOME.Worksheets("Fault集計").Cells(wb_MATOME.Worksheets("Fault集計").Rows.Count, 1).Row  'Excelの最終行を取得
+
+                xlLastRow = wb_MATOME.Worksheets("Fault集計").UsedRange.Rows(wb_MATOME.Worksheets("Fault集計").UsedRange.Rows.Count).Row 'UsedRangeの注意点　罫線なども含んだ使用されている領域
+    
                 LastRow = wb_MATOME.Worksheets("Fault集計").Cells(xlLastRow, 2).End(xlUp).Row   'B列の最終行を取得
                 targetline = LastRow + wb_MATOME.Worksheets("Fault集計").Cells(LastRow, 2).MergeArea.Rows.Count
             Case Else
