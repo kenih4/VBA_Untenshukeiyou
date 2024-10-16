@@ -2,6 +2,7 @@
 
 Sub Auto_pagebreak()
     
+    Dim WNAME As String
     Dim RPL() As Variant ' RequiredPagebreakList  必須の改ページのリスト
     Dim TARGET_COL As Integer           '対象列
     Dim LINE_CNT_PAGEBREAK As Integer   'デフォルト:50    50行数くらいで改行   それ以上にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
@@ -13,17 +14,17 @@ Sub Auto_pagebreak()
     
 
     BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-
-    Set Wb_matome = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+    Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+    wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
     If InStr(ActiveWorkbook.Name, BNAME_MATOME) Then
         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_MATOME:  " & BNAME_MATOME
         End
     End If
 
-    Dim WNAME As String
     WNAME = ActiveSheet.Name
 
-    MsgBox "シート「" & WNAME & "」" & vbCrLf & "適切な所に改ページいれます", Buttons:=vbInformation
+    MsgBox "このマクロは SACLA運転状況集計まとめ.xlsm のシート「" & WNAME & "」" & vbCrLf & "の適切な所に改ページいれます", Buttons:=vbInformation
+
 
     Select Case WNAME
         Case "まとめ "
@@ -41,7 +42,7 @@ Sub Auto_pagebreak()
         Case "Fault集計"
                 TARGET_COL = 2  ' 対象列 B
                 LINE_CNT_PAGEBREAK = 25  'デフォルト:50    50行数くらいで改行   それ以上にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
-                MARGIN_PAGEBREAK = 20  '　デフォルト:20    次の改ページまで20行以上ある場合、改ページセット
+                MARGIN_PAGEBREAK = 10  '　デフォルト:20    次の改ページまで20行以上ある場合、改ページセット
                 'Const WNAME As String = "Fault集計"
                 ReDim RPL(2, 1) ' 配列サイズ設定
                 RPL(0, 0) = "SACLA Fault間隔(BL2)"
@@ -90,8 +91,6 @@ Sub Auto_pagebreak()
         Else
             Call SetPagebreak(RPL(i, 1), RPL(i + 1, 1) - 1, TARGET_COL, LINE_CNT_PAGEBREAK, Worksheets(WNAME))
         End If
-        
-        
     Next
     
     
@@ -150,10 +149,9 @@ Sub Auto_pagebreak()
         'Debug.Print ">PagebreakList(" & i; ",):   " & PagebreakList(i, 0) & "  " & PagebreakList(i, 1)
     
         If (PagebreakList(i + 1, 0) - PagebreakList(i, 0)) > MARGIN_PAGEBREAK Then   '次の改ページまで MARGIN_PAGEBREAK 行以上ある場合、改ページセット
-                Worksheets(WNAME).Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
-                Debug.Print "Set PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next: " & PagebreakList(i + 1, 0)
+            Worksheets(WNAME).Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
+            Debug.Print "Set PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next: " & PagebreakList(i + 1, 0)
         End If
-        
     
         If (PagebreakList(i, 1)) = 1 Then  '必須の改ページの場合、改ページセット
             Worksheets(WNAME).Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
@@ -167,9 +165,12 @@ Sub Auto_pagebreak()
     
     Worksheets(WNAME).DisplayPageBreaks = True
    
-    If MsgBox("終了。プレビュー表示しますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
-        Worksheets(WNAME).PrintPreview
-    End If
+'    If MsgBox("終了。プレビュー表示しますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+'        Worksheets(WNAME).PrintPreview
+'    End If
+
+    MsgBox "終了しました。シート「" & WNAME & "」" & vbCrLf & "の適切な所に改ページいれました", Buttons:=vbInformation
+    
     Debug.Print "Fin================================================================================================================="
     
     
@@ -227,10 +228,20 @@ Function SetPagebreak(ByVal startLine As Integer, ByVal endLine As Integer, ByVa
             
                 If Cells(i, TARGET_COL).MergeCells Then  '  B列が結合されている
                     Debug.Print "行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value & "    値が入って、結合されている     結合行：" & Cells(i, TARGET_COL).MergeArea.Rows.Count & " の下に貝"
+                    
+'                    Cells(i, TARGET_COL).Activate
+'                    MsgBox "A   Debug:ここに改ページいれます"
+                    
                     sheetname.Rows(i + Cells(i, 2).MergeArea.Rows.Count).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
                 Else
                     Debug.Print "行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value & "    値が入ってなくて、結合されてない　貝: i = " & i
+                    
+'                    Cells(i, TARGET_COL).Activate
+'                    MsgBox "B   Debug:ここに改ページいれます"
+                    
+                            
                     sheetname.Rows(i).PageBreak = xlPageBreakManual
+                    
                 End If
                 line_cnt = 0
             
@@ -260,11 +271,3 @@ Dim sht As Worksheet
   Next sht
 flgExsistSheet = False
 End Function
-
-
-
-
-
-
-
-

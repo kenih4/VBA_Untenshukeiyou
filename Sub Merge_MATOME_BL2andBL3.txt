@@ -4,27 +4,25 @@ Sub Merge_MATOME_BL2andBL3()
     Dim Sonzai_flg_BL2 As Boolean: Sonzai_flg_BL2 = False
     Dim Sonzai_flg_BL3 As Boolean: Sonzai_flg_BL3 = False
        
-    BNAME_MATOME = "C:\Users\kenichi\Documents\OperationSummary\SACLA運転状況集計まとめTEST.xlsm"
-'    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+'    BNAME_MATOME = "C:\Users\kenichi\Documents\OperationSummary\SACLA運転状況集計まとめTEST.xlsm"
+    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
     Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
     wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
-    wb_MATOME.Worksheets("Fault集計").Cells(1, 1).Select
+    wb_MATOME.Worksheets("Fault集計").Cells(1, 1).Select ' 選択範囲が残ってるの気持ち悪いのでとりあえず
     If InStr(ActiveWorkbook.Name, BNAME_MATOME) Then
         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
         End
     End If
     
     
-    Debug.Print ""
-      For i = 1 To Sheets.Count
+    For i = 1 To Sheets.Count
         Debug.Print Sheets(i).Name
         If Sheets(i).Name = "まとめ " Then 'シート「まとめ 」の次のシートが対象となるユニット
             TargetSheet = Sheets(i + 1).Name
             Debug.Print "Hit-------" & TargetSheet
             Exit For
         End If
-      Next
-  
+    Next
     Debug.Print "TargetSheet = " & TargetSheet
     
     
@@ -38,15 +36,6 @@ Sub Merge_MATOME_BL2andBL3()
 
     TargetUnit = tmp(0)
     Debug.Print "TargetUnit=" & TargetUnit
-    
-    
-        
-        
-        
-        
-        
-        
-        
     
     If MsgBox("このマクロはSACLA運転状況集計まとめ.xlsmのユニットBL2/BL3を結合します。" & vbCrLf & "結合しようとしているユニットは「" & TargetUnit & "」です。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
         End
