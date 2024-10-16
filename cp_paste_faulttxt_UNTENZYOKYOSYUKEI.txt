@@ -60,7 +60,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
                     .GetFromClipboard
                     tempText = .GetText
                 End With
-                MsgBox "ここに　Ctrl+Cして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。" & vbCrLf & "クリップボードの中身は以下です。" & vbCrLf & tempText, Buttons:=vbInformation
+                MsgBox "ここに　Ctrl+Vして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。" & vbCrLf & "クリップボードの中身は以下です。" & vbCrLf & vbCrLf & tempText, Buttons:=vbInformation
             
                 MsgBox "貼り付け終わったらシート「利用時間(User)」にエネルギーなどを手動入力しましょう！！" & vbCrLf & "ね", Buttons:=vbInformation
             
@@ -98,15 +98,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
 'DAME                    wb1.Worksheets("集計記録").Cells(targetline, 1).PasteSpecial Paste:=xlPasteValues
 '                End If
 '            End If
-    
-    
-    
-    
-    
-    
+        
     Debug.Print "============================================================================================================"
-
-
-
 
 End Sub
