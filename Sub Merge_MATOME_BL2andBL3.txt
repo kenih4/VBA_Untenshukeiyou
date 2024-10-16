@@ -3,37 +3,7 @@ Sub Merge_MATOME_BL2andBL3()
     Dim TargetUnit As String
     Dim Sonzai_flg_BL2 As Boolean: Sonzai_flg_BL2 = False
     Dim Sonzai_flg_BL3 As Boolean: Sonzai_flg_BL3 = False
-
-'
-'    Dim s
-'    s = Application.InputBox("ひな形シート「運転状況（対象ユニット）」からシート「24-*(BL*)」を作成します。" & vbCrLf & "BLを入力してください", "確認")
-'    If s = False Then
-'        End
-'    ElseIf s = "" Then
-'        MsgBox "何も入力されていません"
-'        End
-'    Else
-'        BL = s
-'    End If
-'
-'    Select Case BL
-'        Case 1
-'            Debug.Print "SCSS+"
-'            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SCSS\SCSS運転状況集計BL1.xlsm"
-'        Case 2
-'            Debug.Print "BL2"
-'            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2.xlsm"
-'            DOWNTIME_ROW = 8
-'        Case 3
-'            Debug.Print ">>>BL3"
-'            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL3.xlsm"
-'            DOWNTIME_ROW = 9
-'        Case Else
-'            Debug.Print "Zzz..."
-'            End
-'    End Select
-    
-    
+       
     BNAME_MATOME = "C:\Users\kenichi\Documents\OperationSummary\SACLA運転状況集計まとめTEST.xlsm"
 '    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
     Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
@@ -45,21 +15,10 @@ Sub Merge_MATOME_BL2andBL3()
     End If
     
     
-
-'OK    MsgBox wb_MATOME.Worksheets("Fault集計").Range("B2").Value
-'OK    wb_MATOME.Worksheets("Fault集計").Range("B2").Select
-'    End
-    
-    
-'    Debug.Print "---------------------------------------------------------------"
-'      For Each A In Sheets
-'        Debug.Print A.Name
-'      Next
-    
-    Debug.Print "---------------------------------------------------------------"
+    Debug.Print ""
       For i = 1 To Sheets.Count
         Debug.Print Sheets(i).Name
-        If Sheets(i).Name = "まとめ " Then
+        If Sheets(i).Name = "まとめ " Then 'シート「まとめ 」の次のシートが対象となるユニット
             TargetSheet = Sheets(i + 1).Name
             Debug.Print "Hit-------" & TargetSheet
             Exit For
@@ -69,9 +28,6 @@ Sub Merge_MATOME_BL2andBL3()
     Debug.Print "TargetSheet = " & TargetSheet
     
     
-    
-    
-    
     Dim tmp As Variant
     tmp = Split(TargetSheet, "(")
     Debug.Print "UBound(tmp) = " & UBound(tmp)
@@ -79,26 +35,26 @@ Sub Merge_MATOME_BL2andBL3()
 '        MsgBox "既にマージされてませんか？？　" & vbCrLf & " 終了します。", Buttons:=vbExclamation
         'End
 '    End If
-    
-'    For i = LBound(tmp) To UBound(tmp)
-'        MsgBox tmp(i)
-'    Next i
 
     TargetUnit = tmp(0)
     Debug.Print "TargetUnit=" & TargetUnit
     
     
+        
+        
+        
+        
+        
+        
+        
+    
+    If MsgBox("このマクロはSACLA運転状況集計まとめ.xlsmのユニットBL2/BL3を結合します。" & vbCrLf & "結合しようとしているユニットは「" & TargetUnit & "」です。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
+        End
+    End If
     
     
-    
-    
-     
     For Each A In Sheets
         'Debug.Print "A  name   " & A.Name
-'        If InStr(A.Name, TargetUnit) > 0 Then
-'            Debug.Print "B  name   " & A.Name
-'        End If
-                
         'BL2シートの存在確認
         If A.Name = TargetUnit & "(BL2)" Then
             Debug.Print "*BL2 sheet  name:   " & A.Name
@@ -127,9 +83,7 @@ Sub Merge_MATOME_BL2andBL3()
         End
     End If
     
-    If MsgBox("結合するユニット「" & TargetUnit & "」はこれですけど、" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
-        End
-    End If
+
     
     
     'BL2のシートをコピーしてベースにする
@@ -159,32 +113,29 @@ Sub Merge_MATOME_BL2andBL3()
     wb_MATOME.Worksheets(TargetUnit & "(BL3)").Rows(getLineNum("(b-2)BL3", 2, wb_MATOME.Worksheets(TargetUnit & "(BL3)")) & ":" & getLineNum("(c)運転条件", 2, wb_MATOME.Worksheets(TargetUnit & "(BL3)")) - 1).Select
     If MsgBox("選択されてる部分をコピーしました。シート「" & TargetUnit & "」" & vbCrLf & "に張り付けます。" & vbCrLf & "いいです？", vbYesNo + vbQuestion, "確認") = vbYes Then
         wb_MATOME.Worksheets(TargetUnit).Activate
-        MsgBox getLineNum("(c)運転条件", 2, wb_MATOME.Worksheets(TargetUnit))
         wb_MATOME.Worksheets(TargetUnit).Cells(getLineNum("(c)運転条件", 2, wb_MATOME.Worksheets(TargetUnit)) - 1, 1).Insert xlDown
         wb_MATOME.Worksheets(TargetUnit).Cells(getLineNum("(b-2)BL3", 2, wb_MATOME.Worksheets(TargetUnit)), 2).Select
         MsgBox "貼り付けました。" & vbCrLf & "次に進みます。", Buttons:=vbInformation
     End If
 
+    '(c)運転条件　  の部分の処理
+    wb_MATOME.Worksheets(TargetUnit & "(BL3)").Activate ' これ大事　これしないと .Selectできない
+    MaxRow = wb_MATOME.Worksheets(TargetUnit & "(BL3)").UsedRange.Rows(wb_MATOME.Worksheets(TargetUnit & "(BL3)").UsedRange.Rows.Count).Row 'UsedRangeの注意点　罫線なども含んだ使用されている領域
+    wb_MATOME.Worksheets(TargetUnit & "(BL3)").Rows(getLineNum("(c-2)BL3", 2, wb_MATOME.Worksheets(TargetUnit & "(BL3)")) & ":" & MaxRow - 1).Copy
+    wb_MATOME.Worksheets(TargetUnit & "(BL3)").Rows(getLineNum("(c-2)BL3", 2, wb_MATOME.Worksheets(TargetUnit & "(BL3)")) & ":" & MaxRow - 1).Select
+    If MsgBox("選択されてる部分をコピーしました。シート「" & TargetUnit & "」" & vbCrLf & "に張り付けます。" & vbCrLf & "いいです？", vbYesNo + vbQuestion, "確認") = vbYes Then
+        wb_MATOME.Worksheets(TargetUnit).Activate
+        MaxRow_of_TargetUnit = wb_MATOME.Worksheets(TargetUnit).UsedRange.Rows(wb_MATOME.Worksheets(TargetUnit).UsedRange.Rows.Count).Row
+        wb_MATOME.Worksheets(TargetUnit).Cells(MaxRow_of_TargetUnit + 1, 1).Insert xlDown
+        wb_MATOME.Worksheets(TargetUnit).Cells(getLineNum("(c-2)BL3", 2, wb_MATOME.Worksheets(TargetUnit)), 2).Select
+        MsgBox "貼り付けました。" & vbCrLf & "。", Buttons:=vbInformation
+    End If
 
 
+    'wb_MATOME.Worksheets(TargetUnit).ResetAllPageBreaks ' 全ての改ページをクリア
+    wb_MATOME.Worksheets(TargetUnit).PageSetup.PrintArea = False ' 全ての印刷範囲をクリア
+
+    
+    MsgBox "これで終了です。" & vbCrLf & "シート「ユニット(BL*)」は手動で削除して下さい", Buttons:=vbInformation
 
 End Sub
-
-
-
-
-
-'指定さてた文字列が存在する行を取得==============================================================================================================================
-Function getLineNum(ByVal str As String, ByVal TARGET_COL As Integer, ByVal sheetname As Worksheet) As Integer
-    
-    For i = 1 To sheetname.Cells(Rows.Count, TARGET_COL).End(xlUp).Row
-        'Debug.Print "getLineNum　行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value
-        If sheetname.Cells(i, TARGET_COL).Value = str Then '
-            getLineNum = i
-            Exit For
-        End If
-    Next
-
-End Function
-
-
