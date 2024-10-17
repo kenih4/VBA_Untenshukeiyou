@@ -1,6 +1,7 @@
 Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
 
-    
+    Dim WSH
+    Set WSH = CreateObject("Wscript.Shell")
     Dim BL As Integer  ' 対象BL
     
     Dim s
@@ -61,9 +62,11 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
                     tempText = .GetText
                 End With
                 MsgBox "ここに　Ctrl+Vして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。" & vbCrLf & "クリップボードの中身は以下です。" & vbCrLf & vbCrLf & tempText, Buttons:=vbInformation
-            
-                MsgBox "貼り付け終わったらシート「利用時間(User)」にエネルギーなどを手動入力しましょう！！" & vbCrLf & "ね", Buttons:=vbInformation
-            
+                
+                If MsgBox("貼り付け終わったらシート「利用時間(User)」にエネルギーなどを手動入力しましょう！！" & vbCrLf & "シフトサマリーを開きますか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
+                    WSH.Run "http://saclaopr19.spring8.or.jp/~summary/display_ui.html?sort=date%20desc%2Cstart%20desc&limit=0%2C100&search_situation=ユーザー運転&&search_root=BL" & BL & "#STATUS", 3 ' 第2引数: 3は最大化
+                    Set WSH = Nothing
+                End If
             
             End If
 
