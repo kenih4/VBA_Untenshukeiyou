@@ -14,11 +14,17 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
             If CB(1) = True Then
                 MsgBox "クリップボードは空です。python getBlFaultSummary_LOCALTEST.pyを走らせたら何かしらクリップボードに入るはずなのでなにかおかしいです。"
                 End
+            
             Else
+            
                 With New DataObject
                     .GetFromClipboard
                     tempText = .GetText
                 End With
+
+                If MsgBox("python getBlFaultSummary_LOCALTEST.pyの出力、" & vbCrLf & "falut.txtをSACLA運転状況集計BL*.xlsmのシート「集計記録」に張り付けるマクロです。" & vbCrLf & vbCrLf & "クリップボードの中身は以下です。" & vbCrLf & "「" & vbCrLf & tempText & vbCrLf & "」" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then
+                    End
+                End If
 
             End If
 
@@ -27,7 +33,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
 
 
     Dim s
-    s = Application.InputBox("python getBlFaultSummary_LOCALTEST.pyを実行しましたか？？？？？" & vbCrLf & "falut.txtをSACLA運転状況集計BL*.xlsmのシート「集計記録」に張り付けるマクロです。" & vbCrLf & "文字を入力してください", "タイトル")
+    s = Application.InputBox("BLを入力して下さい。", "確認")
     
     If s = False Then
         End
@@ -72,8 +78,8 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
             wb1.Worksheets("集計記録").Range("C8").End(xlDown).Activate       ' セルC8「開始時間」から最終行へ
             targetline = wb1.Worksheets("集計記録").Range("C8").End(xlDown).Row + 1
             wb1.Worksheets("集計記録").Cells(targetline, 1).Activate
-              
-            MsgBox "ここに　Ctrl+Vして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。" & vbCrLf & "クリップボードの中身は以下です。" & vbCrLf & "「" & vbCrLf & tempText & vbCrLf & "」", Buttons:=vbInformation
+            
+            MsgBox "ここに　Ctrl+Vして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。", Buttons:=vbInformation
             If MsgBox("貼り付け終わったらシート「利用時間(User)」にエネルギーなどを手動入力しましょう！！" & vbCrLf & "シフトサマリーを開きますか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
                 WSH.Run "http://saclaopr19.spring8.or.jp/~summary/display_ui.html?sort=date%20desc%2Cstart%20desc&limit=0%2C100&search_situation=ユーザー運転&&search_root=BL" & BL & "#STATUS", 3 ' 第2引数: 3は最大化
                 Set WSH = Nothing
