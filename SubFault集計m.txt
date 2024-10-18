@@ -32,7 +32,7 @@ Sub Fault集計m()
             End
     End Select
     Set wb_SHUKEI = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
-    wb_SHUKEI.Worksheets("Fault間隔(ユニット) ").Activate
+    wb_SHUKEI.Worksheets("Fault間隔(ユニット)").Activate
     If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
         End
@@ -111,6 +111,10 @@ Sub Fault集計m()
         End If
     
     End If
+    
+    MsgBox "マクロ終了" & vbCrLf & "次はマクロ「運転集計_形式処理m」をしましょう！", Buttons:=vbInformation
+
     '追加部分----------------------------/
     
 End Sub
+

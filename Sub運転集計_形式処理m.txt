@@ -81,7 +81,7 @@ Sub 運転集計_形式処理m()
 
     '/追加部分----------------------------
     If wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value = 0 Then
-        MsgBox "ダウンタイムは　" & wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value & " です。ゼロだとおかしいと思います。", Buttons:=vbExclamation
+        MsgBox "ダウンタイムは　" & wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value & " です。ゼロだとおかしいと思います。"  & vbCrLf & "シート「集計記録」に数式が入っていない可能性があります" , Buttons:=vbExclamation
     End If
     
     If MsgBox("今表示さているシート「" & シート名 & "」が作成されたものです。" & vbCrLf & "これを「SACLA運転状況集計まとめ.xlsm」にコピーしますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
@@ -92,7 +92,6 @@ Sub 運転集計_形式処理m()
         MsgBox "シートのコピーが完了しまた。" & vbCrLf & "BL2/BL3両方終わったら手動でマージしましょう！", Buttons:=vbInformation
     End If
     
-    End
     '追加部分----------------------------/
     
     
