@@ -7,10 +7,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     Dim COL_GUN_HV_OFF As Integer
     Dim targetline As Integer
     
-'   Const BL As String = "BL3"  ' 対象BL
-    Dim BL As Integer  ' 対象BL
-    'BL = 3
-    BL = InputBox("BLを入力してください")
+    
     
     BNAME_KEIKAKU = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
     Set Wb_keikaku = Workbooks.Open(BNAME_KEIKAKU, ReadOnly:=True)
@@ -23,6 +20,17 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     Debug.Print "============================================================================================================"
 
 
+    
+    Dim s
+    s = Application.InputBox("BLを入力して下さい。", "確認")    
+    If s = False Then
+        Exit Sub
+    ElseIf s = "" Then
+        MsgBox "何も入力されていません"
+        Exit Sub
+    Else
+        BL = s
+    End If
     
     Select Case BL
         Case 1
