@@ -13,7 +13,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
             CB = Application.ClipboardFormats
             If CB(1) = True Then
                 MsgBox "クリップボードは空です。python getBlFaultSummary_LOCALTEST.pyを走らせたら何かしらクリップボードに入るはずなのでなにかおかしいです。"
-                End
+                Exit Sub
             
             Else
             
@@ -23,7 +23,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
                 End With
 
                 If MsgBox("python getBlFaultSummary_LOCALTEST.pyの出力、" & vbCrLf & "falut.txtをSACLA運転状況集計BL*.xlsmのシート「集計記録」に張り付けるマクロです。" & vbCrLf & vbCrLf & "クリップボードの中身は以下です。" & vbCrLf & "「" & vbCrLf & tempText & vbCrLf & "」" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then
-                    End
+                    Exit Sub
                 End If
 
             End If
@@ -36,10 +36,10 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
     s = Application.InputBox("BLを入力して下さい。", "確認")
     
     If s = False Then
-        End
+        Exit Sub
     ElseIf s = "" Then
         MsgBox "何も入力されていません"
-        End
+        Exit Sub
     Else
         BL = s
     End If
@@ -57,7 +57,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
             SNAME_KEIKAKU_BL = "bl3"
         Case Else
             Debug.Print "Zzz..."
-            End
+            Exit Sub
     End Select
     
     
@@ -71,7 +71,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
             
             If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
                 MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
-                End
+                Exit Sub
             End If
     
     
