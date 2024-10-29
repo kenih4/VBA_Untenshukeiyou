@@ -15,13 +15,14 @@ Sub Auto_pagebreak()
 
     BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
     Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
-    wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
-    If InStr(ActiveWorkbook.Name, BNAME_MATOME) Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_MATOME:  " & BNAME_MATOME
+    'wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
+    wb_MATOME.Worksheets("まとめ ").Activate 'これ大事
+    If InStr(ActiveWorkbook.name, BNAME_MATOME) Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_MATOME:  " & BNAME_MATOME
         End
     End If
 
-    WNAME = ActiveSheet.Name
+    WNAME = ActiveSheet.name
 
     MsgBox "このマクロは SACLA運転状況集計まとめ.xlsm のシート「" & WNAME & "」" & vbCrLf & "の適切な所に改ページいれます", Buttons:=vbInformation
 
@@ -55,8 +56,8 @@ Sub Auto_pagebreak()
             End
     End Select
                 
-    If InStr(ActiveWorkbook.Name, BNAME_MATOME) Then
-         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_MATOME:  " & BNAME_MATOME
+    If InStr(ActiveWorkbook.name, BNAME_MATOME) Then
+         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_MATOME:  " & BNAME_MATOME
          End
     End If
 
@@ -66,7 +67,7 @@ Sub Auto_pagebreak()
     
     
     Worksheets(WNAME).Activate
-    Debug.Print "Worksheets(WNAME).Name: " & Worksheets(WNAME).Name
+    Debug.Print "Worksheets(WNAME).Name: " & Worksheets(WNAME).name
     Debug.Print "Last: " & Cells(Rows.Count, TARGET_COL).End(xlUp).Row
     For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
         Debug.Print "RPL(i, 0) : " & RPL(i, 0) & "  " & RPL(i, 1)
@@ -232,6 +233,7 @@ Function SetPagebreak(ByVal startLine As Integer, ByVal endLine As Integer, ByVa
 '                    Cells(i, TARGET_COL).Activate
 '                    MsgBox "A   Debug:ここに改ページいれます"
                     
+                    '下のコードで失敗する場合、ページレイアウトから「印刷範囲のクリア」をして再度マクロを実行するとなぜかＯＫ
                     sheetname.Rows(i + Cells(i, 2).MergeArea.Rows.Count).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
                 Else
                     Debug.Print "行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value & "    値が入ってなくて、結合されてない　貝: i = " & i
@@ -264,7 +266,7 @@ End Function
 Function flgExsistSheet(ByVal WorkSheetName As String) As Boolean
 Dim sht As Worksheet
   For Each sht In ActiveWorkbook.Worksheets
-    If sht.Name = WorkSheetName Then
+    If sht.name = WorkSheetName Then
         flgExsistSheet = True
         Exit Function
     End If

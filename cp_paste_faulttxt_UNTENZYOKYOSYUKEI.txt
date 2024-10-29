@@ -33,8 +33,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
 
 
     Dim s
-    s = Application.InputBox("BLを入力して下さい。", "確認")
-    
+    s = Application.InputBox("BLを入力して下さい。", "確認")    
     If s = False Then
         Exit Sub
     ElseIf s = "" Then
