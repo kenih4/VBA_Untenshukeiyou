@@ -1,0 +1,92 @@
+Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行()
+    '注意点　マクロ SubFault集計m はモジュール名でいうとModule10
+    Dim sourceWorkbook As Workbook
+    Dim targetWorkbook As Workbook
+    Dim sourceModule As Object
+    Dim targetModule As Object
+    
+    Dim BL As Integer  ' 対象BL
+    Dim BNAME_SHUKEI As String
+    Dim macroName As String
+    
+    BL = 2
+    macroName = "Fault集計m"
+    
+'    BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL" & BL & ".xlsm"
+    BNAME_SHUKEI = "C:\Users\kenichi\Documents\OperationSummary\test.xlsm"
+    Set targetWorkbook = Workbooks.Open(BNAME_SHUKEI)
+
+    
+    'マクロmacroNameが、workbookNameに存在したら、削除する
+    Call CheckAndDeleteModuleContainingMacro(BNAME_SHUKEI, macroName)
+
+    ' マクロいろいろ.xlsmのマクロFault集計m()をtargetWorkbookに流し込む
+    Set sourceWorkbook = Workbooks.Open("C:\Users\kenichi\Documents\OperationSummary\マクロいろいろ.xlsm")
+    Set sourceModule = sourceWorkbook.VBProject.VBComponents("Module10") ' モジュール名を確認       Module10 = Fault集計m()
+    Set targetModule = targetWorkbook.VBProject.VBComponents.Add(1) ' vbext_ct_StdModule = 1  標準モジュールを追加
+    targetModule.CodeModule.AddFromString sourceModule.CodeModule.Lines(1, sourceModule.CodeModule.CountOfLines)
+    
+    If MsgBox("流し込んだマクロを実行します。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
+        Application.Run "'" & targetWorkbook.name & "'!" & macroName, BL
+        MsgBox macroName & " が実行されました！", Buttons:=vbInformation
+    End If
+
+    
+    ' ワークブックを閉じる
+    'sourceWorkbook.Close SaveChanges:=False
+    'targetWorkbook.Close SaveChanges:=True
+
+End Sub
+
+
+
+
+
+
+
+
+
+'マクロmacroNameが、workbookNameに存在するか確認して「モジュール」を削除する===========================================================================
+Sub CheckAndDeleteModuleContainingMacro(workbookName As String, macroName As String)
+    Dim targetWorkbook As Workbook
+    Dim vbComponent As VBIDE.vbComponent
+    Dim exists As Boolean
+
+    ' 指定したブックを設定
+    On Error Resume Next
+    Set targetWorkbook = Workbooks.Open(workbookName) ' 指定したブック名で開いているか確認
+    On Error GoTo 0
+
+    If targetWorkbook Is Nothing Then
+        MsgBox "指定したブック '" & workbookName & "' が開いていません。"
+        Exit Sub
+    End If
+
+    ' モジュールをループ
+    exists = False
+    For Each vbComponent In targetWorkbook.VBProject.VBComponents
+        If vbComponent.Type = vbext_ct_StdModule Or vbComponent.Type = vbext_ct_ClassModule Then
+            ' モジュールが空でない場合のみ確認
+            If vbComponent.CodeModule.CountOfLines > 0 Then
+                ' モジュールのコードを確認
+                If InStr(vbComponent.CodeModule.Lines(1, vbComponent.CodeModule.CountOfLines), "Sub " & macroName & "(") > 0 Then
+                    exists = True
+                    ' モジュールを削除
+                    targetWorkbook.VBProject.VBComponents.Remove vbComponent
+                    Exit For
+                End If
+            End If
+        End If
+    Next vbComponent
+
+    ' 結果を表示
+    If exists Then
+        MsgBox "マクロ '" & macroName & "' は '" & workbookName & "' に存在し、モジュールが削除されました。", Buttons:=vbInformation
+    Else
+        MsgBox "マクロ '" & macroName & "' は '" & workbookName & "' に存在しません。", Buttons:=vbInformation
+    End If
+End Sub
+
+
+
+
