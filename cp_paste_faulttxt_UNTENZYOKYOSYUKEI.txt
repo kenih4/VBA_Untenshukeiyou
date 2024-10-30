@@ -1,9 +1,10 @@
-Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
+Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
 
     Dim WSH
     Set WSH = CreateObject("Wscript.Shell")
-    Dim BL As Integer  ' 対象BL
+'    Dim BL As Integer  ' 対象BL
     
+    MsgBox "TEST cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)"
     
             Dim CB As Variant, i As Long
             CB = Application.ClipboardFormats
@@ -18,7 +19,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
                     tempText = .GetText
                 End With
 
-                If MsgBox("python getBlFaultSummary_LOCALTEST.pyの出力、" & vbCrLf & "falut.txtをSACLA運転状況集計BL*.xlsmのシート「集計記録」に張り付けるマクロです。" & vbCrLf & vbCrLf & "クリップボードの中身は以下です。" & vbCrLf & "「" & vbCrLf & tempText & vbCrLf & "」" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then
+                If MsgBox("python getBlFaultSummary_LOCALTEST.pyの出力、" & vbCrLf & "「falut.txt」をSACLA運転状況集計BL*.xlsmのシート「集計記録」に張り付けるマクロです。" & vbCrLf & vbCrLf & "クリップボードの中身は以下です。進みますか？" & vbCrLf & vbCrLf & "「" & vbCrLf & tempText & vbCrLf & "」", vbYesNo + vbQuestion, "確認") = vbNo Then
                     Exit Sub
                 End If
 
@@ -28,17 +29,16 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI()
 
 
 
-    Dim s
-    s = Application.InputBox("BLを入力して下さい。", "確認")
-    
-    If s = False Then
-        Exit Sub
-    ElseIf s = "" Then
-        MsgBox "何も入力されていません"
-        Exit Sub
-    Else
-        BL = s
-    End If
+'    Dim s
+'    s = Application.InputBox("BLを入力して下さい。", "確認")
+'    If s = False Then
+'        Exit Sub
+'    ElseIf s = "" Then
+'        MsgBox "何も入力されていません"
+'        Exit Sub
+'    Else
+'        BL = s
+'    End If
     
     Select Case BL
         Case 1

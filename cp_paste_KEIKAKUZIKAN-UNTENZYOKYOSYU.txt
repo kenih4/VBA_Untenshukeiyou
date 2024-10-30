@@ -12,8 +12,8 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     BNAME_KEIKAKU = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
     Set Wb_keikaku = Workbooks.Open(BNAME_KEIKAKU, ReadOnly:=True)
     Wb_keikaku.Worksheets("GUN HV OFF").Activate
-    If InStr(ActiveWorkbook.Name, BNAME_KEIKAKU) Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
+    If InStr(ActiveWorkbook.name, BNAME_KEIKAKU) Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
         Exit Sub
     End If
     
@@ -22,7 +22,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
 
     
     Dim s
-    s = Application.InputBox("BLを入力して下さい。", "確認")    
+    s = Application.InputBox("「計画時間.xlsx」を「SACLA運転状況集計BL*.xlsm」にコピーするマクロです。 " & vbCrLf & vbCrLf & "BLを入力して下さい。", "確認")
     If s = False Then
         Exit Sub
     ElseIf s = "" Then
@@ -48,7 +48,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             RANGE_GUN_HV_OFF = "G3:I"
             COL_GUN_HV_OFF = 7
         Case Else
-            MsgBox "BLが不正です" & vbCrLf & "！", Buttons:=vbInformation
+            MsgBox "BLが不正です。終了します。" & vbCrLf & "！", Buttons:=vbInformation
             Exit Sub
     End Select
     
@@ -179,3 +179,4 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             
     
 End Sub
+
