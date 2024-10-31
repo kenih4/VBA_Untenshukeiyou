@@ -1,28 +1,63 @@
 Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行()
-    '注意点　マクロ SubFault集計m はモジュール名でいうとModule10
+    Dim result As Boolean
     Dim sourceWorkbook As Workbook
     Dim targetWorkbook As Workbook
     Dim sourceModule As Object
     Dim targetModule As Object
-    
+       
     Dim BL As Integer  ' 対象BL
     Dim BNAME_SHUKEI As String
     Dim macroName As String
+        
+    Dim dict As Dictionary ' 辞書型を使用するには、参照設定 Microsoft Scripting Runtime　にチェック
+    Set dict = New Dictionary
+    dict.Add "Fault集計m", Array("ボタン 1", "Module10")
+    dict.Add "運転集計_形式処理m", Array("ボタン 2", "Module11")
+
+    ' デバッグ用に出力
+    Dim i As Integer
+    For i = LBound(dict("Fault集計m")) To UBound(dict("Fault集計m"))
+        Debug.Print dict("Fault集計m")(i)
+    Next i
+
+
+    Dim buttonName As String
+    If TypeName(Application.Caller) = "String" Then
+        buttonName = Application.Caller
+    Else
+        MsgBox "このマクロはシート上のボタンからのみ実行してください。", Buttons:=vbCritical
+        End
+    End If
+    
+    
+    If buttonName = dict("Fault集計m")(0) Then
+        MsgBox "Fault集計m", Buttons:=vbInformation
+        macroName = "Fault集計m"
+    ElseIf buttonName = dict("運転集計_形式処理m")(0) Then
+        MsgBox "運転集計_形式処理m", Buttons:=vbInformation
+        macroName = "運転集計_形式処理m"
+    Else
+        MsgBox "異常です。終了します。" & vbCrLf & "buttonName = " & buttonName, Buttons:=vbCritical
+        End
+    End If
     
     BL = 2
-    macroName = "Fault集計m"
     
-'    BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL" & BL & ".xlsm"
-    BNAME_SHUKEI = "C:\Users\kenichi\Documents\OperationSummary\test.xlsm"
+    BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL" & BL & ".xlsm"
+'    BNAME_SHUKEI = "C:\Users\kenichi\Documents\OperationSummary\test.xlsm"
     Set targetWorkbook = Workbooks.Open(BNAME_SHUKEI)
-
     
     'マクロmacroNameが、workbookNameに存在したら、削除する
-    Call CheckAndDeleteModuleContainingMacro(BNAME_SHUKEI, macroName)
+    result = CheckAndDeleteModuleContainingMacro(BNAME_SHUKEI, macroName)
+    If result Then
+        MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & BNAME_SHUKEI & " に存在したので、一旦、モジュールを削除して、" & vbCrLf & "マクロを流し込みます。。", Buttons:=vbInformation
+    Else
+        MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & BNAME_SHUKEI & " に存在しませんでした。" & vbCrLf & "マクロを流し込みます。", Buttons:=vbInformation
+    End If
 
     ' マクロいろいろ.xlsmのマクロFault集計m()をtargetWorkbookに流し込む
     Set sourceWorkbook = Workbooks.Open("C:\Users\kenichi\Documents\OperationSummary\マクロいろいろ.xlsm")
-    Set sourceModule = sourceWorkbook.VBProject.VBComponents("Module10") ' モジュール名を確認       Module10 = Fault集計m()
+    Set sourceModule = sourceWorkbook.VBProject.VBComponents(dict(macroName)(1)) ' モジュール名を確認       Module10 = Fault集計m()
     Set targetModule = targetWorkbook.VBProject.VBComponents.Add(1) ' vbext_ct_StdModule = 1  標準モジュールを追加
     targetModule.CodeModule.AddFromString sourceModule.CodeModule.Lines(1, sourceModule.CodeModule.CountOfLines)
     
@@ -31,6 +66,9 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
         MsgBox macroName & " が実行されました！", Buttons:=vbInformation
     End If
 
+
+    'マクロmacroNameを片づける
+    result = CheckAndDeleteModuleContainingMacro(BNAME_SHUKEI, macroName)
     
     ' ワークブックを閉じる
     'sourceWorkbook.Close SaveChanges:=False
@@ -47,7 +85,51 @@ End Sub
 
 
 'マクロmacroNameが、workbookNameに存在するか確認して「モジュール」を削除する===========================================================================
-Sub CheckAndDeleteModuleContainingMacro(workbookName As String, macroName As String)
+'Sub CheckAndDeleteModuleContainingMacro(workbookName As String, macroName As String)
+'    Dim targetWorkbook As Workbook
+'    Dim vbComponent As VBIDE.vbComponent
+'    Dim exists As Boolean
+'
+'    ' 指定したブックを設定
+'    On Error Resume Next
+'    Set targetWorkbook = Workbooks.Open(workbookName) ' 指定したブック名で開いているか確認
+'    On Error GoTo 0
+'
+'    If targetWorkbook Is Nothing Then
+'        MsgBox "指定したブック '" & workbookName & "' が開いていません。"
+'        Exit Sub
+'    End If
+'
+'    ' モジュールをループ
+'    exists = False
+'    For Each vbComponent In targetWorkbook.VBProject.VBComponents
+'        If vbComponent.Type = vbext_ct_StdModule Or vbComponent.Type = vbext_ct_ClassModule Then
+'            ' モジュールが空でない場合のみ確認
+'            If vbComponent.CodeModule.CountOfLines > 0 Then
+'                ' モジュールのコードを確認
+'                If InStr(vbComponent.CodeModule.Lines(1, vbComponent.CodeModule.CountOfLines), "Sub " & macroName & "(") > 0 Then
+'                    exists = True
+'                    ' モジュールを削除
+'                    targetWorkbook.VBProject.VBComponents.Remove vbComponent
+'                    Exit For
+'                End If
+'            End If
+'        End If
+'    Next vbComponent
+'
+'    ' 結果を表示
+'    If exists Then
+'        MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & workbookName & " に存在したので、モジュールを削除します。", Buttons:=vbInformation
+'    Else
+'        MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & workbookName & " に存在しませんでした。", Buttons:=vbInformation
+'    End If
+'End Sub
+
+
+
+
+'マクロmacroNameが、workbookNameに存在するか確認して「モジュール」を削除する  返り値が欲しいのでFunctionにした===========================================================================
+Function CheckAndDeleteModuleContainingMacro(workbookName As String, macroName As String) As Boolean
     Dim targetWorkbook As Workbook
     Dim vbComponent As VBIDE.vbComponent
     Dim exists As Boolean
@@ -59,7 +141,8 @@ Sub CheckAndDeleteModuleContainingMacro(workbookName As String, macroName As Str
 
     If targetWorkbook Is Nothing Then
         MsgBox "指定したブック '" & workbookName & "' が開いていません。"
-        Exit Sub
+        CheckAndDeleteModuleContainingMacro = False
+        Exit Function
     End If
 
     ' モジュールをループ
@@ -80,13 +163,15 @@ Sub CheckAndDeleteModuleContainingMacro(workbookName As String, macroName As Str
     Next vbComponent
 
     ' 結果を表示
-    If exists Then
-        MsgBox "マクロ '" & macroName & "' は '" & workbookName & "' に存在し、モジュールが削除されました。", Buttons:=vbInformation
-    Else
-        MsgBox "マクロ '" & macroName & "' は '" & workbookName & "' に存在しません。", Buttons:=vbInformation
-    End If
-End Sub
+'    If exists Then
+'        MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & workbookName & " に存在したので、モジュールを削除します。", Buttons:=vbInformation
+'    Else
+'        MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & workbookName & " に存在しませんでした。", Buttons:=vbInformation
+'    End If
 
+    ' existsの結果を返す
+    CheckAndDeleteModuleContainingMacro = exists
+End Function
 
 
 
