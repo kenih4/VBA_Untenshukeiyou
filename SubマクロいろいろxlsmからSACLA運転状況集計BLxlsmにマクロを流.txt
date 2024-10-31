@@ -11,14 +11,16 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
         
     Dim dict As Dictionary ' 辞書型を使用するには、参照設定 Microsoft Scripting Runtime　にチェック
     Set dict = New Dictionary
-    dict.Add "Fault集計m", Array("ボタン 1", "Module10")
-    dict.Add "運転集計_形式処理m", Array("ボタン 2", "Module11")
-
+    dict.Add "Fault集計m", "Module10"
+    dict.Add "運転集計_形式処理m", "Module11"
+'    dict.Add "Fault集計m", Array("ボタン 1", "Module10")
+'    dict.Add "運転集計_形式処理m", Array("ボタン 2", "Module11")
+    
     ' デバッグ用に出力
-    Dim i As Integer
-    For i = LBound(dict("Fault集計m")) To UBound(dict("Fault集計m"))
-        Debug.Print dict("Fault集計m")(i)
-    Next i
+'    Dim i As Integer
+'    For i = LBound(dict("Fault集計m")) To UBound(dict("Fault集計m"))
+'        Debug.Print dict("Fault集計m")(i)
+'    Next i
 
 
     Dim buttonName As String
@@ -30,24 +32,31 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     End If
     
     
-    If buttonName = dict("Fault集計m")(0) Then
-        MsgBox "Fault集計m", Buttons:=vbInformation
+    If buttonName = "ボタン 1" Then
+        BL = 2
         macroName = "Fault集計m"
-    ElseIf buttonName = dict("運転集計_形式処理m")(0) Then
-        MsgBox "運転集計_形式処理m", Buttons:=vbInformation
+    ElseIf buttonName = "ボタン 2" Then
+        BL = 2
+        macroName = "運転集計_形式処理m"
+    ElseIf buttonName = "ボタン 4" Then
+        BL = 3
+        macroName = "Fault集計m"
+    ElseIf buttonName = "ボタン 5" Then
+        BL = 3
         macroName = "運転集計_形式処理m"
     Else
         MsgBox "異常です。終了します。" & vbCrLf & "buttonName = " & buttonName, Buttons:=vbCritical
         End
     End If
     
-    BL = 2
+    MsgBox "BL" & BL & vbCrLf & "マクロ「" & macroName & "」を流し込んで実行します", Buttons:=vbInformation
+    
     
     BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL" & BL & ".xlsm"
 '    BNAME_SHUKEI = "C:\Users\kenichi\Documents\OperationSummary\test.xlsm"
     Set targetWorkbook = Workbooks.Open(BNAME_SHUKEI)
     
-    'マクロmacroNameが、workbookNameに存在したら、削除する
+    'マクロmacroNameが、BNAME_SHUKEIに存在したら、削除する
     result = CheckAndDeleteModuleContainingMacro(BNAME_SHUKEI, macroName)
     If result Then
         MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & BNAME_SHUKEI & " に存在したので、一旦、モジュールを削除して、" & vbCrLf & "マクロを流し込みます。。", Buttons:=vbInformation
@@ -57,7 +66,7 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
 
     ' マクロいろいろ.xlsmのマクロFault集計m()をtargetWorkbookに流し込む
     Set sourceWorkbook = Workbooks.Open("C:\Users\kenichi\Documents\OperationSummary\マクロいろいろ.xlsm")
-    Set sourceModule = sourceWorkbook.VBProject.VBComponents(dict(macroName)(1)) ' モジュール名を確認       Module10 = Fault集計m()
+    Set sourceModule = sourceWorkbook.VBProject.VBComponents(dict(macroName)) ' モジュール名を確認       Module10 = Fault集計m()
     Set targetModule = targetWorkbook.VBProject.VBComponents.Add(1) ' vbext_ct_StdModule = 1  標準モジュールを追加
     targetModule.CodeModule.AddFromString sourceModule.CodeModule.Lines(1, sourceModule.CodeModule.CountOfLines)
     
