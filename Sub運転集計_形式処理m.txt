@@ -1,18 +1,19 @@
-Sub 運転集計_形式処理m()
+Sub 運転集計_形式処理m(BL As Integer)
 
     '/追加部分----------------------------
     Dim BL As Integer  ' 対象BL
     Dim DOWNTIME_ROW As Integer
-    Dim s
-    s = Application.InputBox("ひな形シート「運転状況（対象ユニット）」からシート「24-*(BL*)」を作成します。" & vbCrLf & "BLを入力してください", "確認")
-    If s = False Then
-        End
-    ElseIf s = "" Then
-        MsgBox "何も入力されていません"
-        End
-    Else
-        BL = s
-    End If
+    MsgBox "マクロ「運転集計_形式処理m」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & "ひな形シート「運転状況（対象ユニット）」からシート「24-*(BL" & BL & ")」を作成します。", Buttons:=vbInformation
+'    Dim s
+'    s = Application.InputBox("ひな形シート「運転状況（対象ユニット）」からシート「24-*(BL*)」を作成します。" & vbCrLf & "BLを入力してください", "確認")
+'    If s = False Then
+'        End
+'    ElseIf s = "" Then
+'        MsgBox "何も入力されていません"
+'        End
+'    Else
+'        BL = s
+'    End If
     
     Select Case BL
         Case 1
@@ -32,8 +33,8 @@ Sub 運転集計_形式処理m()
     End Select
     Set wb_SHUKEI = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
     wb_SHUKEI.Worksheets("運転状況(対象ユニット)").Activate
-    If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
+    If InStr(ActiveWorkbook.name, BNAME_SHUKEI) Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
         End
     End If
     
@@ -59,7 +60,7 @@ Sub 運転集計_形式処理m()
     Application.DisplayAlerts = True   '--- 確認メッセージを表示
 
     Sheets("運転状況(対象ユニット)").Copy after:=ActiveSheet 'シートのコピー'
-    ActiveSheet.Name = シート名 'シート名変更'
+    ActiveSheet.name = シート名 'シート名変更'
     Range("A1:P" & 最終行).Value = Range("A1:P" & 最終行).Value '数式⇒値へ変換'
 
     If Cells(Range("P1:P500").Find("条件_開始行").Row + 1, 7) = "" Then 'ユーザーがいないとき'
@@ -81,7 +82,7 @@ Sub 運転集計_形式処理m()
 
     '/追加部分----------------------------
     If wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value = 0 Then
-        MsgBox "ダウンタイムは　" & wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value & " です。ゼロだとおかしいと思います。"  & vbCrLf & "シート「集計記録」に数式が入っていない可能性があります" , Buttons:=vbExclamation
+        MsgBox "ダウンタイムは　" & wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value & " です。ゼロだとおかしいと思います。" & vbCrLf & "シート「集計記録」に数式が入っていない可能性があります", Buttons:=vbExclamation
     End If
     
     If MsgBox("今表示さているシート「" & シート名 & "」が作成されたものです。" & vbCrLf & "これを「SACLA運転状況集計まとめ.xlsm」にコピーしますか？", vbYesNo + vbQuestion, "確認") = vbYes Then

@@ -13,24 +13,42 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     Set Wb_keikaku = Workbooks.Open(BNAME_KEIKAKU, ReadOnly:=True)
     Wb_keikaku.Worksheets("GUN HV OFF").Activate
     If InStr(ActiveWorkbook.name, BNAME_KEIKAKU) Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
         Exit Sub
     End If
     
     Debug.Print "============================================================================================================"
 
 
-    
-    Dim s
-    s = Application.InputBox("「計画時間.xlsx」を「SACLA運転状況集計BL*.xlsm」にコピーするマクロです。 " & vbCrLf & vbCrLf & "BLを入力して下さい。", "確認")
-    If s = False Then
-        Exit Sub
-    ElseIf s = "" Then
-        MsgBox "何も入力されていません"
-        Exit Sub
+    Dim buttonName As String
+    If TypeName(Application.Caller) = "String" Then
+        buttonName = Application.Caller
     Else
-        BL = s
+        MsgBox "このマクロはシート上のボタンからのみ実行してください。", Buttons:=vbCritical
+        End
     End If
+    
+    If buttonName = "ボタン 6" Then
+        BL = 2
+    ElseIf buttonName = "ボタン 7" Then
+        BL = 3
+   Else
+        MsgBox "異常です。終了します。" & vbCrLf & "buttonName = " & buttonName, Buttons:=vbCritical
+        End
+    End If
+    MsgBox "BL" & BL & vbCrLf & "「計画時間.xlsx」を「SACLA運転状況集計BL" & BL & ".xlsm」にコピーするマクロです。 ", Buttons:=vbInformation
+    
+    
+'    Dim s
+'    s = Application.InputBox("「計画時間.xlsx」を「SACLA運転状況集計BL" & BL & ".xlsm」にコピーするマクロです。 " & vbCrLf & vbCrLf & "BLを入力して下さい。", "確認")
+'    If s = False Then
+'        Exit Sub
+'    ElseIf s = "" Then
+'        MsgBox "何も入力されていません"
+'        Exit Sub
+'    Else
+'        BL = s
+'    End If
     
     Select Case BL
         Case 1
