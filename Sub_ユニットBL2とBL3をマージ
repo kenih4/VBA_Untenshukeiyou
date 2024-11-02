@@ -1,10 +1,10 @@
-Sub ユニットBL2とBL3をマージ()
+Sub Merge_MATOME_BL2andBL3()
 
     Dim TargetUnit As String
     Dim Sonzai_flg_BL2 As Boolean: Sonzai_flg_BL2 = False
     Dim Sonzai_flg_BL3 As Boolean: Sonzai_flg_BL3 = False
        
-'    BNAME_MATOME = "C:\Users\kenichi\Dropbox\gitdir\VBA運転集計用\SACLA運転状況集計まとめTEST.xlsm"
+'    BNAME_MATOME = "C:\Users\kenichi\Documents\OperationSummary\SACLA運転状況集計まとめTEST.xlsm"
     BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
     Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
     wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
@@ -28,7 +28,7 @@ Sub ユニットBL2とBL3をマージ()
     
     
     
-    '「ユニット(BL*)」というパターン表現の場合次ぎすすむ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    '「24-11(BL3)」というパターン表現の場合次ぎすすむ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Dim Hakken As Boolean
     Dim regex As Object
     Dim testString As String
@@ -91,7 +91,7 @@ Sub ユニットBL2とBL3をマージ()
     TargetUnit = tmp(0)
     Debug.Print "TargetUnit=" & TargetUnit
     
-    If MsgBox("このマクロは「SACLA運転状況集計まとめ.xlsm」の" & vbCrLf & "シート「ユニット(BL2)と(BL3)」を結合します。" & vbCrLf & "結合しようとしているユニットは「" & TargetUnit & "」です。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
+    If MsgBox("このマクロはSACLA運転状況集計まとめ.xlsmのユニットBL2/BL3を結合します。" & vbCrLf & "結合しようとしているユニットは「" & TargetUnit & "」です。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
         End
     End If
     
