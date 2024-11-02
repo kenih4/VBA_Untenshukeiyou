@@ -4,8 +4,8 @@ Sub ユニットBL2とBL3をマージ()
     Dim Sonzai_flg_BL2 As Boolean: Sonzai_flg_BL2 = False
     Dim Sonzai_flg_BL3 As Boolean: Sonzai_flg_BL3 = False
        
-'    BNAME_MATOME = "C:\Users\kenichi\Dropbox\gitdir\VBA運転集計用\SACLA運転状況集計まとめTEST.xlsm"
-    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+'    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
     Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
     wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
     wb_MATOME.Worksheets("Fault集計").Cells(1, 1).Select ' 選択範囲が残ってるの気持ち悪いのでとりあえず
@@ -45,7 +45,7 @@ Sub ユニットBL2とBL3をマージ()
 
     
 '    pattern = "\d+-\d+\(BL\d\)"  ' 正規表現パターンの設定（部分一致を含む）
-    pattern = "^\d-\d\(BL\d\)$"  ' 正規表現パターンの設定（完全一致）
+    pattern = "^\d+-\d+\(BL\d\)$"  ' 正規表現パターンの設定（完全一致）
 
     ' 正規表現のプロパティを設定
     With regex
@@ -133,6 +133,8 @@ Sub ユニットBL2とBL3をマージ()
     'BL2のシートをコピーしてベースにする
     wb_MATOME.Worksheets(TargetUnit & "(BL2)").Copy after:=wb_MATOME.Worksheets("まとめ ")
     ActiveSheet.name = TargetUnit
+    Cells.Select '　コピーしましたってことを視覚的に分かりやすくするため。なくてもいい
+    MsgBox "シート「" & TargetUnit & "(BL2)" & "」をコピーしました。" & vbCrLf & "これを下地にします。", Buttons:=vbInformation
         
 
 

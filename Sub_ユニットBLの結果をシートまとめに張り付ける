@@ -1,0 +1,283 @@
+Sub ユニットBLの結果をシートまとめに張り付ける()
+
+MsgBox "TEST" & vbCrLf & "です。" & vbCrLf & "！", Buttons:=vbInformation
+    
+    
+    
+    Dim TargetUnit As String
+    Dim Sonzai_flg_BL2 As Boolean: Sonzai_flg_BL2 = False
+    Dim Sonzai_flg_BL3 As Boolean: Sonzai_flg_BL3 = False
+    Dim Sonzai_flg_Merged As Boolean: Sonzai_flg_Merged = False
+    Dim Category As String
+    
+       
+'    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
+    Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+    wb_MATOME.Windows(1).WindowState = xlMaximized
+    wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
+    wb_MATOME.Worksheets("Fault集計").Cells(1, 1).Select ' 選択範囲が残ってるの気持ち悪いのでとりあえず
+    If InStr(ActiveWorkbook.name, BNAME_MATOME) Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
+        End
+    End If
+    
+    
+    For i = 1 To Sheets.Count
+        Debug.Print Sheets(i).name
+        If Sheets(i).name = "まとめ " Then 'シート「まとめ 」の次のシートが対象となるユニット
+            TargetSheet = Sheets(i + 1).name
+            Debug.Print "Hit-------" & TargetSheet
+            Exit For
+        End If
+    Next
+    Debug.Print "TargetSheet = " & TargetSheet
+    
+    
+    
+    
+    '「ユニット(BL*)」というパターン表現の場合次ぎすすむ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Dim Hakken As Boolean
+    Dim regex As Object
+    Dim testString As String
+    Dim matches As Object
+    Dim match As Object
+    Dim pattern As String
+    Hakken = False
+
+    ' 検索したい文字列
+    testString = TargetSheet
+
+    ' 正規表現オブジェクトの作成
+    Set regex = CreateObject("VBScript.RegExp")
+
+    
+'    pattern = "\d+-\d+\(BL\d\)"  ' 正規表現パターンの設定（部分一致を含む）
+'    pattern = "^\d+-\d+\(BL\d\)$"  ' 正規表現パターンの設定（完全一致）
+    pattern = "^\d+-\d+"  ' 正規表現パターンの設定（完全一致）
+
+    ' 正規表現のプロパティを設定
+    With regex
+        .Global = True         ' すべての一致を検索
+        .IgnoreCase = True     ' 大文字と小文字を区別しない
+        .pattern = pattern     ' 検索パターンを指定
+    End With
+
+    ' 文字列内の一致を検索
+    Set matches = regex.Execute(testString)
+
+    ' 一致した結果を表示
+    For Each match In matches
+        Debug.Print "見つかったパターン: " & match.Value
+        Hakken = True
+    Next match
+
+    ' オブジェクトのクリーンアップ
+    Set regex = Nothing
+    Set matches = Nothing
+    
+    If Hakken = False Then
+        MsgBox "まとめシートの次のシート名が、" & vbCrLf & "「" & TargetSheet & "」" & vbCrLf & "です。" & vbCrLf & "「ユニット」というパターン表現ではありません。" & vbCrLf & "ユニット(BL2)とユニット(BL3)とう名前のシートを結合したいのでこれではできません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
+        End
+    End If
+    
+    '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    
+    
+    
+    
+    
+    
+    Dim tmp As Variant
+    tmp = Split(TargetSheet, "(")
+    Debug.Print "UBound(tmp) = " & UBound(tmp)
+'    If UBound(tmp) = 0 Then 'シート「まとめ」の次のシートがユニット名だけの場合（ (BL2)とか(BL3)とかない場合）
+'        MsgBox "既にマージされてませんか？？　" & vbCrLf & " 終了します。", Buttons:=vbExclamation
+        'End
+'    End If
+
+    TargetUnit = tmp(0)
+    Debug.Print "TargetUnit=" & TargetUnit
+    
+    If MsgBox("このマクロは「SACLA運転状況集計まとめ.xlsm」の" & vbCrLf & "シート「ユニット(BL2/3)」の項目をシート「まとめ」にコピーします。" & vbCrLf & "対処ユニットは「" & TargetUnit & "」です。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
+        End
+    End If
+    
+    
+    For Each a In Sheets
+        'Debug.Print "A  name   " & A.Name
+        'BL2シートの存在確認
+        If a.name = TargetUnit & "(BL2)" Then
+            Debug.Print "*BL2 sheet  name:   " & a.name
+            Sonzai_flg_BL2 = True
+        End If
+        
+        'BL3シートの存在確認
+        If a.name = TargetUnit & "(BL3)" Then
+            Debug.Print "*BL3 sheet  name:   " & a.name
+            Sonzai_flg_BL3 = True
+        End If
+       
+        '結合されたシートの存在確認
+        If a.name = TargetUnit Then
+           Debug.Print "*結合されたシート:   " & a.name
+           Sonzai_flg_Merged = True
+        End If
+    Next
+    
+    
+    Debug.Print "Sonzai_flg_Merged:   " & Sonzai_flg_Merged
+    If Not Sonzai_flg_Merged Or Not Sonzai_flg_BL2 Or Not Sonzai_flg_BL3 Then
+        MsgBox "ユニット、または、ユニット(BL2) または ユニット(BL3) のシートが出来てません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
+        End
+    End If
+    
+
+    
+    
+    
+    '(a)運転時間　期間毎  の部分の処理
+    Category = "(a)運転時間　期間毎"
+    result = Check_Unit_and_Copy(Category, 2, wb_MATOME.Worksheets(TargetUnit), TargetUnit)
+    If result = False Then Exit Sub
+    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+    result = Find_targetcell_and_paste(Category, 2, wb_MATOME.Worksheets("まとめ "))
+    
+    
+    
+    
+    
+    
+    Debug.Print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    '(b)運転時間　シフト毎  の部分の処理
+    Category = "(b-1)BL2"
+    result = Check_Unit_and_Copy(Category, 2, wb_MATOME.Worksheets(TargetUnit & "(BL2)"), TargetUnit)
+    If result = False Then Exit Sub
+'    wb_MATOME.Worksheets(TargetUnit & "(BL2)").Activate ' これ大事　これしないと .Selectできない
+'    wb_MATOME.Worksheets(TargetUnit & "(BL2)").Rows(getLineNum(Category, 2, wb_MATOME.Worksheets(TargetUnit & "(BL2)")) + 2 & ":" & getLineNum("(c)運転条件", 2, wb_MATOME.Worksheets(TargetUnit & "(BL2)")) - 3).Copy
+'    wb_MATOME.Worksheets(TargetUnit & "(BL2)").Rows(getLineNum(Category, 2, wb_MATOME.Worksheets(TargetUnit & "(BL2)")) + 2 & ":" & getLineNum("(c)運転条件", 2, wb_MATOME.Worksheets(TargetUnit & "(BL2)")) - 3).Select
+    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+    result = Find_targetcell_and_paste(Category, 2, wb_MATOME.Worksheets("まとめ "))
+    
+    
+
+    '(b)運転時間　シフト毎  の部分の処理
+    Category = "(b-2)BL3"
+    result = Check_Unit_and_Copy(Category, 2, wb_MATOME.Worksheets(TargetUnit & "(BL3)"), TargetUnit)
+    If result = False Then Exit Sub
+    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+    result = Find_targetcell_and_paste(Category, 2, wb_MATOME.Worksheets("まとめ "))
+
+
+
+
+
+ 
+    
+    Debug.Print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    '(c)運転条件　  の部分の処理
+    Category = "(c-1)BL2"
+    result = Check_Unit_and_Copy(Category, 2, wb_MATOME.Worksheets(TargetUnit & "(BL2)"), TargetUnit)
+    If result = False Then Exit Sub
+    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+    result = Find_targetcell_and_paste(Category, 2, wb_MATOME.Worksheets("まとめ "))
+ 
+    '(c)運転条件　  の部分の処理
+    Category = "(c-2)BL3"
+    result = Check_Unit_and_Copy(Category, 2, wb_MATOME.Worksheets(TargetUnit & "(BL3)"), TargetUnit)
+    If result = False Then Exit Sub
+    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+    result = Find_targetcell_and_paste(Category, 2, wb_MATOME.Worksheets("まとめ "))
+ 
+ 
+ 
+ 
+ 
+ 
+    MsgBox "DEUB END" & vbCrLf & "。", Buttons:=vbInformation
+    End
+    
+
+
+
+
+
+    'wb_MATOME.Worksheets(TargetUnit).ResetAllPageBreaks ' 全ての改ページをクリア
+    wb_MATOME.Worksheets(TargetUnit).PageSetup.PrintArea = False ' 全ての印刷範囲をクリア
+
+    
+    MsgBox "これで終了です。" & vbCrLf & "シート「ユニット(BL*)」は手動で削除して下さい", Buttons:=vbInformation
+
+
+
+End Sub
+
+
+
+
+
+
+
+
+
+
+
+'念のため確認　シートsheetのCategoryのセルに正しいユニットが入ってるか。==============================================================================================================================
+Function Check_Unit_and_Copy(ByVal Category As String, ByVal TARGET_COL As Integer, ByVal sheet As Worksheet, ByVal TargetUnit As String) As Boolean
+    
+    Check_Unit_and_Copy = False
+    sheet.Activate
+    Dim r As Integer: r = 2 ' 「Category 」行から「ユニット名」行までの行数
+    
+    Debug.Print "OK0:  " & sheet.Cells(getLineNum(Category, TARGET_COL, sheet) + 0, TARGET_COL)  ' 「Category 」
+    Debug.Print "OK1:  " & sheet.Cells(getLineNum(Category, TARGET_COL, sheet) + 1, TARGET_COL) ' 「ユニット」
+    Debug.Print "OK2:  " & sheet.Cells(getLineNum(Category, TARGET_COL, sheet) + 2, TARGET_COL) ' 上の行が結合されてる場合は空、　そうでない場合は「ユニット名」の筈
+    Debug.Print "OK3:  " & sheet.Cells(getLineNum(Category, TARGET_COL, sheet) + 3, TARGET_COL)
+    
+    If sheet.Cells(getLineNum(Category, TARGET_COL, sheet) + 1, TARGET_COL).MergeCells Then  '  B列　セルが結合されている場合
+       r = r + sheet.Cells(getLineNum(Category, TARGET_COL, sheet) + 1, TARGET_COL).MergeArea.Rows.Count - 1
+    End If
+
+    If sheet.Cells(getLineNum(Category, TARGET_COL, sheet) + r, TARGET_COL).Value <> TargetUnit Then
+        MsgBox "シート「" & sheet.name & "」の" & Category & "のユニットが一致しません。　終了します。" & vbCrLf & " TargetUnit　= " & TargetUnit & vbCrLf & "セル：" & sheet.Cells(getLineNum(Category, TARGET_COL, sheet) + 3, TARGET_COL).Value, Buttons:=vbCritical
+    Else
+        Debug.Print "OK:  r = " & r & "     Category = "; Category & "    TargetUnit = " & TargetUnit & "    セル= " & sheet.Cells(getLineNum(Category, TARGET_COL, sheet) + r, TARGET_COL).Value
+        sheet.Rows(getLineNum(Category, TARGET_COL, sheet) + r & ":" & getLineNum(Category, TARGET_COL, sheet) + r + sheet.Cells(getLineNum(Category, TARGET_COL, sheet) + r, TARGET_COL).MergeArea.Rows.Count - 1).Copy
+        sheet.Rows(getLineNum(Category, TARGET_COL, sheet) + r & ":" & getLineNum(Category, TARGET_COL, sheet) + r + sheet.Cells(getLineNum(Category, TARGET_COL, sheet) + r, TARGET_COL).MergeArea.Rows.Count - 1).Select
+        Check_Unit_and_Copy = True
+    End If
+        
+End Function
+
+
+
+
+'==============================================================================================================================
+Function Find_targetcell_and_paste(ByVal Category As String, ByVal TARGET_COL As Integer, ByVal sheet As Worksheet) As Boolean
+    
+    Find_targetcell_and_paste = False
+        
+        sheet.Activate
+        For i = getLineNum(Category, TARGET_COL, sheet) To sheet.Cells(Rows.Count, TARGET_COL).End(xlUp).Row
+            Debug.Print "行番号: " & i & "    Value: " & sheet.Cells(i, TARGET_COL).Value & "      Cells(i, TARGET_COL).MergeArea.Rows.Count = " & Cells(i, 2).MergeArea.Rows.Count
+            If sheet.Cells(i, TARGET_COL).Value = "" Then '
+                Debug.Print "空なので、ここに貼り付けます！！！！　行番号: " & i & "    Value: " & sheet.Cells(i, TARGET_COL).Value
+                sheet.Cells(i, 1).Select
+                If MsgBox("ここに値を貼り付けていいですか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+                    sheet.Cells(i, 1).Insert xlDown
+                    If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Function
+                Else
+                    Exit Function
+                End If
+                Exit For
+            End If
+            If Cells(i, TARGET_COL).MergeCells Then  '  B列　セルが結合されている場合、iに結合されてる分だけ足して次のループへ
+                i = i + Cells(i, TARGET_COL).MergeArea.Rows.Count - 1
+            End If
+        Next
+        
+        Find_targetcell_and_paste = True
+        
+End Function
+
