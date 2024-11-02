@@ -1,7 +1,9 @@
 Sub ユニットBLの結果をシートまとめに張り付ける()
 
-MsgBox "TEST" & vbCrLf & "です。" & vbCrLf & "！", Buttons:=vbInformation
+    Application.ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon"",False)"
+    'Application.DisplayFullScreen = True
     
+    MsgBox "マクロの内容" & vbCrLf & "「シート「ユニット」の項目aとシート「ユニット(BL2)と(BL3)」の項目b、cをシート「まとめ」に貼り付け」" & vbCrLf & "です。", Buttons:=vbInformation
     
     
     Dim TargetUnit As String
@@ -15,6 +17,7 @@ MsgBox "TEST" & vbCrLf & "です。" & vbCrLf & "！", Buttons:=vbInformation
     BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
     Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
     wb_MATOME.Windows(1).WindowState = xlMaximized
+    ActiveWindow.Zoom = 60
     wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
     wb_MATOME.Worksheets("Fault集計").Cells(1, 1).Select ' 選択範囲が残ってるの気持ち悪いのでとりあえず
     If InStr(ActiveWorkbook.name, BNAME_MATOME) Then
@@ -193,14 +196,6 @@ MsgBox "TEST" & vbCrLf & "です。" & vbCrLf & "！", Buttons:=vbInformation
  
  
  
- 
- 
-    MsgBox "DEUB END" & vbCrLf & "。", Buttons:=vbInformation
-    End
-    
-
-
-
 
 
     'wb_MATOME.Worksheets(TargetUnit).ResetAllPageBreaks ' 全ての改ページをクリア
@@ -208,6 +203,9 @@ MsgBox "TEST" & vbCrLf & "です。" & vbCrLf & "！", Buttons:=vbInformation
 
     
     MsgBox "これで終了です。" & vbCrLf & "シート「ユニット(BL*)」は手動で削除して下さい", Buttons:=vbInformation
+    ActiveWindow.Zoom = 100
+    Application.ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon"",True)"
+    'Application.DisplayFullScreen = False
 
 
 
@@ -228,6 +226,7 @@ Function Check_Unit_and_Copy(ByVal Category As String, ByVal TARGET_COL As Integ
     
     Check_Unit_and_Copy = False
     sheet.Activate
+    ActiveWindow.Zoom = 60
     Dim r As Integer: r = 2 ' 「Category 」行から「ユニット名」行までの行数
     
     Debug.Print "OK0:  " & sheet.Cells(getLineNum(Category, TARGET_COL, sheet) + 0, TARGET_COL)  ' 「Category 」
@@ -259,8 +258,13 @@ Function Find_targetcell_and_paste(ByVal Category As String, ByVal TARGET_COL As
     Find_targetcell_and_paste = False
         
         sheet.Activate
-        For i = getLineNum(Category, TARGET_COL, sheet) To sheet.Cells(Rows.Count, TARGET_COL).End(xlUp).Row
-            Debug.Print "行番号: " & i & "    Value: " & sheet.Cells(i, TARGET_COL).Value & "      Cells(i, TARGET_COL).MergeArea.Rows.Count = " & Cells(i, 2).MergeArea.Rows.Count
+        ActiveWindow.Zoom = 60
+                
+        Debug.Print "sheet.UsedRange.Rows.Count: " & sheet.UsedRange.Rows.Count & "     sheet.UsedRange.Rows(sheet.UsedRange.Rows.Count).Row: " & sheet.UsedRange.Rows(sheet.UsedRange.Rows.Count).Row
+        
+        'For i = getLineNum(Category, TARGET_COL, sheet) To sheet.Cells(Rows.Count, TARGET_COL).End(xlUp).Row
+        For i = getLineNum(Category, TARGET_COL, sheet) To sheet.UsedRange.Rows(sheet.UsedRange.Rows.Count).Row
+            'Debug.Print "行番号: " & i & "    Value: " & sheet.Cells(i, TARGET_COL).Value & "      Cells(i, TARGET_COL).MergeArea.Rows.Count = " & Cells(i, 2).MergeArea.Rows.Count
             If sheet.Cells(i, TARGET_COL).Value = "" Then '
                 Debug.Print "空なので、ここに貼り付けます！！！！　行番号: " & i & "    Value: " & sheet.Cells(i, TARGET_COL).Value
                 sheet.Cells(i, 1).Select
