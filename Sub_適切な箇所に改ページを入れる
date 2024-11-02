@@ -1,6 +1,4 @@
-
-
-Sub Auto_pagebreak()
+Sub 適切な箇所に改ページを入れる()
     
     Dim WNAME As String
     Dim RPL() As Variant ' RequiredPagebreakList  必須の改ページのリスト
