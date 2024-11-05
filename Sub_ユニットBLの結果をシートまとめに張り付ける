@@ -1,8 +1,6 @@
 Sub ユニットBLの結果をシートまとめに張り付ける()
     On Error GoTo ErrorHandler ' エラーハンドリングを設定
         
-    Application.ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon"",False)"
-    'Application.DisplayFullScreen = True
     
     'MsgBox "マクロの内容" & vbCrLf & "「シート「ユニット」の項目aとシート「ユニット(BL2)と(BL3)」の項目b、cをシート「まとめ」に貼り付け」" & vbCrLf & "です。", Buttons:=vbInformation
     
@@ -16,15 +14,21 @@ Sub ユニットBLの結果をシートまとめに張り付ける()
        
 '    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
     BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
+    Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
     Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
     wb_MATOME.Windows(1).WindowState = xlMaximized
+    Application.ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon"",False)"
     ActiveWindow.Zoom = 60
+    'Application.DisplayFullScreen = True
     wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
     wb_MATOME.Worksheets("Fault集計").Cells(1, 1).Select ' 選択範囲が残ってるの気持ち悪いのでとりあえず
     If InStr(ActiveWorkbook.name, BNAME_MATOME) Then
         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
-        End
+        Call Fin
     End If
+    
+    
+    
     
     
     For i = 1 To Sheets.Count
@@ -100,40 +104,25 @@ Sub ユニットBLの結果をシートまとめに張り付ける()
     TargetUnit = tmp(0)
     Debug.Print "TargetUnit=" & TargetUnit
     
-    If MsgBox("このマクロは「シート「ユニット」の項目aとシート「ユニット(BL2)と(BL3)」の項目b、cをシート「まとめ」に貼り付けします。" & vbCrLf & "対処ユニットは「" & TargetUnit & "」です。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
-        Call Fin
-    End If
     
     
-    For Each a In Sheets
-        'Debug.Print "A  name   " & A.Name
-        'BL2シートの存在確認
-        If a.name = TargetUnit & "(BL2)" Then
-            Debug.Print "*BL2 sheet  name:   " & a.name
-            Sonzai_flg_BL2 = True
-        End If
-        
-        'BL3シートの存在確認
-        If a.name = TargetUnit & "(BL3)" Then
-            Debug.Print "*BL3 sheet  name:   " & a.name
-            Sonzai_flg_BL3 = True
-        End If
-       
-        '結合されたシートの存在確認
-        If a.name = TargetUnit Then
-           Debug.Print "*結合されたシート:   " & a.name
-           Sonzai_flg_Merged = True
-        End If
-    Next
     
-    
-    Debug.Print "Sonzai_flg_Merged:   " & Sonzai_flg_Merged
+    'シートの存在確認
+    Sonzai_flg_BL2 = SheetExists(wb_MATOME, TargetUnit & "(BL2)")
+    Sonzai_flg_BL3 = SheetExists(wb_MATOME, TargetUnit & "(BL3)")
+    Sonzai_flg_Merged = SheetExists(wb_MATOME, TargetUnit)
     If Not Sonzai_flg_Merged Or Not Sonzai_flg_BL2 Or Not Sonzai_flg_BL3 Then
         MsgBox "ユニット、または、ユニット(BL2) または ユニット(BL3) のシートが出来てません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
         Call Fin
     End If
     
+    
+    If MsgBox("このマクロは「シート「ユニット」の項目aとシート「ユニット(BL2)と(BL3)」の項目b、cをシート「まとめ」に貼り付けします。" & vbCrLf & "対処ユニットは「" & TargetUnit & "」です。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
+        Call Fin
+    End If
 
+    
+    
     
     
     
@@ -143,8 +132,6 @@ Sub ユニットBLの結果をシートまとめに張り付ける()
     If result = False Then Call Fin
     If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Call Fin
     result = Find_targetcell_and_paste(Category, 2, wb_MATOME.Worksheets("まとめ "))
-    
-    
     
     
     
@@ -194,7 +181,6 @@ Sub ユニットBLの結果をシートまとめに張り付ける()
     Call Fin
 
 ErrorHandler:
-    ' エラーハンドリング用の終了処理
     Call Cleanup
     Exit Sub
     
@@ -204,13 +190,14 @@ End Sub
 
 
 Sub Cleanup()
-    MsgBox "エラーが発生 終了します"
+    MsgBox "何らかのエラーが発生が発生しました"
+    Call Fin
 End Sub
 
 
 
 Sub Fin()
-    MsgBox "終了"
+    MsgBox "終了処理"
 '    ActiveWindow.Zoom = 100
     Application.ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon"",True)"
     Application.DisplayFullScreen = False
@@ -228,7 +215,24 @@ End Sub
 
 
 
-'念のため確認　シートsheetのCategoryのセルに正しいユニットが入ってるか。==============================================================================================================================
+
+
+
+'シート存在を確認==============================================================================================================================
+Function SheetExists(wb As Workbook, sname As String) As Boolean
+    On Error Resume Next ' エラーが発生しても処理を継続
+    Dim ws As Worksheet
+    Set ws = wb.Sheets(sname) ' 指定したシートをセット
+    SheetExists = Not ws Is Nothing ' シートが存在すればTrue
+    Debug.Print "@SheetExists   Sheetname: [" & sname & "]  " & SheetExists
+    On Error GoTo 0 ' エラーハンドリングをリセット
+End Function
+
+
+
+
+
+'シートsheetのCategoryのセルに正しいユニットが入ってるか確認して、コピー==============================================================================================================================
 Function Check_Unit_and_Copy(ByVal Category As String, ByVal TARGET_COL As Integer, ByVal sheet As Worksheet, ByVal TargetUnit As String) As Boolean
     
     Check_Unit_and_Copy = False
