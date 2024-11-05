@@ -1,19 +1,22 @@
 Sub ユニットBL2とBL3をマージ()
+    On Error GoTo ErrorHandler ' エラーハンドリングを設定
 
     Dim TargetUnit As String
     Dim Sonzai_flg_BL2 As Boolean: Sonzai_flg_BL2 = False
     Dim Sonzai_flg_BL3 As Boolean: Sonzai_flg_BL3 = False
        
 '    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+'    MsgBox "本チャンです", Buttons:=vbInformation
     BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
+    Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
     Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+    wb_MATOME.Windows(1).WindowState = xlMaximized
     wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
     wb_MATOME.Worksheets("Fault集計").Cells(1, 1).Select ' 選択範囲が残ってるの気持ち悪いのでとりあえず
     If InStr(ActiveWorkbook.name, BNAME_MATOME) Then
         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
-        End
+        Call Fin
     End If
-    
     
     For i = 1 To Sheets.Count
         Debug.Print Sheets(i).name
@@ -69,7 +72,7 @@ Sub ユニットBL2とBL3をマージ()
     
     If Hakken = False Then
         MsgBox "まとめシートの次のシート名が、" & vbCrLf & "「" & TargetSheet & "」" & vbCrLf & "です。" & vbCrLf & "「ユニット(BL*)」というパターン表現ではありません。" & vbCrLf & "ユニット(BL2)とユニット(BL3)とう名前のシートを結合したいのでこれではできません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
-        End
+        Call Fin
     End If
     
     '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -82,52 +85,34 @@ Sub ユニットBL2とBL3をマージ()
     
     Dim tmp As Variant
     tmp = Split(TargetSheet, "(")
-    Debug.Print "UBound(tmp) = " & UBound(tmp)
-'    If UBound(tmp) = 0 Then 'シート「まとめ」の次のシートがユニット名だけの場合（ (BL2)とか(BL3)とかない場合）
-'        MsgBox "既にマージされてませんか？？　" & vbCrLf & " 終了します。", Buttons:=vbExclamation
-        'End
-'    End If
-
     TargetUnit = tmp(0)
     Debug.Print "TargetUnit=" & TargetUnit
     
-    If MsgBox("このマクロは「SACLA運転状況集計まとめ.xlsm」の" & vbCrLf & "シート「ユニット(BL2)と(BL3)」を結合します。" & vbCrLf & "結合しようとしているユニットは「" & TargetUnit & "」です。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
-        End
-    End If
-    
-    
-    For Each A In Sheets
-        'Debug.Print "A  name   " & A.Name
-        'BL2シートの存在確認
-        If A.name = TargetUnit & "(BL2)" Then
-            Debug.Print "*BL2 sheet  name:   " & A.name
-            Sonzai_flg_BL2 = True
-        End If
-        
-        'BL3シートの存在確認
-        If A.name = TargetUnit & "(BL3)" Then
-            Debug.Print "*BL3 sheet  name:   " & A.name
-            Sonzai_flg_BL3 = True
-        End If
-       
-        '結合されたシートの存在確認
-        If A.name = TargetUnit Then
-           If MsgBox("既に結合されたシートが存在します。" & vbCrLf & " シートを削除しますか？", vbYesNo + vbQuestion, "newunit") = vbYes Then
-                wb_MATOME.Worksheets(TargetUnit).Select
-                wb_MATOME.Worksheets(TargetUnit).Delete
-            Else
-                MsgBox "終了します。" & vbCrLf & " 既に存在する結合されたシートを確認して下さい", Buttons:=vbExclamation
-                End
-            End If
-        End If
-    Next
-    
-    If Not Sonzai_flg_BL2 Or Not Sonzai_flg_BL3 Then
-        MsgBox "ユニット(BL2) または ユニット(BL3) のシートが出来てません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
-        End
-    End If
-    
 
+    'シートの存在確認
+    Sonzai_flg_BL2 = SheetExists(wb_MATOME, TargetUnit & "(BL2)")
+    Sonzai_flg_BL3 = SheetExists(wb_MATOME, TargetUnit & "(BL3)")
+    Sonzai_flg_Merged = SheetExists(wb_MATOME, TargetUnit)
+    If Sonzai_flg_Merged Then
+        MsgBox "既に結合されたシートが存在します。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
+        Call Fin
+    End If
+    If Not Sonzai_flg_BL2 Or Not Sonzai_flg_BL3 Then
+        MsgBox "ユニット、または、ユニット(BL2) または ユニット(BL3) のシートが出来てません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
+        Call Fin
+    End If
+
+    If MsgBox("このマクロは「SACLA運転状況集計まとめ.xlsm」の" & vbCrLf & "シート「ユニット(BL2)と(BL3)」を結合します。" & vbCrLf & "結合しようとしているユニットは「" & TargetUnit & "」です。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
+        Call Fin
+    End If
+        
+    
+    
+    
+    
+    
+    
+    
     
     
     'BL2のシートをコピーしてベースにする
@@ -183,5 +168,10 @@ Sub ユニットBL2とBL3をマージ()
 
     
     MsgBox "これで終了です。" & vbCrLf & "シート「ユニット(BL*)」は手動で削除して下さい", Buttons:=vbInformation
+    Call Fin
 
+ErrorHandler:
+    Call Cleanup
+    Exit Sub
+    
 End Sub
