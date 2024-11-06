@@ -1,6 +1,7 @@
-Sub 適切な箇所に改ページを入れる()
+
+
+Sub 適切な箇所に改ページを入れる(ByVal sheet As Worksheet)
     
-    Dim WNAME As String
     Dim RPL() As Variant ' RequiredPagebreakList  必須の改ページのリスト
     Dim TARGET_COL As Integer           '対象列
     Dim LINE_CNT_PAGEBREAK As Integer   'デフォルト:50    50行数くらいで改行   それ以上にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
@@ -10,62 +11,47 @@ Sub 適切な箇所に改ページを入れる()
     Debug.Print "============改ページを自動で設定============================================================================"
     Debug.Print "============================================================================================================"
     
-
-    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-    Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
-    'wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
-    wb_MATOME.Worksheets("まとめ ").Activate 'これ大事
-    If InStr(ActiveWorkbook.name, BNAME_MATOME) Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_MATOME:  " & BNAME_MATOME
-        End
-    End If
-
-    WNAME = ActiveSheet.name
-
-    MsgBox "このマクロは SACLA運転状況集計まとめ.xlsm のシート「" & WNAME & "」" & vbCrLf & "の適切な所に改ページいれます", Buttons:=vbInformation
+    Application.ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon"",False)"
+    ActiveWindow.Zoom = 60
+    'Application.DisplayFullScreen = True
+    
+    
+    sheet.Activate 'これ大事
 
 
-    Select Case WNAME
+    MsgBox "このマクロは SACLA運転状況集計まとめ.xlsm のシート「" & sheet.name & "」" & vbCrLf & "の適切な所に改ページいれます", Buttons:=vbInformation
+
+
+    Select Case sheet.name
         Case "まとめ "
                 TARGET_COL = 2  ' 対象列 B
                 LINE_CNT_PAGEBREAK = 50   'デフォルト:50    50行数くらいで改行   それ以上にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
                 MARGIN_PAGEBREAK = 20  '　デフォルト:20    次の改ページまで20行以上ある場合、改ページセット
-                'Const WNAME As String = "まとめ "        'なんだよこれ、まとめの後ろに半角スペースが入ってるよ
+                'Const sheet.name As String = "まとめ "        'なんだよこれ、まとめの後ろに半角スペースが入ってるよ
                 ReDim RPL(3, 1) ' 配列サイズ設定
                 RPL(0, 0) = "(a)運転時間　期間毎"
-                RPL(0, 1) = getLineNum(RPL(0, 0), TARGET_COL, Worksheets(WNAME))
+                RPL(0, 1) = getLineNum(RPL(0, 0), TARGET_COL, sheet)
                 RPL(1, 0) = "(b)運転時間　シフト毎"
-                RPL(1, 1) = getLineNum(RPL(1, 0), TARGET_COL, Worksheets(WNAME))
+                RPL(1, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
                 RPL(2, 0) = "(c)運転条件"
-                RPL(2, 1) = getLineNum(RPL(2, 0), TARGET_COL, Worksheets(WNAME))
+                RPL(2, 1) = getLineNum(RPL(2, 0), TARGET_COL, sheet)
         Case "Fault集計"
                 TARGET_COL = 2  ' 対象列 B
                 LINE_CNT_PAGEBREAK = 25  'デフォルト:50    50行数くらいで改行   それ以上にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
                 MARGIN_PAGEBREAK = 10  '　デフォルト:20    次の改ページまで20行以上ある場合、改ページセット
-                'Const WNAME As String = "Fault集計"
+                'Const sheet.name As String = "Fault集計"
                 ReDim RPL(2, 1) ' 配列サイズ設定
                 RPL(0, 0) = "SACLA Fault間隔(BL2)"
-                RPL(0, 1) = getLineNum(RPL(0, 0), TARGET_COL, Worksheets(WNAME))
+                RPL(0, 1) = getLineNum(RPL(0, 0), TARGET_COL, sheet)
                 RPL(1, 0) = "SACLA Fault間隔(BL3)"
-                RPL(1, 1) = getLineNum(RPL(1, 0), TARGET_COL, Worksheets(WNAME))
+                RPL(1, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
         Case Else
             Debug.Print "Zzz..."
-            MsgBox "このシートでは特にやることないです。" & vbCrLf & "WNAME:  " & WNAME
-            End
+            MsgBox "このシートでは特にやることないです。" & vbCrLf & "sheet.name:  " & sheet.name
+            Call Fin
     End Select
-                
-    If InStr(ActiveWorkbook.name, BNAME_MATOME) Then
-         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_MATOME:  " & BNAME_MATOME
-         End
-    End If
-
-
-
-
     
-    
-    Worksheets(WNAME).Activate
-    Debug.Print "Worksheets(WNAME).Name: " & Worksheets(WNAME).name
+    Debug.Print "sheet.Name: " & sheet.name
     Debug.Print "Last: " & Cells(Rows.Count, TARGET_COL).End(xlUp).Row
     For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
         Debug.Print "RPL(i, 0) : " & RPL(i, 0) & "  " & RPL(i, 1)
@@ -74,30 +60,25 @@ Sub 適切な箇所に改ページを入れる()
     Debug.Print "============================================================================================================"
 
     
-    If flgExsistSheet(WNAME) = False Then
-        MsgBox "ワークシートが存在しません"
-        End
-    End If
-    
-    Worksheets(WNAME).ResetAllPageBreaks ' 全ての改ページをクリア
+    sheet.ResetAllPageBreaks ' 全ての改ページをクリア
     
 '    Debug.Print "UBound(RPL, 1) : " & UBound(RPL, 1)
     For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
         Debug.Print "RPL(" & i & ", *) : 「" & RPL(i, 0) & "」   は      " & RPL(i, 1) & " 行目にあります"
-        Worksheets(WNAME).Rows(RPL(i, 1)).PageBreak = xlPageBreakManual ' 必須の改ページをセット
+        sheet.Rows(RPL(i, 1)).PageBreak = xlPageBreakManual ' 必須の改ページをセット
         If i = (UBound(RPL, 1) - 1) Then ' RPL配列の最後の場合
-            Call SetPagebreak(RPL(i, 1), Cells(Rows.Count, TARGET_COL).End(xlUp).Row, TARGET_COL, LINE_CNT_PAGEBREAK, Worksheets(WNAME))
+            Call SetPagebreak(RPL(i, 1), Cells(Rows.Count, TARGET_COL).End(xlUp).Row, TARGET_COL, LINE_CNT_PAGEBREAK, sheet)
         Else
-            Call SetPagebreak(RPL(i, 1), RPL(i + 1, 1) - 1, TARGET_COL, LINE_CNT_PAGEBREAK, Worksheets(WNAME))
+            Call SetPagebreak(RPL(i, 1), RPL(i + 1, 1) - 1, TARGET_COL, LINE_CNT_PAGEBREAK, sheet)
         End If
     Next
     
     
-    For p = 1 To Worksheets(WNAME).HPageBreaks.Count
-        Debug.Print "Page = " & p & "   Worksheets(WNAME).HPageBreaks(p).Location.Row = " & Worksheets(WNAME).HPageBreaks(p).Location.Row
+    For p = 1 To sheet.HPageBreaks.Count
+        Debug.Print "Page = " & p & "   sheet.HPageBreaks(p).Location.Row = " & sheet.HPageBreaks(p).Location.Row
     Next p
     
-    Debug.Print "~~~~~~~~~~~~~~~~~~~~~    とりあえずのトータルの改ページ数：" & Worksheets(WNAME).HPageBreaks.Count
+    Debug.Print "~~~~~~~~~~~~~~~~~~~~~    とりあえずのトータルの改ページ数：" & sheet.HPageBreaks.Count
     Debug.Print "~~~~~~~~~~~~~~~~~~~~~    必須の改ページ数： " & UBound(RPL, 1)
     
       
@@ -109,7 +90,7 @@ Sub 適切な箇所に改ページを入れる()
     Debug.Print "============================================================================================================"
     
     Dim PagebreakList() As Integer
-    ReDim PagebreakList(Worksheets(WNAME).HPageBreaks.Count, 1) '配列サイズ設定
+    ReDim PagebreakList(sheet.HPageBreaks.Count, 1) '配列サイズ設定
     
     
 
@@ -117,16 +98,16 @@ Sub 適切な箇所に改ページを入れる()
     '改ページの行数と必須かどうかを2次元配列PagebreakListに格納
     Dim totalP As Integer
     totalP = 0
-    For p = 1 To Worksheets(WNAME).HPageBreaks.Count
-        'Debug.Print "Page = " & p & "   Worksheets(WNAME).HPageBreaks(p).Location.Row = " & Worksheets(WNAME).HPageBreaks(p).Location.Row
+    For p = 1 To sheet.HPageBreaks.Count
+        'Debug.Print "Page = " & p & "   sheet.HPageBreaks(p).Location.Row = " & sheet.HPageBreaks(p).Location.Row
         
-        If Worksheets(WNAME).HPageBreaks(p).Location.Row > MARGIN_PAGEBREAK Then  'セットする改ページが MARGIN_PAGEBREAK 行より下の場合、改ページセット
-            PagebreakList(totalP, 0) = Worksheets(WNAME).HPageBreaks(p).Location.Row
+        If sheet.HPageBreaks(p).Location.Row > MARGIN_PAGEBREAK Then  'セットする改ページが MARGIN_PAGEBREAK 行より下の場合、改ページセット
+            PagebreakList(totalP, 0) = sheet.HPageBreaks(p).Location.Row
             PagebreakList(totalP, 1) = 0  'とりあえず、必須でない改ページ:0を入れとく
             
             For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
-                If Worksheets(WNAME).HPageBreaks(p).Location.Row = RPL(i, 1) Then
-                    'Debug.Print "必須RPL(i, 0) = " & RPL(i, 0) & "  RPL(i, 1)=" & RPL(i, 1) & " Worksheets(WNAME).HPageBreaks(p).Location.Row= " & Worksheets(WNAME).HPageBreaks(p).Location.Row
+                If sheet.HPageBreaks(p).Location.Row = RPL(i, 1) Then
+                    'Debug.Print "必須RPL(i, 0) = " & RPL(i, 0) & "  RPL(i, 1)=" & RPL(i, 1) & " sheet.HPageBreaks(p).Location.Row= " & sheet.HPageBreaks(p).Location.Row
                     PagebreakList(totalP, 1) = 1 '必須の改ページのところにフラグ:1を立てる
                 End If
             Next
@@ -140,7 +121,7 @@ Sub 適切な箇所に改ページを入れる()
     
     
     '一旦改ページを削除
-    Worksheets(WNAME).ResetAllPageBreaks
+    sheet.ResetAllPageBreaks
     
     
     'PagebreakListを基に改めて改ページをセットし直す
@@ -148,12 +129,12 @@ Sub 適切な箇所に改ページを入れる()
         'Debug.Print ">PagebreakList(" & i; ",):   " & PagebreakList(i, 0) & "  " & PagebreakList(i, 1)
     
         If (PagebreakList(i + 1, 0) - PagebreakList(i, 0)) > MARGIN_PAGEBREAK Then   '次の改ページまで MARGIN_PAGEBREAK 行以上ある場合、改ページセット
-            Worksheets(WNAME).Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
+            sheet.Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
             Debug.Print "Set PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next: " & PagebreakList(i + 1, 0)
         End If
     
         If (PagebreakList(i, 1)) = 1 Then  '必須の改ページの場合、改ページセット
-            Worksheets(WNAME).Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
+            sheet.Rows(PagebreakList(i, 0)).PageBreak = xlPageBreakManual
             Debug.Print "Set Required PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next: " & PagebreakList(i + 1, 0)
         End If
         
@@ -162,14 +143,14 @@ Sub 適切な箇所に改ページを入れる()
     
     
     
-    Worksheets(WNAME).DisplayPageBreaks = True
+    sheet.DisplayPageBreaks = True
    
 '    If MsgBox("終了。プレビュー表示しますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
-'        Worksheets(WNAME).PrintPreview
+'        sheet.PrintPreview
 '    End If
 
-    MsgBox "終了しました。シート「" & WNAME & "」" & vbCrLf & "の適切な所に改ページいれました", Buttons:=vbInformation
-    
+    MsgBox "終了しました。シート「" & sheet.name & "」" & vbCrLf & "の適切な所に改ページいれました", Buttons:=vbInformation
+    Call Fin
     Debug.Print "Fin================================================================================================================="
     
     
@@ -259,15 +240,3 @@ End Function
 
 
 
-
-'ワークシートが存在するか確認==============================================================================================================================
-Function flgExsistSheet(ByVal WorkSheetName As String) As Boolean
-Dim sht As Worksheet
-  For Each sht In ActiveWorkbook.Worksheets
-    If sht.name = WorkSheetName Then
-        flgExsistSheet = True
-        Exit Function
-    End If
-  Next sht
-flgExsistSheet = False
-End Function
