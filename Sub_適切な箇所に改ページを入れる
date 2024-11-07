@@ -1,9 +1,9 @@
 Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
-    '作り途中
-    
     Dim RPL() As Variant ' RequiredPagebreakList  必須の改ページのリスト
-    Dim TARGET_COL As Integer           '対象列
-    
+    Const TARGET_COL As Integer = 2          '対象列B
+    Dim Before_PB As Integer: Before_PB = 0
+    Dim add_up As Integer: add_up = 0
+
     Debug.Print "============================================================================================================"
     Debug.Print "============改ページを自動で設定============================================================================"
     Debug.Print "============================================================================================================"
@@ -46,14 +46,12 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
 
     Select Case sheet.name
         Case "まとめ "
-                TARGET_COL = 2  ' 対象列 B
                 ReDim RPL(2, 1) ' 配列サイズ設定
                 RPL(0, 0) = "(b)運転時間　シフト毎"
                 RPL(0, 1) = getLineNum(RPL(0, 0), TARGET_COL, sheet)
                 RPL(1, 0) = "(c)運転条件"
                 RPL(1, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
         Case "Fault集計"
-                TARGET_COL = 2  ' 対象列 B
                 ReDim RPL(1, 1) ' 配列サイズ設定
                 RPL(0, 0) = "SACLA Fault間隔(BL3)"
                 RPL(0, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
@@ -64,7 +62,6 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
     End Select
     
     
-    Debug.Print "sheet.Name: " & sheet.name
     Debug.Print "Last: " & Cells(Rows.Count, TARGET_COL).End(xlUp).Row
     For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
         Debug.Print "RPL(i, 0) : " & RPL(i, 0) & "  " & RPL(i, 1)
@@ -74,9 +71,6 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
 
     
     sheet.ResetAllPageBreaks ' 全ての貝をクリア
-    
-    Dim Before_PB As Integer: Before_PB = 0
-    Dim add_up As Integer: add_up = 0
 
     For i = 1 To sheet.UsedRange.Rows(sheet.UsedRange.Rows.Count).Row
         
@@ -91,7 +85,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
                     sheet.Rows(i).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
                     Cells(i, TARGET_COL).Activate
                     Before_PB = i
-                    If MsgBox("Debug:このセルの下に　A　貝いれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+                    If MsgBox("Debug:このセルの下に　必須　貝いれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
                     add_up = 0
                 End If
             End If
@@ -124,8 +118,6 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
         add_up = add_up + 1
     Next
     
-    
-    
     sheet.DisplayPageBreaks = True
    
 '    If MsgBox("終了。プレビュー表示しますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
@@ -151,7 +143,7 @@ End Sub
 
 
 
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+'Not USE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Sub 適切な箇所に改ページを入れる(ByVal sheet As Worksheet)
     
     Dim RPL() As Variant ' RequiredPagebreakList  必須の改ページのリスト
@@ -335,7 +327,7 @@ End Sub
 
 
 
-'改行は***行ごとくらいでいれる==============================================================================================================================
+'Not USE    改行は***行ごとくらいでいれる==============================================================================================================================
 Function SetPagebreak(ByVal startLine As Integer, ByVal endLine As Integer, ByVal TARGET_COL As Integer, ByVal LINE_CNT_PAGEBREAK As Integer, ByVal sheetname As Worksheet)
     'Debug.Print "SetPagebreak~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~startLine = "; startLine & "       endLine: " & endLine
     If (endLine - startLine) <= 0 Then
