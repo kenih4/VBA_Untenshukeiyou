@@ -3,9 +3,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
     
     Dim RPL() As Variant ' RequiredPagebreakList  必須の改ページのリスト
     Dim TARGET_COL As Integer           '対象列
-    Dim LINE_CNT_PAGEBREAK As Integer   'デフォルト:50    50行数くらいで改行   それ以上にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
-    Dim MARGIN_PAGEBREAK   As Integer   'デフォルト:20    次の改ページまで20行以上ある場合、改ページセット
-
+    
     Debug.Print "============================================================================================================"
     Debug.Print "============改ページを自動で設定============================================================================"
     Debug.Print "============================================================================================================"
@@ -15,31 +13,31 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
     ActiveWindow.Zoom = 35
     'Application.DisplayFullScreen = True
 
-    MsgBox "このマクロは SACLA運転状況集計まとめ.xlsm のシート「" & sheet.name & "」" & vbCrLf & "の適切な所に改ページいれます", Buttons:=vbInformation
+    MsgBox "このマクロは SACLA運転状況集計まとめ.xlsm のシート「" & sheet.name & "」" & vbCrLf & "の適切な所に貝いれます", Buttons:=vbInformation
 
 
 
 
 
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    '自動改ページが一体何行で入るのかを確認
-    Dim Auto_PB_line_cnt As Integer
-    sheet.ResetAllPageBreaks ' 全ての改ページをクリア
+    '自動貝が一体何行で入るのかを確認
+    Dim AUTO_PB_LINE_CNT As Integer
+    sheet.ResetAllPageBreaks ' 全ての貝をクリア
     Set ws = sheet ' 対象のシート名を指定
-    ' 水平方向の自動改ページを確認
+    ' 水平方向の自動貝を確認
     If ws.HPageBreaks.Count > 0 Then
-        Debug.Print "水平方向の自動改ページの数: " & ws.HPageBreaks.Count
+        Debug.Print "水平方向の自動貝の数: " & ws.HPageBreaks.Count
         For Each HPageBreak In ws.HPageBreaks
             If HPageBreak.Type = xlPageBreakAutomatic Then
-                Debug.Print "自動改ページ（水平）位置: 行 " & HPageBreak.Location.Row
-                Auto_PB_line_cnt = HPageBreak.Location.Row - 5 ' ちょっと余裕見て-5してる
+                Debug.Print "自動貝（水平）位置: 行 " & HPageBreak.Location.Row
+                AUTO_PB_LINE_CNT = HPageBreak.Location.Row - 3 ' ちょっと余裕見て-5してる
             End If
             Exit For
         Next HPageBreak
     Else
-        Debug.Print "水平方向の自動改ページはありません。"
+        Debug.Print "水平方向の自動貝はありません。"
     End If
-    Debug.Print "自動改ページはこれを越えると入ります。 Auto_PB_line_cnt = " & Auto_PB_line_cnt
+    Debug.Print "自動貝はこれを越えると入ります。 AUTO_PB_LINE_CNT = " & AUTO_PB_LINE_CNT
 '    End
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -49,32 +47,22 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
     Select Case sheet.name
         Case "まとめ "
                 TARGET_COL = 2  ' 対象列 B
-'                 LINE_CNT_PAGEBREAK = 30   'デフォルト:50    50行数くらいで改行   それ以上にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
-                LINE_CNT_PAGEBREAK = Auto_PB_line_cnt
-                MARGIN_PAGEBREAK = 20  '　デフォルト:20    次の改ページまで20行以上ある場合、改ページセット
-                'Const sheet.name As String = "まとめ "        'なんだよこれ、まとめの後ろに半角スペースが入ってるよ
-                ReDim RPL(3, 1) ' 配列サイズ設定
-'                RPL(0, 0) = "(a)運転時間　期間毎"
-'                RPL(0, 1) = getLineNum(RPL(0, 0), TARGET_COL, sheet)
-                RPL(1, 0) = "(b)運転時間　シフト毎"
+                ReDim RPL(2, 1) ' 配列サイズ設定
+                RPL(0, 0) = "(b)運転時間　シフト毎"
+                RPL(0, 1) = getLineNum(RPL(0, 0), TARGET_COL, sheet)
+                RPL(1, 0) = "(c)運転条件"
                 RPL(1, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
-                RPL(2, 0) = "(c)運転条件"
-                RPL(2, 1) = getLineNum(RPL(2, 0), TARGET_COL, sheet)
         Case "Fault集計"
                 TARGET_COL = 2  ' 対象列 B
-                LINE_CNT_PAGEBREAK = 25  'デフォルト:50    50行数くらいで改行   それ以上にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
-                MARGIN_PAGEBREAK = 10  '　デフォルト:20    次の改ページまで20行以上ある場合、改ページセット
-                'Const sheet.name As String = "Fault集計"
-                ReDim RPL(2, 1) ' 配列サイズ設定
-                RPL(0, 0) = "SACLA Fault間隔(BL2)"
-                RPL(0, 1) = getLineNum(RPL(0, 0), TARGET_COL, sheet)
-                RPL(1, 0) = "SACLA Fault間隔(BL3)"
-                RPL(1, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
+                ReDim RPL(1, 1) ' 配列サイズ設定
+                RPL(0, 0) = "SACLA Fault間隔(BL3)"
+                RPL(0, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
         Case Else
             Debug.Print "Zzz..."
             MsgBox "このシートでは特にやることないです。" & vbCrLf & "sheet.name:  " & sheet.name
             Call Fin
     End Select
+    
     
     Debug.Print "sheet.Name: " & sheet.name
     Debug.Print "Last: " & Cells(Rows.Count, TARGET_COL).End(xlUp).Row
@@ -85,106 +73,55 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
     Debug.Print "============================================================================================================"
 
     
-    sheet.ResetAllPageBreaks ' 全ての改ページをクリア
+    sheet.ResetAllPageBreaks ' 全ての貝をクリア
     
-'    Debug.Print "UBound(RPL, 1) : " & UBound(RPL, 1)
-'    For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
-'        Debug.Print "RPL(" & i & ", *) : 「" & RPL(i, 0) & "」   は      " & RPL(i, 1) & " 行目にあります"
-'        sheet.Rows(RPL(i, 1)).PageBreak = xlPageBreakManual ' 必須の改ページをセット
-'        If i = (UBound(RPL, 1) - 1) Then ' RPL配列の最後の場合
-'            Call SetPagebreak(RPL(i, 1), Cells(Rows.Count, TARGET_COL).End(xlUp).Row, TARGET_COL, LINE_CNT_PAGEBREAK, sheet)
-'        Else
-'            Call SetPagebreak(RPL(i, 1), RPL(i + 1, 1) - 1, TARGET_COL, LINE_CNT_PAGEBREAK, sheet)
-'        End If
-'    Next
-'
-    Debug.Print "   sheet.name = " & sheet.name
-    
-    
-    
-    Dim Before_PB As Integer
-    Dim line_cnt As Integer
-    line_cnt = 0
+    Dim Before_PB As Integer: Before_PB = 0
+    Dim add_up As Integer: add_up = 0
 
     For i = 1 To sheet.UsedRange.Rows(sheet.UsedRange.Rows.Count).Row
-        Debug.Print "行番号: " & i & "   line_cnt = " & line_cnt & "    Auto_PB_line_cnt = " & Auto_PB_line_cnt & "    Value: " & Cells(i, 2).Value
         
-        If i = getLineNum(RPL(1, 0), TARGET_COL, sheet) Then
-            Debug.Print "必須  行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value
-            sheet.Rows(i).PageBreak = xlPageBreakManual
-            Cells(i, TARGET_COL).Activate
-            Before_PB = i
-            MsgBox "   Debug:このセルの下に　必須　改ページいれました"
-            line_cnt = 0
-        End If
-        If i = getLineNum(RPL(2, 0), TARGET_COL, sheet) Then
-            Debug.Print "必須  行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value
-            sheet.Rows(i).PageBreak = xlPageBreakManual
-            Cells(i, TARGET_COL).Activate
-            Before_PB = i
-            MsgBox "   Debug:このセルの下に　必須　改ページいれました"
-            line_cnt = 0
-        End If
-
-        
-'        If line_cnt > LINE_CNT_PAGEBREAK Then
-        
-            'If IsEmpty(Cells(i, TARGET_COL).Value) And Cells(i, TARGET_COL).MergeCells Then
-                'Debug.Print "セルが空っぽで、結合されている、、"
-            'Else
-            
-                'If Cells(i, TARGET_COL).MergeCells Then  '  B列が結合されている
-'                If (Not IsEmpty(Cells(i, TARGET_COL).Value) And Cells(i, TARGET_COL).MergeCells) And (line_cnt > LINE_CNT_PAGEBREAK) Then  '　セルに値が入ってて結合される場合、かつ適齢期
-                If (Not IsEmpty(Cells(i, TARGET_COL).Value) And Cells(i, TARGET_COL).MergeCells) Then  '　セルに値が入ってて結合される場合、かつ適齢期
-                    'Debug.Print "A  行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value & "    値が入って、結合されている     結合行：" & Cells(i, TARGET_COL).MergeArea.Rows.Count & " の下に貝"
-                    Debug.Print "A  行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value & "    値が入って、結合されている"
-                    '下のコードで失敗する場合、ページレイアウトから「印刷範囲のクリア」をして再度マクロを実行するとなぜかＯＫ
-                    
-
-                    If (i + Cells(i, TARGET_COL).MergeArea.Rows.Count - Before_PB) > Auto_PB_line_cnt Then
-                        Debug.Print "Overしちゃうのでここに改ページ " & i & "       Before_PB = " & Before_PB & "    Value: " & Cells(i, 2).Value
-                        sheet.Rows(i).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
-                        Cells(i, TARGET_COL).Activate
-                        If MsgBox("Debug:このセルの下に　A　改ページいれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
-                        line_cnt = 0
-                        Before_PB = i
-                    
-                    ElseIf line_cnt > LINE_CNT_PAGEBREAK Then
-                        Debug.Print "Overしないので、 " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value & "    値が入って、結合されている     結合行：" & Cells(i, TARGET_COL).MergeArea.Rows.Count & " の下に貝" & "   Before_PB = " & Before_PB
-                        'Debug.Print "Not Over: " & i & "   Before_PB = " & Before_PB & "    Value: " & Cells(i, 2).Value
-                        i = i + Cells(i, TARGET_COL).MergeArea.Rows.Count
-                        sheet.Rows(i).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
-                        Cells(i, TARGET_COL).Activate
-                        If MsgBox("Debug:このセルの下に　a　改ページいれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
-                        line_cnt = 0
-                        Before_PB = i
-                    
-                    End If
-                    
-                
-                End If
-
-
-
-                If (Not Cells(i, TARGET_COL).MergeCells) And line_cnt > LINE_CNT_PAGEBREAK Then  '　セルが結合されてなくて、かつ適齢期
-                    Debug.Print "B  行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value & "    値が入ってなくて、結合されてない　貝: i = " & i
-                            
-                    sheet.Rows(i).PageBreak = xlPageBreakManual
-                    
+        '必須の貝
+        For h = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
+'            Debug.Print "RPL(" & h & ", *) : 「" & RPL(h, 0) & "」   は      " & RPL(h, 1) & " 行目にあります"
+            If i = getLineNum(RPL(h, 0), TARGET_COL, sheet) Then
+                Debug.Print "必須の貝 " & i & "       Before_PB = " & Before_PB & "    Value: " & Cells(i, 2).Value
+                If i - Before_PB < 10 Then
+                    Debug.Print "前の貝とあまりに近すぎるのでパスします。" & i & "       Before_PB = " & Before_PB & "    Value: " & Cells(i, 2).Value
+                Else
+                    sheet.Rows(i).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
                     Cells(i, TARGET_COL).Activate
-                    If MsgBox("Debug:このセルの下に　B　改ページいれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
-                            
-                    line_cnt = 0
                     Before_PB = i
-                            
+                    If MsgBox("Debug:このセルの下に　A　貝いれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+                    add_up = 0
                 End If
-                
-                
-            'End If
+            End If
+        Next
+            
+            
+            
+        If (Not IsEmpty(Cells(i, TARGET_COL).Value) And Cells(i, TARGET_COL).MergeCells) Then  '　セルに値が入ってて結合される場合で、
+            'Debug.Print "A  行番号: " & i & "   add_up = " & add_up & "    Value: " & Cells(i, 2).Value & "    値が入って、結合されている"
+            If (i + Cells(i, TARGET_COL).MergeArea.Rows.Count - Before_PB) > AUTO_PB_LINE_CNT Then ' i+結合行-前貝行が　AUTO_PB_LINE_CNT　を越えたら
+                Debug.Print "この行は結合されてて、次はOverしちゃうのでここに貝 " & i & "       Before_PB = " & Before_PB & "    Value: " & Cells(i, 2).Value
+                '下のコードで失敗する場合、ページレイアウトから「印刷範囲のクリア」をして再度マクロを実行するとなぜかＯＫ
+                sheet.Rows(i).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
+                Cells(i, TARGET_COL).Activate
+                If MsgBox("Debug:このセルの下に　A　貝いれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+                add_up = 0
+                Before_PB = i
+            End If
+        End If
 
-'        End If
+        If (Not Cells(i, TARGET_COL).MergeCells) And add_up > AUTO_PB_LINE_CNT Then  '　セルが結合されてなくて、かつ時期
+             Debug.Print "この行は結合されてなくて、かつ時期    行番号: " & i & "   add_up = " & add_up & "    Value: " & Cells(i, 2).Value
+             sheet.Rows(i).PageBreak = xlPageBreakManual
+             Cells(i, TARGET_COL).Activate
+             If MsgBox("Debug:このセルの下に　B　貝いれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+             add_up = 0
+             Before_PB = i
+        End If
         
-        line_cnt = line_cnt + 1
+        add_up = add_up + 1
     Next
     
     
@@ -195,15 +132,11 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
 '        sheet.PrintPreview
 '    End If
 
-    MsgBox "終了しました。シート「" & sheet.name & "」" & vbCrLf & "の適切な所に改ページいれました", Buttons:=vbInformation
+    MsgBox "終了しました。シート「" & sheet.name & "」" & vbCrLf & "の適切な所に貝いれました", Buttons:=vbInformation
     Call Fin
     Debug.Print "Fin================================================================================================================="
     
 End Sub
-
-
-
-
 
 
 
