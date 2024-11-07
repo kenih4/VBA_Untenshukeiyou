@@ -23,6 +23,22 @@ End Sub
 
 
 
+
+
+'指定さてた文字列が存在する行を取得==============================================================================================================================
+Function getLineNum(ByVal str As String, ByVal TARGET_COL As Integer, ByVal sheetname As Worksheet) As Integer
+    
+    For i = 1 To sheetname.Cells(Rows.Count, TARGET_COL).End(xlUp).Row
+        'Debug.Print "getLineNum　行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value
+        If sheetname.Cells(i, TARGET_COL).Value = str Then '
+            getLineNum = i
+            Exit For
+        End If
+    Next
+
+End Function
+
+
 'シート存在を確認==============================================================================================================================
 Function SheetExists(wb As Workbook, sname As String) As Boolean
     On Error Resume Next ' エラーが発生しても処理を継続
@@ -32,5 +48,40 @@ Function SheetExists(wb As Workbook, sname As String) As Boolean
     Debug.Print "@SheetExists   Sheetname: [" & sname & "]  " & SheetExists
     On Error GoTo 0 ' エラーハンドリングをリセット
 End Function
+
+
+
+
+
+'シート存在を確認 Not Use ==============================================================================================================================
+Function flgExsistSheet(ByVal WorkSheetName As String) As Boolean
+Dim sht As Worksheet
+  For Each sht In ActiveWorkbook.Worksheets
+    If sht.name = WorkSheetName Then
+        flgExsistSheet = True
+        Exit Function
+    End If
+  Next sht
+flgExsistSheet = False
+End Function
+
+
+
+
+'==============================================================================================================================
+Sub RunBatchFile(batchFilePath As String)
+
+    ' バッチファイルのパスが指定されているか確認
+    If batchFilePath = "" Then
+        MsgBox "バッチファイルのパスを指定してください", vbExclamation
+        Exit Sub
+    End If
+    
+    ' Shell関数でバッチファイルを実行
+    shell batchFilePath, vbNormalFocus
+End Sub
+
+
+
 
 
