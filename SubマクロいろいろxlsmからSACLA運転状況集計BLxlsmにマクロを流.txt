@@ -1,4 +1,9 @@
 Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行()
+    
+'  このマクロの実行には
+'　ファイル　-> オプション　->　セキュリティーセンター　->　セキュリティーセンターの設定　->　マクロの設定　で「VBAプロジェクトオブジェクトモデルへのアクセスを信頼する」にチェックを入れる
+'
+    
     Dim result As Boolean
     Dim sourceWorkbook As Workbook
     Dim targetWorkbook As Workbook
@@ -22,15 +27,13 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
 '        Debug.Print dict("Fault集計m")(i)
 '    Next i
 
-
     Dim buttonName As String
     If TypeName(Application.Caller) = "String" Then
         buttonName = Application.Caller
     Else
-        MsgBox "このマクロはシート上のボタンからのみ実行してください。", Buttons:=vbCritical
+        MsgBox "このマクロはシート上のボタンからのみ実行してください。" & vbCrLf & "終了します。", Buttons:=vbCritical
         End
     End If
-    
     
     If buttonName = "ボタン 1" Then
         BL = 2
@@ -49,23 +52,23 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
         End
     End If
     
-    MsgBox "BL" & BL & vbCrLf & "マクロ「" & macroName & "」を流し込んで実行します", Buttons:=vbInformation
     
     
     BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL" & BL & ".xlsm"
-'    BNAME_SHUKEI = "C:\Users\kenichi\Documents\OperationSummary\test.xlsm"
+'    BNAME_SHUKEI = "C:\Users\kenichi\Dropbox\gitdir\VBA運転集計用\test.xlsm"
     Set targetWorkbook = Workbooks.Open(BNAME_SHUKEI)
+    targetWorkbook.Windows(1).WindowState = xlMaximized
     
     'マクロmacroNameが、BNAME_SHUKEIに存在したら、削除する
     result = CheckAndDeleteModuleContainingMacro(BNAME_SHUKEI, macroName)
     If result Then
         MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & BNAME_SHUKEI & " に存在したので、一旦、モジュールを削除して、" & vbCrLf & "マクロを流し込みます。。", Buttons:=vbInformation
     Else
-        MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & BNAME_SHUKEI & " に存在しませんでした。" & vbCrLf & "マクロを流し込みます。", Buttons:=vbInformation
+        MsgBox "マクロ 「" & macroName & "」 を " & vbCrLf & BNAME_SHUKEI & " " & vbCrLf & "に流し込みます。", Buttons:=vbInformation
     End If
 
     ' マクロいろいろ.xlsmのマクロFault集計m()をtargetWorkbookに流し込む
-    Set sourceWorkbook = Workbooks.Open("C:\Users\kenichi\Documents\OperationSummary\マクロいろいろ.xlsm")
+    Set sourceWorkbook = Workbooks.Open("C:\Users\kenichi\Dropbox\gitdir\VBA運転集計用\マクロいろいろ.xlsm")
     Set sourceModule = sourceWorkbook.VBProject.VBComponents(dict(macroName)) ' モジュール名を確認       Module10 = Fault集計m()
     Set targetModule = targetWorkbook.VBProject.VBComponents.Add(1) ' vbext_ct_StdModule = 1  標準モジュールを追加
     targetModule.CodeModule.AddFromString sourceModule.CodeModule.Lines(1, sourceModule.CodeModule.CountOfLines)
@@ -146,6 +149,7 @@ Function CheckAndDeleteModuleContainingMacro(workbookName As String, macroName A
     ' 指定したブックを設定
     On Error Resume Next
     Set targetWorkbook = Workbooks.Open(workbookName) ' 指定したブック名で開いているか確認
+    targetWorkbook.Windows(1).WindowState = xlMaximized
     On Error GoTo 0
 
     If targetWorkbook Is Nothing Then
