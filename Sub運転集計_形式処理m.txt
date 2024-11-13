@@ -1,7 +1,8 @@
 Sub 運転集計_形式処理m(BL As Integer)
 
     '/追加部分----------------------------
-    Dim BL As Integer  ' 対象BL
+    Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+'    Dim BL As Integer  ' 対象BL
     Dim DOWNTIME_ROW As Integer
     MsgBox "マクロ「運転集計_形式処理m」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & "ひな形シート「運転状況（対象ユニット）」からシート「24-*(BL" & BL & ")」を作成します。", Buttons:=vbInformation
 '    Dim s
@@ -32,13 +33,14 @@ Sub 運転集計_形式処理m(BL As Integer)
             End
     End Select
     Set wb_SHUKEI = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+    wb_SHUKEI.Windows(1).WindowState = xlMaximized
     wb_SHUKEI.Worksheets("運転状況(対象ユニット)").Activate
     If InStr(ActiveWorkbook.name, BNAME_SHUKEI) Then
         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
         End
     End If
     
-    If MsgBox("選択されてるユニット(wb_SHUKEI.Worksheets(利用時間（期間）).Range(B2))は    " & wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2") & "   です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進にはYESを押して下さい", vbYesNo + vbQuestion, "確認") = vbNo Then
+    If MsgBox("選択されてるユニット(wb_SHUKEI.Worksheets(利用時間（期間）).Range(B2))は    " & wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2") & "   です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進むにはYESを押して下さい", vbYesNo + vbQuestion, "確認") = vbNo Then
         End
     End If
     '追加部分----------------------------/
@@ -86,7 +88,6 @@ Sub 運転集計_形式処理m(BL As Integer)
     End If
     
     If MsgBox("今表示さているシート「" & シート名 & "」が作成されたものです。" & vbCrLf & "これを「SACLA運転状況集計まとめ.xlsm」にコピーしますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
-        BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
         Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
         wb_SHUKEI.Worksheets(シート名).Copy after:=wb_MATOME.Worksheets("まとめ ")
         wb_MATOME.Worksheets(シート名).Activate

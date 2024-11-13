@@ -1,17 +1,20 @@
 Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
 
+
+    ' ウィンドウを標準サイズにする
+    Application.WindowState = xlNormal
+    ' 最前面に持ってくる
+    Application.ActiveWindow.Activate
+    
     Dim WSH
     Set WSH = CreateObject("Wscript.Shell")
 '    Dim BL As Integer  ' 対象BL
     
-    MsgBox "TEST cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)"
-    
             Dim CB As Variant, i As Long
             CB = Application.ClipboardFormats
             If CB(1) = True Then
-                MsgBox "クリップボードは空です。python getBlFaultSummary_LOCALTEST.pyを走らせたら何かしらクリップボードに入るはずなのでなにかおかしいです。"
+                MsgBox "クリップボードは空です。python getBlFaultSummary_LOCALTEST.pyを走らせたら何かしらクリップボードに入るはずなのでなにかおかしいです。", Buttons:=vbCritical
                 Exit Sub
-            
             Else
             
                 With New DataObject
@@ -19,7 +22,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
                     tempText = .GetText
                 End With
 
-                If MsgBox("python getBlFaultSummary_LOCALTEST.pyの出力、" & vbCrLf & "「falut.txt」をSACLA運転状況集計BL*.xlsmのシート「集計記録」に張り付けるマクロです。" & vbCrLf & vbCrLf & "クリップボードの中身は以下です。進みますか？" & vbCrLf & vbCrLf & "「" & vbCrLf & tempText & vbCrLf & "」", vbYesNo + vbQuestion, "確認") = vbNo Then
+                If MsgBox("python getBlFaultSummary_LOCALTEST.pyの出力、" & vbCrLf & "「falut.txt」をSACLA運転状況集計BL " & BL & " .xlsmのシート「集計記録」に張り付けるマクロです。" & vbCrLf & vbCrLf & "クリップボードの中身は以下です。進みますか？" & vbCrLf & vbCrLf & "「" & vbCrLf & tempText & vbCrLf & "」", vbYesNo + vbQuestion, "確認") = vbNo Then
                     Exit Sub
                 End If
 
@@ -62,11 +65,12 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
     
     
             Set wb1 = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+            wb1.Windows(1).WindowState = xlMaximized
             wb1.Worksheets("集計記録").Activate
             
             
             If InStr(ActiveWorkbook.name, BNAME_SHUKEI) Then
-                MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
+                MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
                 Exit Sub
             End If
     
@@ -81,7 +85,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
 '                WSH.Run "http://saclaopr19.spring8.or.jp/~summary/display_ui.html?sort=date%20desc%2Cstart%20desc&limit=0%2C100&search_situation=ユーザー運転&&search_root=BL" & BL & "#STATUS", 3 ' 第2引数: 3は最大化    'search_situation=ユーザー運転とすると なぜか2021年のが表示される
                 WSH.Run "http://saclaopr19.spring8.or.jp/~summary/display_ui.html?sort=date%20desc%2Cstart%20desc&limit=0%2C100&search_root=BL" & BL & "#STATUS", 3
                 Set WSH = Nothing
-                Set wb_temp = Workbooks.Open("C:\Users\kenichi\Documents\OperationSummary\利用時間テンプ.xlsx", ReadOnly:=False)
+'                Set wb_temp = Workbooks.Open("C:\Users\kenichi\Dropbox\gitdir\VBA運転集計用\利用時間テンプ.xlsx", ReadOnly:=False)
             End If
 
 '            Dim CB As Variant, i As Long

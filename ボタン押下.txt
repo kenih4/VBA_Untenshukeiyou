@@ -6,35 +6,47 @@ End Sub
 
 
 Sub ボタン15_Click()
+    Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
     Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-'    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-'    MsgBox "本チャンです", Buttons:=vbInformation
-    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
     Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
-    
     Dim Sonzai_flg As Boolean: Sonzai_flg = False
     Sonzai_flg = SheetExists(wb_MATOME, "まとめ ")
     If Not Sonzai_flg Then
         MsgBox "シートが存在しません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
     Else
-        Call 適切な箇所に改ページを入れる(wb_MATOME.Worksheets("まとめ "))
+        Call 適切な箇所に改ページを入れるVer2(wb_MATOME.Worksheets("まとめ "))
     End If
 End Sub
 
 
 
 Sub ボタン16_Click()
+    Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
     Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-'    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-'    MsgBox "本チャンです", Buttons:=vbInformation
-    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
     Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
     Dim Sonzai_flg As Boolean: Sonzai_flg = False
     Sonzai_flg = SheetExists(wb_MATOME, "Fault集計")
     If Not Sonzai_flg Then
         MsgBox "シートが存在しません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
     Else
-        Call 適切な箇所に改ページを入れる(wb_MATOME.Worksheets("Fault集計"))
+        Call 適切な箇所に改ページを入れるVer2(wb_MATOME.Worksheets("Fault集計"))
     End If
 End Sub
 
+
+
+Sub ボタン17_Click() ' TEST!!!!!!!!!!!!
+    Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+    Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+'    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+'    MsgBox "本チャンです", Buttons:=vbInformation
+    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
+    Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+    Dim Sonzai_flg As Boolean: Sonzai_flg = False
+    Sonzai_flg = SheetExists(wb_MATOME, "まとめ ")
+    If Not Sonzai_flg Then
+        MsgBox "シートが存在しません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
+    Else
+        Call 適切な箇所に改ページを入れるVer2(wb_MATOME.Worksheets("まとめ "))
+    End If
+End Sub

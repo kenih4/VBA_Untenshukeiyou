@@ -46,11 +46,21 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
 
     Select Case sheet.name
         Case "まとめ "
-                ReDim RPL(2, 1) ' 配列サイズ設定
+                ReDim RPL(4, 1) ' 配列サイズ設定
                 RPL(0, 0) = "(b)運転時間　シフト毎"
                 RPL(0, 1) = getLineNum(RPL(0, 0), TARGET_COL, sheet)
-                RPL(1, 0) = "(c)運転条件"
+                
+                RPL(1, 0) = "(b-2)BL3"
                 RPL(1, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
+                
+                
+                RPL(2, 0) = "(c)運転条件"
+                RPL(2, 1) = getLineNum(RPL(2, 0), TARGET_COL, sheet)
+                
+                RPL(3, 0) = "(c-2)BL3"
+                RPL(3, 1) = getLineNum(RPL(3, 0), TARGET_COL, sheet)
+                
+                
         Case "Fault集計"
                 ReDim RPL(1, 1) ' 配列サイズ設定
                 RPL(0, 0) = "SACLA Fault間隔(BL3)"
@@ -71,6 +81,8 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
 
     
     sheet.ResetAllPageBreaks ' 全ての貝をクリア
+    sheet.PageSetup.PrintArea = "" ' 印刷範囲のクリア
+    
 
     For i = 1 To sheet.UsedRange.Rows(sheet.UsedRange.Rows.Count).Row
         
@@ -85,7 +97,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
                     sheet.Rows(i).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
                     Cells(i, TARGET_COL).Activate
                     Before_PB = i
-                    If MsgBox("Debug:このセルの下に　必須　貝いれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+                    If MsgBox("Debug:このセルの上に　必須　貝いれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
                     add_up = 0
                 End If
             End If
@@ -100,7 +112,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
                 '下のコードで失敗する場合、ページレイアウトから「印刷範囲のクリア」をして再度マクロを実行するとなぜかＯＫ
                 sheet.Rows(i).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
                 Cells(i, TARGET_COL).Activate
-                If MsgBox("Debug:このセルの下に　A　貝いれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+                If MsgBox("Debug:このセルの上に　A　貝いれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
                 add_up = 0
                 Before_PB = i
             End If
@@ -110,7 +122,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
              Debug.Print "この行は結合されてなくて、かつ時期    行番号: " & i & "   add_up = " & add_up & "    Value: " & Cells(i, 2).Value
              sheet.Rows(i).PageBreak = xlPageBreakManual
              Cells(i, TARGET_COL).Activate
-             If MsgBox("Debug:このセルの下に　B　貝いれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+             If MsgBox("Debug:このセルの上に　B　貝いれました" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
              add_up = 0
              Before_PB = i
         End If
@@ -278,7 +290,7 @@ Sub 適切な箇所に改ページを入れる(ByVal sheet As Worksheet)
             
             
             sheet.Rows(PagebreakList(i, 0)).Select
-            MsgBox "Debug   このセルの下に改ページセット", Buttons:=vbInformation
+            MsgBox "Debug   このセルの上に改ページセット", Buttons:=vbInformation
 
 
         End If
@@ -288,7 +300,7 @@ Sub 適切な箇所に改ページを入れる(ByVal sheet As Worksheet)
             Debug.Print "Set Required PagebreakList(" & i & ", 0" & "):   " & PagebreakList(i, 0) & "  Next: " & PagebreakList(i + 1, 0)
        
             sheet.Rows(PagebreakList(i, 0)).Select
-            MsgBox "Debug   このセルの下に　必須　改ページセット", Buttons:=vbInformation
+            MsgBox "Debug   このセルの上に　必須　改ページセット", Buttons:=vbInformation
 
         End If
         
@@ -351,7 +363,7 @@ Function SetPagebreak(ByVal startLine As Integer, ByVal endLine As Integer, ByVa
                     Debug.Print "行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value & "    値が入って、結合されている     結合行：" & Cells(i, TARGET_COL).MergeArea.Rows.Count & " の下に貝"
                     
 '                    Cells(i, TARGET_COL).Activate
-'                    MsgBox "A   Debug:このセルの下に改ページいれます"
+'                    MsgBox "A   Debug:このセルの上に改ページいれます"
                     
                     '下のコードで失敗する場合、ページレイアウトから「印刷範囲のクリア」をして再度マクロを実行するとなぜかＯＫ
                     sheetname.Rows(i + Cells(i, 2).MergeArea.Rows.Count).PageBreak = xlPageBreakManual  '  2より大きくないとCells(i, 2).MergeArea.Rows.Countで、エラー　　　2だと2行目の上に引かれる
@@ -359,7 +371,7 @@ Function SetPagebreak(ByVal startLine As Integer, ByVal endLine As Integer, ByVa
                     Debug.Print "行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value & "    値が入ってなくて、結合されてない　貝: i = " & i
                     
 '                    Cells(i, TARGET_COL).Activate
-'                    MsgBox "B   Debug:このセルの下に改ページいれます"
+'                    MsgBox "B   Debug:このセルの上に改ページいれます"
                     
                             
                     sheetname.Rows(i).PageBreak = xlPageBreakManual

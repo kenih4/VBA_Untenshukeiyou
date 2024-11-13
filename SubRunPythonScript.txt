@@ -3,9 +3,8 @@ Sub RunPythonScript()
     Dim scriptPath As String
     Dim command As String
     Dim buttonName As String
-    
     Const pythonExe As String = "python"
-    Const workDir As String = "C:\Users\kenichi\Documents\OperationSummary"
+    Debug.Print "Debug   " & workDir
     
     If TypeName(Application.Caller) = "String" Then
         buttonName = Application.Caller
@@ -17,7 +16,9 @@ Sub RunPythonScript()
     If buttonName = "ボタン 8" Then
         scriptPath = "getGunHvOffTime_LOCALTEST.py"
     ElseIf buttonName = "ボタン 9" Then
-        scriptPath = "getBlFaultSummary_LOCALTEST.py"
+        scriptPath = "getBlFaultSummary_LOCALTEST.py bl2"
+    ElseIf buttonName = "ボタン 10" Then
+        scriptPath = "getBlFaultSummary_LOCALTEST.py bl3"
     Else
         MsgBox "異常です。終了します。" & vbCrLf & "buttonName = " & buttonName, Buttons:=vbCritical
         End
@@ -27,14 +28,13 @@ Sub RunPythonScript()
     
     ' コマンドを組み立て：まず指定フォルダに移動し、その後Pythonを実行
     command = "cmd.exe /c cd /d " & Chr(34) & workDir & Chr(34) & " && " & pythonExe & " " & workDir & "\" & scriptPath
-
     
     'Shell command, vbNormalFocus ' Shell関数でPythonスクリプトを実行 終了を待たない
     
     Dim shell As Object
     Dim exitCode As Long
     Set shell = CreateObject("WScript.Shell")
-    exitCode = shell.Run(command, vbNormalFocus, True)   ' WScript.ShellのRunメソッドでコマンドを実行し、終了を待つ
+    exitCode = shell.Run(command, vbMaximizedFocus, True)   ' WScript.ShellのRunメソッドでコマンドを実行し、終了を待つ
     If exitCode = 0 Then
         MsgBox "Pythonスクリプトが正常に終了しました。 " & vbCrLf & "[" & scriptPath & "]" & vbCrLf & "", Buttons:=vbInformation
     Else

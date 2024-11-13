@@ -16,7 +16,6 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
        
     Dim BL As Integer  ' 対象BL
     Dim BNAME_SHUKEI As String
-    Dim BNAME_SOURCE As String
     Dim macroName As String
         
     Dim dict As Dictionary ' 辞書型を使用するには、参照設定 Microsoft Scripting Runtime　にチェック
@@ -64,18 +63,26 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     End If
     
     BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL" & BL & ".xlsm"
-    BNAME_SOURCE = "C:\Users\kenichi\Dropbox\gitdir\VBA運転集計用\マクロいろいろ.xlsm"
-'    BNAME_SOURCE = "C:\me\tmp\VBA運転集計用\マクロいろいろ.xlsm"
 
+        
     
     
+    For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
+        If wb.FullName = BNAME_SOURCE Then
+            Set sourceWorkbook = wb
+            Exit For
+        End If
+    Next wb
+    If sourceWorkbook Is Nothing Then ' sourceWorkbook が Nothing の場合、ブックは開かれていないので新たに開く
+        Set sourceWorkbook = Workbooks.Open(BNAME_SOURCE, ReadOnly:=False)
+    End If
+    Debug.Print "Debug   sourceWorkbook.Name =  " & sourceWorkbook.name
+    For Each vbComp In sourceWorkbook.VBProject.VBComponents
+        Debug.Print "Debug   vbComp.name =  " & vbComp.name & "     vbComp.Type: " & vbComp.Type
+    Next vbComp
+    Set sourceModule = sourceWorkbook.VBProject.VBComponents(dict(macroName)) ' モジュール名を確認       Module10 = Fault集計m()
+    Debug.Print "ソース指定OK"
     
-    
-    
-    
-    
-
-
     
     
     For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
@@ -99,21 +106,6 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     
     
     
-    For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
-        If wb.FullName = BNAME_SOURCE Then
-            Set sourceWorkbook = wb
-            Exit For
-        End If
-    Next wb
-    If sourceWorkbook Is Nothing Then ' sourceWorkbook が Nothing の場合、ブックは開かれていないので新たに開く
-        Set sourceWorkbook = Workbooks.Open(BNAME_SOURCE, ReadOnly:=False)
-    End If
-    Debug.Print "Debug   sourceWorkbook.Name =  " & sourceWorkbook.name
-    For Each vbComp In sourceWorkbook.VBProject.VBComponents
-        Debug.Print "Debug   vbComp.name =  " & vbComp.name & "     vbComp.Type: " & vbComp.Type
-    Next vbComp
-    Set sourceModule = sourceWorkbook.VBProject.VBComponents(dict(macroName)) ' モジュール名を確認       Module10 = Fault集計m()
-    Debug.Print "ソース指定OK"
 
 
 
@@ -123,10 +115,8 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     
     If MsgBox("流し込んだマクロを実行します。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
         Application.Run "'" & targetWorkbook.name & "'!" & macroName, BL
-        MsgBox macroName & " が実行されました！", Buttons:=vbInformation
-        Debug.Print macroName & " が実行されました！"
-    Else
-        Debug.Print macroName & " を実行せずに終了します"
+        MsgBox "マクロ「" & macroName & "」 が実行されました！", Buttons:=vbInformation
+        Debug.Print "マクロ「" & macroName & "」 が実行されました！"
     End If
 
 

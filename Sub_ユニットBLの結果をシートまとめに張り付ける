@@ -12,8 +12,7 @@ Sub ユニットBLの結果をシートまとめに張り付ける()
     Dim Category As String
     
        
-'    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
+    Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
     Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
     Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
     wb_MATOME.Windows(1).WindowState = xlMaximized
@@ -180,6 +179,7 @@ Sub ユニットBLの結果をシートまとめに張り付ける()
     MsgBox "これで終了です。" & vbCrLf & "シート「ユニット(BL*)」は手動で削除して下さい", Buttons:=vbInformation
     Call Fin
 
+    Exit Sub  ' 通常の処理が完了したらエラーハンドラをスキップ
 ErrorHandler:
     Call Cleanup
     Exit Sub
@@ -189,26 +189,6 @@ End Sub
 
 
 
-Sub Cleanup()
-    MsgBox "何らかのエラーが発生が発生しました"
-    Call Fin
-End Sub
-
-
-
-Sub Fin()
-    MsgBox "終了処理"
-'    ActiveWindow.Zoom = 100
-    Application.ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon"",True)"
-    Application.DisplayFullScreen = False
-    ' 開いているすべてのブックをループ
-    Dim wb As Workbook
-    For Each wb In Workbooks
-        ' 各ブックのウィンドウに対してズームを設定
-        wb.Windows(1).Zoom = 100
-    Next wb
-    End
-End Sub
 
 
 
@@ -216,17 +196,6 @@ End Sub
 
 
 
-
-
-'シート存在を確認==============================================================================================================================
-Function SheetExists(wb As Workbook, sname As String) As Boolean
-    On Error Resume Next ' エラーが発生しても処理を継続
-    Dim ws As Worksheet
-    Set ws = wb.Sheets(sname) ' 指定したシートをセット
-    SheetExists = Not ws Is Nothing ' シートが存在すればTrue
-    Debug.Print "@SheetExists   Sheetname: [" & sname & "]  " & SheetExists
-    On Error GoTo 0 ' エラーハンドリングをリセット
-End Function
 
 
 

@@ -1,5 +1,17 @@
 
+'SACLA運転状況集計まとめ.xlsmは
+'Pblic Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
 
+'Public Const BNAME_SOURCE As String = "C:\Users\kenichi\Dropbox\gitdir\VBA運転集計用\マクロいろいろ.xlsm"
+'Public Const workDir As String = "C:\Users\kenichi\Documents\OperationSummary"
+
+'
+Public Const BNAME_SOURCE As String = "C:\me\tmp\VBA運転集計用\マクロいろいろ.xlsm"
+Public Const workDir As String = "C:\me\tmp\OperationSummary"
+
+
+
+'========================================================================================================
 Sub Cleanup()
     MsgBox "何らかのエラーが発生が発生しました"
     Call Fin
