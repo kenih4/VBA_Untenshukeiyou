@@ -1,6 +1,7 @@
 Sub 運転集計_形式処理m(BL As Integer)
 
     '/追加部分----------------------------
+    Dim wb As Workbook
     Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
 '    Dim BL As Integer  ' 対象BL
     Dim DOWNTIME_ROW As Integer
@@ -32,11 +33,25 @@ Sub 運転集計_形式処理m(BL As Integer)
             Debug.Print "Zzz..."
             End
     End Select
-    Set wb_SHUKEI = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+
+
+    ' BNAME_SHUKEIを開く
+    Dim wb_SHUKEI As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
+        If wb.FullName = BNAME_SHUKEI Then
+            Set wb_SHUKEI = wb
+            Exit For
+        End If
+    Next wb
+    If wb_SHUKEI Is Nothing Then ' wb_SHUKEI が Nothing の場合、ブックは開かれていないので新たに開く
+        Set wb_SHUKEI = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+    End If
+    Debug.Print "Debug   wb_SHUKEI.Name =  " & wb_SHUKEI.Name & "を開きました"
+    
     wb_SHUKEI.Windows(1).WindowState = xlMaximized
     wb_SHUKEI.Worksheets("運転状況(対象ユニット)").Activate
-    If InStr(ActiveWorkbook.name, BNAME_SHUKEI) Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
+    If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI
         End
     End If
     
@@ -62,7 +77,7 @@ Sub 運転集計_形式処理m(BL As Integer)
     Application.DisplayAlerts = True   '--- 確認メッセージを表示
 
     Sheets("運転状況(対象ユニット)").Copy after:=ActiveSheet 'シートのコピー'
-    ActiveSheet.name = シート名 'シート名変更'
+    ActiveSheet.Name = シート名 'シート名変更'
     Range("A1:P" & 最終行).Value = Range("A1:P" & 最終行).Value '数式⇒値へ変換'
 
     If Cells(Range("P1:P500").Find("条件_開始行").Row + 1, 7) = "" Then 'ユーザーがいないとき'
@@ -88,7 +103,20 @@ Sub 運転集計_形式処理m(BL As Integer)
     End If
     
     If MsgBox("今表示さているシート「" & シート名 & "」が作成されたものです。" & vbCrLf & "これを「SACLA運転状況集計まとめ.xlsm」にコピーしますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
-        Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+
+        ' BNAME_MATOMEを開く
+        Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+        For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
+            If wb.FullName = BNAME_MATOME Then
+                Set wb_MATOME = wb
+                Exit For
+            End If
+        Next wb
+        If wb_MATOME Is Nothing Then ' wb_MATOME が Nothing の場合、ブックは開かれていないので新たに開く
+            Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+        End If
+        Debug.Print "Debug   wb_MATOME.Name =  " & wb_MATOME.Name & "を開きました"
+        
         wb_SHUKEI.Worksheets(シート名).Copy after:=wb_MATOME.Worksheets("まとめ ")
         wb_MATOME.Worksheets(シート名).Activate
         MsgBox "シートのコピーが完了しまた。" & vbCrLf & "BL2/BL3両方終わったら手動でマージしましょう！", Buttons:=vbInformation

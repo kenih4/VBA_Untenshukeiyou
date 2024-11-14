@@ -1,11 +1,6 @@
 Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行()
     On Error GoTo ErrorHandler
     Debug.Print "Debug   マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行"
-    
-    
-'  このマクロの実行には
-'　ファイル　-> オプション　->　セキュリティーセンター　->　セキュリティーセンターの設定　->　マクロの設定　で「VBAプロジェクトオブジェクトモデルへのアクセスを信頼する」にチェックを入れる
-'
         
     Dim result As Boolean
     Dim wb As Workbook
@@ -14,28 +9,14 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     Dim sourceModule As Object
     Dim targetModule As Object
        
-    Dim BL As Integer  ' 対象BL
+    Dim BL As Integer
     Dim BNAME_SHUKEI As String
     Dim macroName As String
         
-    Dim dict As Dictionary ' 辞書型を使用するには、参照設定 Microsoft Scripting Runtime　にチェック
+    Dim dict As Dictionary
     Set dict = New Dictionary
     dict.Add "Fault集計m", "Module10"
     dict.Add "運転集計_形式処理m", "Module11"
-'    dict.Add "Fault集計m", Array("ボタン 1", "Module10")
-'    dict.Add "運転集計_形式処理m", Array("ボタン 2", "Module11")
-    
-    ' デバッグ用に出力
-'    Dim i As Integer
-'    For i = LBound(dict("Fault集計m")) To UBound(dict("Fault集計m"))
-'        Debug.Print dict("Fault集計m")(i)
-'    Next i
-
-
-
-
-
-
 
     Dim buttonName As String
     If TypeName(Application.Caller) = "String" Then
@@ -66,7 +47,7 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
 
         
     
-    
+    ' BNAME_SOURCEを開く
     For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
         If wb.FullName = BNAME_SOURCE Then
             Set sourceWorkbook = wb
@@ -76,15 +57,14 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     If sourceWorkbook Is Nothing Then ' sourceWorkbook が Nothing の場合、ブックは開かれていないので新たに開く
         Set sourceWorkbook = Workbooks.Open(BNAME_SOURCE, ReadOnly:=False)
     End If
-    Debug.Print "Debug   sourceWorkbook.Name =  " & sourceWorkbook.name
+    Debug.Print "Debug   sourceWorkbook.Name =  " & sourceWorkbook.Name & "を開きました"
     For Each vbComp In sourceWorkbook.VBProject.VBComponents
-        Debug.Print "Debug   vbComp.name =  " & vbComp.name & "     vbComp.Type: " & vbComp.Type
+        Debug.Print "Debug   vbComp.name =  " & vbComp.Name & "     vbComp.Type: " & vbComp.Type
     Next vbComp
     Set sourceModule = sourceWorkbook.VBProject.VBComponents(dict(macroName)) ' モジュール名を確認       Module10 = Fault集計m()
-    Debug.Print "ソース指定OK"
     
     
-    
+    ' BNAME_SHUKEIを開く
     For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
         If wb.FullName = BNAME_SHUKEI Then
             Set targetWorkbook = wb
@@ -94,6 +74,7 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     If targetWorkbook Is Nothing Then ' targetWorkbook が Nothing の場合、ブックは開かれていないので新たに開く
         Set targetWorkbook = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
     End If
+    Debug.Print "Debug   targetWorkbook.Name =  " & targetWorkbook.Name & "を開きました"
     targetWorkbook.Windows(1).WindowState = xlMaximized
     result = CheckAndDeleteModuleContainingMacro(BNAME_SHUKEI, macroName) 'マクロmacroNameが、BNAME_SHUKEIに存在したら、削除する
     If result Then
@@ -101,10 +82,11 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     Else
         MsgBox "マクロ 「" & macroName & "」 を " & vbCrLf & BNAME_SHUKEI & " " & vbCrLf & "に流し込みます。", Buttons:=vbInformation
     End If
-    Debug.Print "ターゲット指定OK"
     
     
-    
+    '__________________________________________________________________________________________
+    '   End ' 流し込んだマクロが意図せず残ってしまった場合、ここでENDすると削除できる
+    '------------------------------------------------------------------------------------------
     
 
 
@@ -114,7 +96,7 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     targetModule.CodeModule.AddFromString sourceModule.CodeModule.Lines(1, sourceModule.CodeModule.CountOfLines)
     
     If MsgBox("流し込んだマクロを実行します。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
-        Application.Run "'" & targetWorkbook.name & "'!" & macroName, BL
+        Application.Run "'" & targetWorkbook.Name & "'!" & macroName, BL
         MsgBox "マクロ「" & macroName & "」 が実行されました！", Buttons:=vbInformation
         Debug.Print "マクロ「" & macroName & "」 が実行されました！"
     End If
@@ -139,68 +121,20 @@ End Sub
 
 
 
-
-
-
-
-'マクロmacroNameが、workbookNameに存在するか確認して「モジュール」を削除する===========================================================================
-'Sub CheckAndDeleteModuleContainingMacro(workbookName As String, macroName As String)
-'    Dim targetWorkbook As Workbook
-'    Dim vbComponent As VBIDE.vbComponent
-'    Dim exists As Boolean
-'
-'    ' 指定したブックを設定
-'    On Error Resume Next
-'    Set targetWorkbook = Workbooks.Open(workbookName) ' 指定したブック名で開いているか確認
-'    On Error GoTo 0
-'
-'    If targetWorkbook Is Nothing Then
-'        MsgBox "指定したブック '" & workbookName & "' が開いていません。"
-'        Exit Sub
-'    End If
-'
-'    ' モジュールをループ
-'    exists = False
-'    For Each vbComponent In targetWorkbook.VBProject.VBComponents
-'        If vbComponent.Type = vbext_ct_StdModule Or vbComponent.Type = vbext_ct_ClassModule Then
-'            ' モジュールが空でない場合のみ確認
-'            If vbComponent.CodeModule.CountOfLines > 0 Then
-'                ' モジュールのコードを確認
-'                If InStr(vbComponent.CodeModule.Lines(1, vbComponent.CodeModule.CountOfLines), "Sub " & macroName & "(") > 0 Then
-'                    exists = True
-'                    ' モジュールを削除
-'                    targetWorkbook.VBProject.VBComponents.Remove vbComponent
-'                    Exit For
-'                End If
-'            End If
-'        End If
-'    Next vbComponent
-'
-'    ' 結果を表示
-'    If exists Then
-'        MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & workbookName & " に存在したので、モジュールを削除します。", Buttons:=vbInformation
-'    Else
-'        MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & workbookName & " に存在しませんでした。", Buttons:=vbInformation
-'    End If
-'End Sub
-
-
-
-
 'マクロmacroNameが、workbookNameに存在するか確認して「モジュール」を削除する  返り値が欲しいのでFunctionにした===========================================================================
-Function CheckAndDeleteModuleContainingMacro(workbookName As String, macroName As String) As Boolean
+Function CheckAndDeleteModuleContainingMacro(WorkBookName As String, macroName As String) As Boolean
     Dim targetWorkbook As Workbook
     Dim vbComponent As VBIDE.vbComponent
     Dim exists As Boolean
 
     ' 指定したブックを設定
     On Error Resume Next
-    Set targetWorkbook = Workbooks.Open(workbookName) ' 指定したブック名で開いているか確認
+    Set targetWorkbook = Workbooks.Open(WorkBookName) ' 指定したブック名で開いているか確認
     targetWorkbook.Windows(1).WindowState = xlMaximized
     On Error GoTo 0
 
     If targetWorkbook Is Nothing Then
-        MsgBox "指定したブック '" & workbookName & "' が開いていません。"
+        MsgBox "指定したブック '" & WorkBookName & "' が開いていません。"
         CheckAndDeleteModuleContainingMacro = False
         Exit Function
     End If

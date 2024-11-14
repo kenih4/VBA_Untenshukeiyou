@@ -13,7 +13,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
     ActiveWindow.Zoom = 35
     'Application.DisplayFullScreen = True
 
-    MsgBox "このマクロは SACLA運転状況集計まとめ.xlsm のシート「" & sheet.name & "」" & vbCrLf & "の適切な所に貝いれます", Buttons:=vbInformation
+    MsgBox "このマクロは SACLA運転状況集計まとめ.xlsm のシート「" & sheet.Name & "」" & vbCrLf & "の適切な所に貝いれます", Buttons:=vbInformation
 
 
 
@@ -44,7 +44,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
 
 
 
-    Select Case sheet.name
+    Select Case sheet.Name
         Case "まとめ "
                 ReDim RPL(4, 1) ' 配列サイズ設定
                 RPL(0, 0) = "(b)運転時間　シフト毎"
@@ -67,7 +67,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
                 RPL(0, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
         Case Else
             Debug.Print "Zzz..."
-            MsgBox "このシートでは特にやることないです。" & vbCrLf & "sheet.name:  " & sheet.name
+            MsgBox "このシートでは特にやることないです。" & vbCrLf & "sheet.name:  " & sheet.Name
             Call Fin
     End Select
     
@@ -136,7 +136,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
 '        sheet.PrintPreview
 '    End If
 
-    MsgBox "終了しました。シート「" & sheet.name & "」" & vbCrLf & "の適切な所に貝いれました", Buttons:=vbInformation
+    MsgBox "終了しました。シート「" & sheet.Name & "」" & vbCrLf & "の適切な所に貝いれました", Buttons:=vbInformation
     Call Fin
     Debug.Print "Fin================================================================================================================="
     
@@ -172,10 +172,10 @@ Sub 適切な箇所に改ページを入れる(ByVal sheet As Worksheet)
     ActiveWindow.Zoom = 35
     'Application.DisplayFullScreen = True
 
-    MsgBox "このマクロは SACLA運転状況集計まとめ.xlsm のシート「" & sheet.name & "」" & vbCrLf & "の適切な所に改ページいれます", Buttons:=vbInformation
+    MsgBox "このマクロは SACLA運転状況集計まとめ.xlsm のシート「" & sheet.Name & "」" & vbCrLf & "の適切な所に改ページいれます", Buttons:=vbInformation
 
 
-    Select Case sheet.name
+    Select Case sheet.Name
         Case "まとめ "
                 TARGET_COL = 2  ' 対象列 B
                 LINE_CNT_PAGEBREAK = 30   'デフォルト:50    50行数くらいで改行   それ以上にすると1ページに収まりきらない事があり、エクセルが自動で改ページを挿入してしまう
@@ -200,11 +200,11 @@ Sub 適切な箇所に改ページを入れる(ByVal sheet As Worksheet)
                 RPL(1, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
         Case Else
             Debug.Print "Zzz..."
-            MsgBox "このシートでは特にやることないです。" & vbCrLf & "sheet.name:  " & sheet.name
+            MsgBox "このシートでは特にやることないです。" & vbCrLf & "sheet.name:  " & sheet.Name
             Call Fin
     End Select
     
-    Debug.Print "sheet.Name: " & sheet.name
+    Debug.Print "sheet.Name: " & sheet.Name
     Debug.Print "Last: " & Cells(Rows.Count, TARGET_COL).End(xlUp).Row
     For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
         Debug.Print "RPL(i, 0) : " & RPL(i, 0) & "  " & RPL(i, 1)
@@ -315,7 +315,7 @@ Sub 適切な箇所に改ページを入れる(ByVal sheet As Worksheet)
 '        sheet.PrintPreview
 '    End If
 
-    MsgBox "終了しました。シート「" & sheet.name & "」" & vbCrLf & "の適切な所に改ページいれました", Buttons:=vbInformation
+    MsgBox "終了しました。シート「" & sheet.Name & "」" & vbCrLf & "の適切な所に改ページいれました", Buttons:=vbInformation
     Call Fin
     Debug.Print "Fin================================================================================================================="
     

@@ -6,15 +6,32 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     Dim RANGE_GUN_HV_OFF As String
     Dim COL_GUN_HV_OFF As Integer
     Dim targetline As Integer
+    Dim wb As Workbook
     
     
     
     BNAME_KEIKAKU = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
-    Set Wb_keikaku = Workbooks.Open(BNAME_KEIKAKU, ReadOnly:=True)
+    
+    'MOTO    Set Wb_keikaku = Workbooks.Open(BNAME_KEIKAKU, ReadOnly:=True)
+    
+    ' BNAME_KEIKAKUを開く
+    Dim Wb_keikaku As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
+       If wb.FullName = BNAME_KEIKAKU Then
+            Set Wb_keikaku = wb
+            Exit For
+        End If
+    Next wb
+    If Wb_keikaku Is Nothing Then ' Wb_keikaku が Nothing の場合、ブックは開かれていないので新たに開く
+        Set Wb_keikaku = Workbooks.Open(BNAME_KEIKAKU, ReadOnly:=False)
+    End If
+    Debug.Print "Debug   Wb_keikaku.Name =  " & Wb_keikaku.Name & "を開きました"
+    
+    
     Wb_keikaku.Windows(1).WindowState = xlMaximized
     Wb_keikaku.Worksheets("GUN HV OFF").Activate
-    If InStr(ActiveWorkbook.name, BNAME_KEIKAKU) Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
+    If InStr(ActiveWorkbook.Name, BNAME_KEIKAKU) Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
         Exit Sub
     End If
     
@@ -86,7 +103,22 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             Range(RANGE_GUN_HV_OFF & Cells(Rows.Count, COL_GUN_HV_OFF).End(xlUp).Row).Select
             If MsgBox("選択部分をコピーしました。" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
                         
-            Set wb1 = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+'MOTO            Set wb1 = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+
+            ' BNAME_SHUKEIを開く
+            Dim wb1 As Workbook
+            For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
+                If wb.FullName = BNAME_SHUKEI Then
+                    Set wb1 = wb
+                    Exit For
+                End If
+            Next wb
+            If wb1 Is Nothing Then ' wb1 が Nothing の場合、ブックは開かれていないので新たに開く
+                Set wb1 = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+            End If
+            Debug.Print "Debug   wb1.Name =  " & wb1.Name & "を開きました"
+            
+            
             wb1.Worksheets("GUN HV OFF時間記録").Activate
             wb1.Worksheets("GUN HV OFF時間記録").Range("C5").End(xlDown).Activate       ' セルC5「GUN HV OFF時間」から最終行へ
             targetline = wb1.Worksheets("GUN HV OFF時間記録").Range("C5").End(xlDown).Row + 1

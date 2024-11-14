@@ -1,5 +1,6 @@
 Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
 
+    Dim wb As Workbook
 
     ' ウィンドウを標準サイズにする
     Application.WindowState = xlNormal
@@ -64,13 +65,25 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
 
     
     
-            Set wb1 = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+            ' BNAME_SHUKEIを開く
+            Dim wb1 As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+            For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
+                If wb.FullName = BNAME_SHUKEI Then
+                    Set wb1 = wb
+                    Exit For
+                End If
+            Next wb
+            If wb1 Is Nothing Then ' wb1 が Nothing の場合、ブックは開かれていないので新たに開く
+                Set wb1 = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+            End If
+            Debug.Print "Debug   wb1.Name =  " & wb1.Name & "を開きました"
+            
             wb1.Windows(1).WindowState = xlMaximized
             wb1.Worksheets("集計記録").Activate
             
             
-            If InStr(ActiveWorkbook.name, BNAME_SHUKEI) Then
-                MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
+            If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
+                MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
                 Exit Sub
             End If
     

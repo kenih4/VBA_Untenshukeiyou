@@ -1,13 +1,44 @@
 
-'SACLA運転状況集計まとめ.xlsmは
+'SACLA運転状況集計まとめ.xlsmは流し込んだ先のブックでも使用するので、ここでPublic宣言してもダメ。
 'Pblic Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
 
 'Public Const BNAME_SOURCE As String = "C:\Users\kenichi\Dropbox\gitdir\VBA運転集計用\マクロいろいろ.xlsm"
 'Public Const workDir As String = "C:\Users\kenichi\Documents\OperationSummary"
 
 '
-Public Const BNAME_SOURCE As String = "C:\me\tmp\VBA運転集計用\マクロいろいろ.xlsm"
-Public Const workDir As String = "C:\me\tmp\OperationSummary"
+Public Const BNAME_SOURCE As String = "C:\me\unten\マクロいろいろ.xlsm"
+Public Const workDir As String = "C:\me\unten\OperationSummary"
+
+
+'ブックを開く TEST ==============================================================================================================================
+Function OpenBook(ByVal WorkBookName As String) As Workbook
+    Debug.Print "Debug   Start..............................................................................................."
+    Dim OWB As Workbook
+    Dim wb As Workbook
+    
+    ' 開いているブックの中に指定されたパスのブックがあるかを確認
+    For Each wb In Workbooks
+       Debug.Print "Debug   wb.Name =  " & wb.Name & " は開かれています"
+       If wb.FullName = WorkBookName Then
+           Set OWB = wb
+           Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] は既に開かれています"
+           Exit For
+        End If
+    Next wb
+    
+    ' ブックが開かれていない場合、新たに開く
+    If OWB Is Nothing Then
+        Set OWB = Workbooks.Open(WorkBookName, ReadOnly:=False)
+        Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] を開きました"
+    End If
+    
+    ' 関数の戻り値として設定
+    Set OpenBook = OWB
+    
+    Debug.Print "Debug   OpenBook Finish"
+End Function
+
+
 
 
 
@@ -69,7 +100,7 @@ End Function
 Function flgExsistSheet(ByVal WorkSheetName As String) As Boolean
 Dim sht As Worksheet
   For Each sht In ActiveWorkbook.Worksheets
-    If sht.name = WorkSheetName Then
+    If sht.Name = WorkSheetName Then
         flgExsistSheet = True
         Exit Function
     End If

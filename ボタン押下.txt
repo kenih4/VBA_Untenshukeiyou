@@ -6,9 +6,22 @@ End Sub
 
 
 Sub ボタン15_Click()
+    Dim wb As Workbook
     Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
     Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+    
+    ' BNAME_MATOMEを開く
+    For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
+       If wb.FullName = BNAME_MATOME Then
+            Set wb_MATOME = wb
+            Exit For
+        End If
+    Next wb
+    If wb_MATOME Is Nothing Then ' wb_MATOME が Nothing の場合、ブックは開かれていないので新たに開く
+        Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+    End If
+    Debug.Print "Debug   wb_MATOME.Name =  " & wb_MATOME.Name & "を開きました"
+        
     Dim Sonzai_flg As Boolean: Sonzai_flg = False
     Sonzai_flg = SheetExists(wb_MATOME, "まとめ ")
     If Not Sonzai_flg Then
@@ -21,9 +34,21 @@ End Sub
 
 
 Sub ボタン16_Click()
+    Dim wb As Workbook
     Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
     Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+    ' BNAME_MATOMEを開く
+    For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
+       If wb.FullName = BNAME_MATOME Then
+            Set wb_MATOME = wb
+            Exit For
+        End If
+    Next wb
+    If wb_MATOME Is Nothing Then ' wb_MATOME が Nothing の場合、ブックは開かれていないので新たに開く
+        Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+    End If
+    Debug.Print "Debug   wb_MATOME.Name =  " & wb_MATOME.Name & "を開きました"
+    
     Dim Sonzai_flg As Boolean: Sonzai_flg = False
     Sonzai_flg = SheetExists(wb_MATOME, "Fault集計")
     If Not Sonzai_flg Then
@@ -35,18 +60,18 @@ End Sub
 
 
 
+
+
 Sub ボタン17_Click() ' TEST!!!!!!!!!!!!
-    Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-    Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-'    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-'    MsgBox "本チャンです", Buttons:=vbInformation
-    BNAME_MATOME = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
-    Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
-    Dim Sonzai_flg As Boolean: Sonzai_flg = False
-    Sonzai_flg = SheetExists(wb_MATOME, "まとめ ")
-    If Not Sonzai_flg Then
-        MsgBox "シートが存在しません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
+    Dim wb_MATOME As Workbook    '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    ' フルパスを指定
+    Set wb_MATOME = OpenBook("\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm")
+    ' 以降、wb_MATOME に対して操作を行う
+    If Not wb_MATOME Is Nothing Then
+        ' 操作内容の例
+        MsgBox "ブック " & wb_MATOME.Name & " を開いています"
     Else
-        Call 適切な箇所に改ページを入れるVer2(wb_MATOME.Worksheets("まとめ "))
+        MsgBox "ブックが見つかりませんでした"
     End If
 End Sub
+

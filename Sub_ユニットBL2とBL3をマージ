@@ -4,22 +4,36 @@ Sub ユニットBL2とBL3をマージ()
     Dim TargetUnit As String
     Dim Sonzai_flg_BL2 As Boolean: Sonzai_flg_BL2 = False
     Dim Sonzai_flg_BL3 As Boolean: Sonzai_flg_BL3 = False
+    Dim wb As Workbook
        
+    
+    ' BNAME_MATOMEを開く
     Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
     Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+    For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
+       If wb.FullName = BNAME_MATOME Then
+           Set wb_MATOME = wb
+           Exit For
+        End If
+    Next wb
+    If wb_MATOME Is Nothing Then ' wb_MATOME が Nothing の場合、ブックは開かれていないので新たに開く
+        Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
+    End If
+    Debug.Print "Debug   wb_MATOME.Name =  " & wb_MATOME.Name & "を開きました"
+        
+        
     wb_MATOME.Windows(1).WindowState = xlMaximized
     wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
     wb_MATOME.Worksheets("Fault集計").Cells(1, 1).Select ' 選択範囲が残ってるの気持ち悪いのでとりあえず
-    If InStr(ActiveWorkbook.name, BNAME_MATOME) Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
+    If InStr(ActiveWorkbook.Name, BNAME_MATOME) Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
         Call Fin
     End If
     
     For i = 1 To Sheets.Count
-        Debug.Print Sheets(i).name
-        If Sheets(i).name = "まとめ " Then 'シート「まとめ 」の次のシートが対象となるユニット
-            TargetSheet = Sheets(i + 1).name
+        Debug.Print Sheets(i).Name
+        If Sheets(i).Name = "まとめ " Then 'シート「まとめ 」の次のシートが対象となるユニット
+            TargetSheet = Sheets(i + 1).Name
             Debug.Print "Hit-------" & TargetSheet
             Exit For
         End If
@@ -112,8 +126,8 @@ Sub ユニットBL2とBL3をマージ()
     
     
     'BL2のシートをコピーしてベースにする
-    wb_MATOME.Worksheets(TargetUnit & "(BL2)").Copy after:=wb_MATOME.Worksheets("まとめ ") ' 「名前'~～'は既に存在します」とメッセージが出る場合があるが、とりあえずはいでいい。
-    ActiveSheet.name = TargetUnit
+    wb_MATOME.Worksheets(TargetUnit & "(BL2)").Copy after:=wb_MATOME.Worksheets("まとめ ") ' なぜかSCSS+ログノート用PCで実行すると、「名前'~～'は既に存在します」とメッセージが出る場合がある。とりあえず「はい」で進めるしかないので進めると、出来たシートに条件付き書式でなぜか赤印がつく。
+    ActiveSheet.Name = TargetUnit
     Cells.Select '　コピーしたことを視覚的に分かりやすくするため。なくてもいい
     MsgBox "シート「" & TargetUnit & "(BL2)" & "」をコピーしました。" & vbCrLf & "これを下地にします。", Buttons:=vbInformation
         
