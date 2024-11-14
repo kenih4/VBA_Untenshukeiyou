@@ -23,14 +23,24 @@ Function OpenBook(ByVal WorkBookName As String) As Workbook
            Set OWB = wb
            Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] は既に開かれています"
            Exit For
-        End If
+       End If
     Next wb
     
-    ' ブックが開かれていない場合、新たに開く
+    ' エラーハンドリング開始
+    On Error Resume Next
     If OWB Is Nothing Then
+        ' 指定したブックが開かれていない場合、新たに開こうとする
         Set OWB = Workbooks.Open(WorkBookName, ReadOnly:=False)
-        Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] を開きました"
+        If Err.Number <> 0 Then
+            ' エラーが発生した場合、エラーメッセージを表示
+            MsgBox "ブックが見つからないか、開けませんでした。ファイル名やパスを確認してください: " & WorkBookName, vbExclamation
+            Set OWB = Nothing  ' エラー発生時は Nothing を返す
+            Err.Clear
+        Else
+            Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] を開きました"
+        End If
     End If
+    On Error GoTo 0  ' エラーハンドリング解除
     
     ' 関数の戻り値として設定
     Set OpenBook = OWB
