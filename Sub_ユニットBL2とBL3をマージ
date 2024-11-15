@@ -7,28 +7,20 @@ Sub ユニットBL2とBL3をマージ()
     Dim wb As Workbook
        
     
-    ' BNAME_MATOMEを開く
-    Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-    Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
-       If wb.FullName = BNAME_MATOME Then
-           Set wb_MATOME = wb
-           Exit For
-        End If
-    Next wb
-    If wb_MATOME Is Nothing Then ' wb_MATOME が Nothing の場合、ブックは開かれていないので新たに開く
-        Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
-    End If
-    Debug.Print "Debug   wb_MATOME.Name =  " & wb_MATOME.Name & "を開きました"
-        
-        
-    wb_MATOME.Windows(1).WindowState = xlMaximized
-    wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
-    wb_MATOME.Worksheets("Fault集計").Cells(1, 1).Select ' 選択範囲が残ってるの気持ち悪いのでとりあえず
-    If InStr(ActiveWorkbook.Name, BNAME_MATOME) Then
+    ' wb_MATOMEを開く
+    Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    Set wb_MATOME = OpenBook("\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm") ' フルパスを指定
+    If wb_MATOME Is Nothing Then Call Fin
+
+    If ActiveWorkbook.Name <> wb_MATOME.Name Then
         MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
         Call Fin
     End If
+    
+            
+    wb_MATOME.Windows(1).WindowState = xlMaximized
+    wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
+    wb_MATOME.Worksheets("Fault集計").Cells(1, 1).Select ' 選択範囲が残ってるの気持ち悪いのでとりあえず
     
     For i = 1 To Sheets.Count
         Debug.Print Sheets(i).Name
