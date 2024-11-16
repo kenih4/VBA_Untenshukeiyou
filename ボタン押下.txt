@@ -6,21 +6,10 @@ End Sub
 
 
 Sub ボタン15_Click()
-    Dim wb As Workbook
-    Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-    Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    
-    ' BNAME_MATOMEを開く
-    For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
-       If wb.FullName = BNAME_MATOME Then
-            Set wb_MATOME = wb
-            Exit For
-        End If
-    Next wb
-    If wb_MATOME Is Nothing Then ' wb_MATOME が Nothing の場合、ブックは開かれていないので新たに開く
-        Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
-    End If
-    Debug.Print "Debug   wb_MATOME.Name =  " & wb_MATOME.Name & "を開きました"
+    ' wb_MATOMEを開く
+    Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    Set wb_MATOME = OpenBook("\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm") ' フルパスを指定
+    If wb_MATOME Is Nothing Then Call Fin
         
     Dim Sonzai_flg As Boolean: Sonzai_flg = False
     Sonzai_flg = SheetExists(wb_MATOME, "まとめ ")
@@ -34,20 +23,10 @@ End Sub
 
 
 Sub ボタン16_Click()
-    Dim wb As Workbook
-    Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-    Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    ' BNAME_MATOMEを開く
-    For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
-       If wb.FullName = BNAME_MATOME Then
-            Set wb_MATOME = wb
-            Exit For
-        End If
-    Next wb
-    If wb_MATOME Is Nothing Then ' wb_MATOME が Nothing の場合、ブックは開かれていないので新たに開く
-        Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
-    End If
-    Debug.Print "Debug   wb_MATOME.Name =  " & wb_MATOME.Name & "を開きました"
+    ' wb_MATOMEを開く
+    Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    Set wb_MATOME = OpenBook("\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm") ' フルパスを指定
+    If wb_MATOME Is Nothing Then Call Fin
     
     Dim Sonzai_flg As Boolean: Sonzai_flg = False
     Sonzai_flg = SheetExists(wb_MATOME, "Fault集計")
@@ -63,15 +42,49 @@ End Sub
 
 
 Sub ボタン17_Click() ' TEST!!!!!!!!!!!!
-    Dim wb_MATOME As Workbook    '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    ' フルパスを指定
-    Set wb_MATOME = OpenBook("\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm")
-    ' 以降、wb_MATOME に対して操作を行う
-    If Not wb_MATOME Is Nothing Then
-        ' 操作内容の例
-        MsgBox "ブック " & wb_MATOME.Name & " を開いています"
+'    Dim wb_MATOME As Workbook    '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+'    Set wb_MATOME = OpenBook("\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm") ' フルパスを指定
+'    If wb_MATOME Is Nothing Then Call Fin
+    
+    
+     Dim BL As Integer: BL = 2
+     Select Case BL
+        Case 1
+            Debug.Print "SCSS+"
+        Case 2
+            Debug.Print "BL2"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2.xlsm"
+            SNAME_KEIKAKU_BL = "bl2"
+        Case 3
+            Debug.Print ">>>BL3"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL3.xlsm"
+            SNAME_KEIKAKU_BL = "bl3"
+        Case Else
+            Debug.Print "Zzz..."
+            Exit Sub
+    End Select
+    
+    ' sourceWorkbookを開く
+    Dim sourceWorkbook As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    Set sourceWorkbook = OpenBook(BNAME_SOURCE) ' フルパスを指定
+    If sourceWorkbook Is Nothing Then Call Fin
+    
+    
+    ' wb_SHUKEIを開く
+    Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    Set wb_SHUKEI = OpenBook(BNAME_SHUKEI) ' フルパスを指定
+    If wb_SHUKEI Is Nothing Then Call Fin
+        
+    Dim result As Boolean
+    Dim macroName As String: macroName = "Cleanup" ' とりあえず、Sub Cleanupが含まれるモジュールを削除する。要検討改修
+    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, wb_SHUKEI, "Module8", "Cleanup", False)
+    If result Then
+        MsgBox "成功 「マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込むだけ」", Buttons:=vbInformation
     Else
-        MsgBox "ブックが見つかりませんでした"
+        MsgBox "失敗 「マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込むだけ」", Buttons:=vbInformation
     End If
+    
+    
+    
 End Sub
 

@@ -34,7 +34,7 @@ Sub RunPythonScript()
     Dim shell As Object
     Dim exitCode As Long
     Set shell = CreateObject("WScript.Shell")
-    exitCode = shell.Run(command, vbMaximizedFocus, True)   ' WScript.ShellのRunメソッドでコマンドを実行し、終了を待つ
+    exitCode = shell.RUN(command, vbMaximizedFocus, True)   ' WScript.ShellのRunメソッドでコマンドを実行し、終了を待つ
     If exitCode = 0 Then
         MsgBox "Pythonスクリプトが正常に終了しました。 " & vbCrLf & "[" & scriptPath & "]" & vbCrLf & "", Buttons:=vbInformation
     Else

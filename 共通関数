@@ -1,11 +1,10 @@
+Option Explicit ' 未定義の変数は使用できないように
 
 
 Public Const BNAME_SOURCE As String = "C:\me\unten\マクロいろいろ.xlsm"
 Public Const workDir As String = "C:\me\unten\OperationSummary"
+Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
 
-
-'SACLA運転状況集計まとめ.xlsmは流し込んだ先のブックでも使用するので、ここでPublic宣言してもダメだった
-'Pblic Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
 
 'OLD
 'Public Const BNAME_SOURCE As String = "C:\Users\kenichi\Dropbox\gitdir\VBA運転集計用\マクロいろいろ.xlsm"

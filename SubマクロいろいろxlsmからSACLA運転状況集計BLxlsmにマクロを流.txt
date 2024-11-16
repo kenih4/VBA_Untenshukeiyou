@@ -52,38 +52,33 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     Set sourceWorkbook = OpenBook(BNAME_SOURCE) ' フルパスを指定
     If sourceWorkbook Is Nothing Then Call Fin
     
-    For Each vbComp In sourceWorkbook.VBProject.VBComponents
-        Debug.Print "Debug   vbComp.name =  " & vbComp.Name & "     vbComp.Type: " & vbComp.Type
-    Next vbComp
-    Set sourceModule = sourceWorkbook.VBProject.VBComponents(dict(macroName)) ' モジュール名を確認       Module10 = Fault集計m()
-    
-    
+'    For Each vbComp In sourceWorkbook.VBProject.VBComponents
+'        Debug.Print "Debug   vbComp.name =  " & vbComp.Name & "     vbComp.Type: " & vbComp.Type
+'    Next vbComp
+'MOTO    Set sourceModule = sourceWorkbook.VBProject.VBComponents(dict(macroName)) ' モジュール名を確認       Module10 = Fault集計m()
+        
     ' targetWorkbookを開く
     Dim targetWorkbook As Workbook
     Set targetWorkbook = OpenBook(BNAME_SHUKEI) ' フルパスを指定
     If targetWorkbook Is Nothing Then Call Fin
-    
-    
-    targetWorkbook.Windows(1).WindowState = xlMaximized
-    result = CheckAndDeleteModuleContainingMacro(BNAME_SHUKEI, macroName) 'マクロmacroNameが、BNAME_SHUKEIに存在したら、削除する
+
+
+    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, "Module8", "Cleanup", False) ' 共通関数
     If result Then
-        MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & BNAME_SHUKEI & " に存在したので、一旦、モジュールを削除して、" & vbCrLf & "マクロを流し込みます。。", Buttons:=vbInformation
+        MsgBox "成功 共通関数「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」", Buttons:=vbInformation
     Else
-        MsgBox "マクロ 「" & macroName & "」 を " & vbCrLf & BNAME_SHUKEI & " " & vbCrLf & "に流し込みます。", Buttons:=vbInformation
+        MsgBox "失敗 共通関数「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」", Buttons:=vbInformation
+    End If
+    
+    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, dict(macroName), macroName, False)
+    If result Then
+        MsgBox "成功 「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」", Buttons:=vbInformation
+    Else
+        MsgBox "失敗 「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」", Buttons:=vbInformation
     End If
     
     
-    '__________________________________________________________________________________________
-    '   End ' 流し込んだマクロが意図せず残ってしまった場合、ここでENDすると削除できる
-    '------------------------------------------------------------------------------------------
-    
-
-
-
-    
-    Set targetModule = targetWorkbook.VBProject.VBComponents.Add(1) ' vbext_ct_StdModule = 1  標準モジュールを追加
-    targetModule.CodeModule.AddFromString sourceModule.CodeModule.Lines(1, sourceModule.CodeModule.CountOfLines)
-    
+'
     If MsgBox("流し込んだマクロを実行します。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
         Application.RUN "'" & targetWorkbook.Name & "'!" & macroName, BL
         MsgBox "マクロ「" & macroName & "」 が実行されました！", Buttons:=vbInformation
@@ -92,7 +87,9 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
 
 
     'マクロmacroNameを片づける
-    result = CheckAndDeleteModuleContainingMacro(BNAME_SHUKEI, macroName)
+    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, "Module8", "Cleanup", True) ' 共通関数
+    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, dict(macroName), macroName, True)
+    
     
     ' ワークブックを閉じる
     'sourceWorkbook.Close SaveChanges:=False
@@ -110,7 +107,7 @@ End Sub
 
 
 
-'マクロmacroNameが、workbookNameに存在するか確認して「モジュール」を削除する  返り値が欲しいのでFunctionにした===========================================================================
+'Not USE    マクロmacroNameが、workbookNameに存在するか確認して「モジュール」を削除する  返り値が欲しいのでFunctionにした===========================================================================
 Function CheckAndDeleteModuleContainingMacro(WorkBookName As String, macroName As String) As Boolean
     Dim targetWorkbook As Workbook
     Dim vbComponent As VBIDE.vbComponent
@@ -145,14 +142,6 @@ Function CheckAndDeleteModuleContainingMacro(WorkBookName As String, macroName A
         End If
     Next vbComponent
 
-    ' 結果を表示
-'    If exists Then
-'        MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & workbookName & " に存在したので、モジュールを削除します。", Buttons:=vbInformation
-'    Else
-'        MsgBox "マクロ 「" & macroName & "」 は " & vbCrLf & workbookName & " に存在しませんでした。", Buttons:=vbInformation
-'    End If
-
-    ' existsの結果を返す
     CheckAndDeleteModuleContainingMacro = exists
 End Function
 
@@ -183,13 +172,10 @@ Function sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(ByVal so
     If sourceWorkbook Is Nothing Then Call Fin
     If targetWorkbook Is Nothing Then Call Fin
      
-    For Each vbComp In sourceWorkbook.VBProject.VBComponents
-        Debug.Print "Debug   vbComp.name =  " & vbComp.Name & "     vbComp.Type: " & vbComp.Type
-    Next vbComp
+'    For Each vbComp In sourceWorkbook.VBProject.VBComponents
+'        Debug.Print "Debug   vbComp.name =  " & vbComp.Name & "     vbComp.Type: " & vbComp.Type
+'    Next vbComp
     Set sourceModule = sourceWorkbook.VBProject.VBComponents(moduleName) ' モジュール名
-    
-    
-    
     
     targetWorkbook.Windows(1).WindowState = xlMaximized
     'マクロmacroNameが、BNAME_SHUKEIに存在したら、削除する

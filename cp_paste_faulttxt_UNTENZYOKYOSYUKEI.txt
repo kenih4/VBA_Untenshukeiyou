@@ -1,6 +1,8 @@
 Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
 
-    Dim wb As Workbook
+    Debug.Print "============================================================================================================"
+    Debug.Print "============cp_paste_faulttxt_UNTENZYOKYOSYUKEI============================================================================"
+    Debug.Print "============================================================================================================"
 
     ' ウィンドウを標準サイズにする
     Application.WindowState = xlNormal
@@ -65,38 +67,30 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
 
     
     
-            ' BNAME_SHUKEIを開く
-            Dim wb1 As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-            For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
-                If wb.FullName = BNAME_SHUKEI Then
-                    Set wb1 = wb
-                    Exit For
-                End If
-            Next wb
-            If wb1 Is Nothing Then ' wb1 が Nothing の場合、ブックは開かれていないので新たに開く
-                Set wb1 = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
-            End If
-            Debug.Print "Debug   wb1.Name =  " & wb1.Name & "を開きました"
-            
-            wb1.Windows(1).WindowState = xlMaximized
-            wb1.Worksheets("集計記録").Activate
-            
-            
-            If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
+            ' wb_SHUKEIを開く
+            Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+            Set wb_SHUKEI = OpenBook(BNAME_SHUKEI) ' フルパスを指定
+            If wb_SHUKEI Is Nothing Then Call Fin
+            wb_SHUKEI.Activate
+            If ActiveWorkbook.Name <> wb_SHUKEI.Name Then
                 MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
-                Exit Sub
+                Call Fin
             End If
+            
+            wb_SHUKEI.Windows(1).WindowState = xlMaximized
+            wb_SHUKEI.Worksheets("集計記録").Activate
+            
     
     
-            wb1.Worksheets("集計記録").Range("C8").End(xlDown).Activate       ' セルC8「開始時間」から最終行へ
-            targetline = wb1.Worksheets("集計記録").Range("C8").End(xlDown).Row + 1
-            wb1.Worksheets("集計記録").Cells(targetline, 1).Activate
+            wb_SHUKEI.Worksheets("集計記録").Range("C8").End(xlDown).Activate       ' セルC8「開始時間」から最終行へ
+            targetline = wb_SHUKEI.Worksheets("集計記録").Range("C8").End(xlDown).Row + 1
+            wb_SHUKEI.Worksheets("集計記録").Cells(targetline, 1).Activate
             
             MsgBox "ここに　Shift+Ctrl+Vして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。", Buttons:=vbInformation
             
             If MsgBox("貼り付け終わったらシート「利用時間(User)」にエネルギーなどを手動入力しましょう！！" & vbCrLf & "シフトサマリーを開きますか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
 '                WSH.Run "http://saclaopr19.spring8.or.jp/~summary/display_ui.html?sort=date%20desc%2Cstart%20desc&limit=0%2C100&search_situation=ユーザー運転&&search_root=BL" & BL & "#STATUS", 3 ' 第2引数: 3は最大化    'search_situation=ユーザー運転とすると なぜか2021年のが表示される
-                WSH.Run "http://saclaopr19.spring8.or.jp/~summary/display_ui.html?sort=date%20desc%2Cstart%20desc&limit=0%2C100&search_root=BL" & BL & "#STATUS", 3
+                WSH.RUN "http://saclaopr19.spring8.or.jp/~summary/display_ui.html?sort=date%20desc%2Cstart%20desc&limit=0%2C100&search_root=BL" & BL & "#STATUS", 3
                 Set WSH = Nothing
 '                Set wb_temp = Workbooks.Open("C:\Users\kenichi\Dropbox\gitdir\VBA運転集計用\利用時間テンプ.xlsx", ReadOnly:=False)
             End If
@@ -139,7 +133,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
 '                        tempText = .GetText
 '                    End With
 '                    MsgBox tempText
-'                    wb1.Worksheets("集計記録").Cells(targetline, 1).Paste
+'                    wb_SHUKEI.Worksheets("集計記録").Cells(targetline, 1).Paste
 '上の行では、貼り付けできないのでダメなので一旦以下のように、クリップボードに再度いれてみたがだめ
 '                    Dim cbData As New DataObject
 '                    Dim cbFormat As Variant
@@ -147,8 +141,8 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
 '                    cbData.SetText tempText
 '                    'DataObjectのデータをクリップボードに格納
 '                    cbData.PutInClipboard
-'                    wb1.Worksheets("集計記録").Cells(targetline, 1).Paste
-'DAME                    wb1.Worksheets("集計記録").Cells(targetline, 1).PasteSpecial Paste:=xlPasteValues
+'                    wb_SHUKEI.Worksheets("集計記録").Cells(targetline, 1).Paste
+'DAME                    wb_SHUKEI.Worksheets("集計記録").Cells(targetline, 1).PasteSpecial Paste:=xlPasteValues
 '                End If
 '            End If
         

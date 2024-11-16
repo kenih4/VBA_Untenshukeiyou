@@ -36,33 +36,21 @@ Sub Fault集計m(BL As Integer)
             End
     End Select
     
-    
-    
-    ' BNAME_SHUKEIを開く
-    Dim wb_SHUKEI As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
-        If wb.FullName = BNAME_SHUKEI Then
-            Set wb_SHUKEI = wb
-            Exit For
-        End If
-    Next wb
-    If wb_SHUKEI Is Nothing Then ' wb_SHUKEI が Nothing の場合、ブックは開かれていないので新たに開く
-        Set wb_SHUKEI = Workbooks.Open(BNAME_SHUKEI, ReadOnly:=False)
+    ' wb_SHUKEIを開く
+    Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    Set wb_SHUKEI = OpenBook(BNAME_SHUKEI) ' フルパスを指定
+    If wb_SHUKEI Is Nothing Then Call Fin
+    wb_SHUKEI.Activate
+    If ActiveWorkbook.Name <> wb_SHUKEI.Name Then
+        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
+        Call Fin
     End If
-    Debug.Print "Debug   wb_SHUKEI.Name =  " & wb_SHUKEI.Name & "を開きました"
-
-    
-    
     
     
     
     wb_SHUKEI.Windows(1).WindowState = xlMaximized
     wb_SHUKEI.Worksheets("Fault間隔(ユニット)").Activate
     wb_SHUKEI.Worksheets("Fault間隔(ユニット)").PageSetup.PrintArea = "" ' 20241113追加　印刷範囲が狭かった場合、範囲外が灰色なので選択しても見えないので印刷範囲をクリア
-    If InStr(ActiveWorkbook.Name, BNAME_SHUKEI) Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
-        End
-    End If
     '追加部分----------------------------/
 
     Dim 最終行 As Integer
@@ -102,21 +90,10 @@ Sub Fault集計m(BL As Integer)
     
     If MsgBox("選択されてる部分をコピーしました" & vbCrLf & "次は、「SACLA運転状況集計まとめ.xlsm」の「Fault集計」の張り付けです。" & vbCrLf & "ファイルを開きますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
         
-        
-        ' BNAME_MATOMEを開く
-        Dim wb_MATOME As Workbook '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-        For Each wb In Workbooks ' 開いているブックの中に指定されたパスのブックがあるかを確認
-            If wb.FullName = BNAME_MATOME Then
-                Set wb_MATOME = wb
-                Exit For
-            End If
-        Next wb
-        If wb_MATOME Is Nothing Then ' wb_MATOME が Nothing の場合、ブックは開かれていないので新たに開く
-            Set wb_MATOME = Workbooks.Open(BNAME_MATOME, ReadOnly:=False)
-        End If
-        Debug.Print "Debug   wb_MATOME.Name =  " & wb_MATOME.Name & "を開きました"
-        
-        
+        ' wb_MATOMEを開く
+        Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+        Set wb_MATOME = OpenBook(BNAME_MATOME) ' フルパスを指定
+        If wb_MATOME Is Nothing Then Call Fin
         
         wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
         Select Case BL
@@ -124,6 +101,12 @@ Sub Fault集計m(BL As Integer)
                 Debug.Print "SCSS+"
             Case 2
                 Debug.Print "BL2"
+                'TEST   BL2とBL2を同じやり方にしたい    ==============================
+                'For i = getLineNum("SACLA Fault間隔(BL2)", 2, wb_MATOME.Worksheets("Fault集計")) To getLineNum("SACLA Fault間隔(BL3)", 2, wb_MATOME.Worksheets("Fault集計"))
+                '    Debug.Print "i = " & i & "  " & Cells(i, 2).Value
+                'Next
+                'End
+                'TEST==============================
                 For i = 6 To 1000
                             If IsEmpty(wb_MATOME.Worksheets("Fault集計").Cells(i, 2).Value) And Not wb_MATOME.Worksheets("Fault集計").Cells(i, 2).MergeCells Then
                                 targetline = i
@@ -158,6 +141,7 @@ Sub Fault集計m(BL As Integer)
     '追加部分----------------------------/
     
 End Sub
+
 
 
 
