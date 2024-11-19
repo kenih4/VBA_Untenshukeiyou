@@ -1,9 +1,18 @@
+Option Explicit
+
 Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
+    On Error GoTo ErrorHandler
 
     Debug.Print "============================================================================================================"
     Debug.Print "============cp_paste_faulttxt_UNTENZYOKYOSYUKEI============================================================================"
     Debug.Print "============================================================================================================"
 
+    Dim targetline As Integer
+    Dim tempText As String
+    Dim BNAME_SHUKEI As String
+    Dim SNAME_KEIKAKU_BL As String
+    
+    
     ' ウィンドウを標準サイズにする
     Application.WindowState = xlNormal
     ' 最前面に持ってくる
@@ -70,11 +79,10 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
             ' wb_SHUKEIを開く
             Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
             Set wb_SHUKEI = OpenBook(BNAME_SHUKEI) ' フルパスを指定
-            If wb_SHUKEI Is Nothing Then Call Fin
+            If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
             wb_SHUKEI.Activate
             If ActiveWorkbook.Name <> wb_SHUKEI.Name Then
-                MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
-                Call Fin
+                Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, 3)
             End If
             
             wb_SHUKEI.Windows(1).WindowState = xlMaximized
@@ -86,7 +94,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
             targetline = wb_SHUKEI.Worksheets("集計記録").Range("C8").End(xlDown).Row + 1
             wb_SHUKEI.Worksheets("集計記録").Cells(targetline, 1).Activate
             
-            MsgBox "ここに　Shift+Ctrl+Vして、「fault.txt」を貼り付けて下さい" & vbCrLf & "それで終了です。", Buttons:=vbInformation
+            MsgBox "ここに　Ctrl+Vして、「fault.txt」を貼り付けて下さい。" & vbCrLf & "それで終了です。", Buttons:=vbInformation
             
             If MsgBox("貼り付け終わったらシート「利用時間(User)」にエネルギーなどを手動入力しましょう！！" & vbCrLf & "シフトサマリーを開きますか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
 '                WSH.Run "http://saclaopr19.spring8.or.jp/~summary/display_ui.html?sort=date%20desc%2Cstart%20desc&limit=0%2C100&search_situation=ユーザー運転&&search_root=BL" & BL & "#STATUS", 3 ' 第2引数: 3は最大化    'search_situation=ユーザー運転とすると なぜか2021年のが表示される
@@ -146,6 +154,10 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
 '                End If
 '            End If
         
-    Debug.Print "============================================================================================================"
+    Call Fin("これで終了です。", 1)
+    Exit Sub  ' 通常の処理が完了したらエラーハンドラをスキップ
+ErrorHandler:
+    Call Fin("エラーです。内容は　 " & Err.Description, 3)
+    Exit Sub
 
 End Sub

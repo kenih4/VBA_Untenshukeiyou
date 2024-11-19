@@ -1,13 +1,17 @@
-Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
+Option Explicit
 
+Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
+    On Error GoTo ErrorHandler
+
+    Dim arr() As String
     Dim BNAME_KEIKAKU As String
     Dim BNAME_SHUKEI As String
+    Dim SNAME_KEIKAKU_BL As String
     Dim sname As String
     Dim RANGE_GUN_HV_OFF As String
     Dim COL_GUN_HV_OFF As Integer
     Dim targetline As Integer
-    
-    
+    Dim BL As Integer
     
     BNAME_KEIKAKU = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
     
@@ -17,10 +21,9 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     Dim Wb_keikaku As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
     Set Wb_keikaku = OpenBook(BNAME_KEIKAKU) ' フルパスを指定
     Wb_keikaku.Activate
-    If Wb_keikaku Is Nothing Then Call Fin
+    If Wb_keikaku Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
     If ActiveWorkbook.Name <> Wb_keikaku.Name Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
-        Call Fin
+        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, 3)
     End If
         
     Wb_keikaku.Windows(1).WindowState = xlMaximized
@@ -101,7 +104,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             ' wb_SHUKEIを開く
             Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
             Set wb_SHUKEI = OpenBook(BNAME_SHUKEI) ' フルパスを指定
-            If wb_SHUKEI Is Nothing Then Call Fin
+            If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
             
             
             wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Activate
@@ -180,5 +183,11 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             End If
             
     
+    Call Fin("これで終了です。", 1)
+    Exit Sub  ' 通常の処理が完了したらエラーハンドラをスキップ
+ErrorHandler:
+    Call Fin("エラーです。内容は　 " & Err.Description, 3)
+    Exit Sub
+
 End Sub
 

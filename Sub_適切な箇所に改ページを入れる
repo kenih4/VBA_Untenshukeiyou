@@ -1,11 +1,15 @@
+Option Explicit
+
 Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
     Dim RPL() As Variant ' RequiredPagebreakList  必須の改ページのリスト
     Const TARGET_COL As Integer = 2          '対象列B
     Dim Before_PB As Integer: Before_PB = 0
     Dim add_up As Integer: add_up = 0
-
+    Dim i As Integer
+    Dim h As Integer
+    
     Debug.Print "============================================================================================================"
-    Debug.Print "============改ページを自動で設定============================================================================"
+    Debug.Print "============適切な箇所に改ページを入れるVer2================================================================"
     Debug.Print "============================================================================================================"
         
     sheet.Activate 'これ大事
@@ -22,12 +26,12 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     '自動貝が一体何行で入るのかを確認
     Dim AUTO_PB_LINE_CNT As Integer
+    Dim HPageBreak As HPageBreak
     sheet.ResetAllPageBreaks ' 全ての貝をクリア
-    Set ws = sheet ' 対象のシート名を指定
     ' 水平方向の自動貝を確認
-    If ws.HPageBreaks.Count > 0 Then
-        Debug.Print "水平方向の自動貝の数: " & ws.HPageBreaks.Count
-        For Each HPageBreak In ws.HPageBreaks
+    If sheet.HPageBreaks.Count > 0 Then
+        Debug.Print "水平方向の自動貝の数: " & sheet.HPageBreaks.Count
+        For Each HPageBreak In sheet.HPageBreaks
             If HPageBreak.Type = xlPageBreakAutomatic Then
                 Debug.Print "自動貝（水平）位置: 行 " & HPageBreak.Location.Row
                 AUTO_PB_LINE_CNT = HPageBreak.Location.Row - 3 ' ちょっと余裕見て-5してる
@@ -38,8 +42,6 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
         Debug.Print "水平方向の自動貝はありません。"
     End If
     Debug.Print "自動貝はこれを越えると入ります。 AUTO_PB_LINE_CNT = " & AUTO_PB_LINE_CNT
-'    End
-'~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 
@@ -73,7 +75,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
     
     Debug.Print "Last: " & Cells(Rows.Count, TARGET_COL).End(xlUp).Row
     For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
-        Debug.Print "RPL(i, 0) : " & RPL(i, 0) & "  この行が必須貝:" & RPL(i, 1)
+        Debug.Print "RPL(" & i & ", 0) : " & RPL(i, 0) & "  この行が必須貝:" & RPL(i, 1)
     Next
     
     Debug.Print "============================================================================================================"
@@ -87,8 +89,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
         
         '必須の貝
         For h = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
-            Debug.Print "RPL(" & h & ", *) : 「" & RPL(h, 0) & "」   は      " & RPL(h, 1) & " 行目にあります"
-'            If i = getLineNum(RPL(h, 0), TARGET_COL, sheet) Then
+'            Debug.Print "RPL(" & h & ", *) : 「" & RPL(h, 0) & "」   は      " & RPL(h, 1) & " 行目にあります"
             If i = RPL(h, 1) Then
                 Debug.Print "必須の貝 " & i & "       Before_PB = " & Before_PB & "    Value: " & Cells(i, 2).Value
                 If i - Before_PB < 10 Then
@@ -216,7 +217,7 @@ Sub 適切な箇所に改ページを入れる(ByVal sheet As Worksheet)
     
 '    Debug.Print "UBound(RPL, 1) : " & UBound(RPL, 1)
     For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
-        Debug.Print "RPL(" & i & ", *) : 「" & RPL(i, 0) & "」   は      " & RPL(i, 1) & " 行目にあります"
+        Debug.Print "Debug: RPL(" & i & ", *) : 「" & RPL(i, 0) & "」   は      " & RPL(i, 1) & " 行目にあります"
         sheet.Rows(RPL(i, 1)).PageBreak = xlPageBreakManual ' 必須の改ページをセット
         If i = (UBound(RPL, 1) - 1) Then ' RPL配列の最後の場合
             Call SetPagebreak(RPL(i, 1), Cells(Rows.Count, TARGET_COL).End(xlUp).Row, TARGET_COL, LINE_CNT_PAGEBREAK, sheet)
