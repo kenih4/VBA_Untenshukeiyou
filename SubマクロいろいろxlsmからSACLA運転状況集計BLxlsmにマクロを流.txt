@@ -22,8 +22,7 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     If TypeName(Application.Caller) = "String" Then
         buttonName = Application.Caller
     Else
-        MsgBox "このマクロはシート上のボタンからのみ実行してください。" & vbCrLf & "終了します。", Buttons:=vbCritical
-        End
+        Call Fin("このマクロはシート上のボタンからのみ実行してください。" & vbCrLf & "終了します。", 3)
     End If
     
     If buttonName = "ボタン 1" Then
@@ -50,7 +49,7 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     ' sourceWorkbookを開く
     Dim sourceWorkbook As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
     Set sourceWorkbook = OpenBook(BNAME_SOURCE) ' フルパスを指定
-    If sourceWorkbook Is Nothing Then Call Fin
+    If sourceWorkbook Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
     
 '    For Each vbComp In sourceWorkbook.VBProject.VBComponents
 '        Debug.Print "Debug   vbComp.name =  " & vbComp.Name & "     vbComp.Type: " & vbComp.Type
@@ -60,34 +59,34 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     ' targetWorkbookを開く
     Dim targetWorkbook As Workbook
     Set targetWorkbook = OpenBook(BNAME_SHUKEI) ' フルパスを指定
-    If targetWorkbook Is Nothing Then Call Fin
+    If targetWorkbook Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
 
 
-    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, "Module8", "Cleanup", False) ' 共通関数
+    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, "Module8", "getLineNum_RS", False) ' 共通関数
     If result Then
-        MsgBox "成功 共通関数「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」", Buttons:=vbInformation
+        Debug.Print "成功 「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」（共通関数）"
     Else
-        MsgBox "失敗 共通関数「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」", Buttons:=vbInformation
+        Call Fin("失敗 「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」（共通関数）", 3)
     End If
     
     result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, dict(macroName), macroName, False)
     If result Then
-        MsgBox "成功 「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」", Buttons:=vbInformation
+        Debug.Print "成功 「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」"
     Else
-        MsgBox "失敗 「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」", Buttons:=vbInformation
+        Call Fin("失敗 「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」", 3)
     End If
     
     
 '
     If MsgBox("流し込んだマクロを実行します。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
         Application.RUN "'" & targetWorkbook.Name & "'!" & macroName, BL
-        MsgBox "マクロ「" & macroName & "」 が実行されました！", Buttons:=vbInformation
-        Debug.Print "マクロ「" & macroName & "」 が実行されました！"
+        MsgBox "マクロ「" & macroName & "」 が完了しました！", Buttons:=vbInformation
+        Debug.Print "マクロ「" & macroName & "」 が完了しました！"
     End If
 
 
     'マクロmacroNameを片づける
-    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, "Module8", "Cleanup", True) ' 共通関数
+    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, "Module8", "getLineNum_RS", True) ' 共通関数
     result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, dict(macroName), macroName, True)
     
     
@@ -95,11 +94,13 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     'sourceWorkbook.Close SaveChanges:=False
     'targetWorkbook.Close SaveChanges:=True
     
-    Debug.Print "終了"
-
+   
+    Call Fin("これで終了です。", 1)
     Exit Sub  ' 通常の処理が完了したらエラーハンドラをスキップ
 ErrorHandler:
-    MsgBox "エラーです。内容は　 " & Err.Description, Buttons:=vbCritical
+    Call Fin("エラーです。内容は　 " & Err.Description, 3)
+    Exit Sub
+    
     
 End Sub
 
@@ -169,8 +170,8 @@ Function sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(ByVal so
     Dim targetModule As Object
     Dim vbComp As VBIDE.vbComponent
         
-    If sourceWorkbook Is Nothing Then Call Fin
-    If targetWorkbook Is Nothing Then Call Fin
+    If sourceWorkbook Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
+    If targetWorkbook Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
      
 '    For Each vbComp In sourceWorkbook.VBProject.VBComponents
 '        Debug.Print "Debug   vbComp.name =  " & vbComp.Name & "     vbComp.Type: " & vbComp.Type

@@ -1,6 +1,9 @@
+Option Explicit
+
 Sub 運転集計_形式処理m(BL As Integer)
 
     '/追加部分----------------------------
+    Dim BNAME_SHUKEI As String
     Dim wb As Workbook
     Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
 '    Dim BL As Integer  ' 対象BL
@@ -37,11 +40,10 @@ Sub 運転集計_形式処理m(BL As Integer)
     ' wb_SHUKEIを開く
     Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
     Set wb_SHUKEI = OpenBook(BNAME_SHUKEI) ' フルパスを指定
-    If wb_SHUKEI Is Nothing Then Call Fin
+    If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
     wb_SHUKEI.Activate
     If ActiveWorkbook.Name <> wb_SHUKEI.Name Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
-        Call Fin
+        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, 3)
     End If
         
     wb_SHUKEI.Windows(1).WindowState = xlMaximized
@@ -99,7 +101,7 @@ Sub 運転集計_形式処理m(BL As Integer)
         ' wb_MATOMEを開く
         Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
         Set wb_MATOME = OpenBook(BNAME_MATOME) ' フルパスを指定
-        If wb_MATOME Is Nothing Then Call Fin
+        If wb_MATOME Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
         
         
         wb_SHUKEI.Worksheets(シート名).Copy after:=wb_MATOME.Worksheets("まとめ ")

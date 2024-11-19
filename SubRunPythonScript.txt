@@ -1,5 +1,8 @@
-Sub RunPythonScript()
+Option Explicit
 
+Sub RunPythonScript()
+    On Error GoTo ErrorHandler
+    
     Dim scriptPath As String
     Dim command As String
     Dim buttonName As String
@@ -36,9 +39,15 @@ Sub RunPythonScript()
     Set shell = CreateObject("WScript.Shell")
     exitCode = shell.RUN(command, vbMaximizedFocus, True)   ' WScript.ShellのRunメソッドでコマンドを実行し、終了を待つ
     If exitCode = 0 Then
-        MsgBox "Pythonスクリプトが正常に終了しました。 " & vbCrLf & "[" & scriptPath & "]" & vbCrLf & "", Buttons:=vbInformation
+        Call Fin("Pythonスクリプトが正常に終了しました。 " & vbCrLf & "[" & scriptPath & "]", 1)
     Else
-        MsgBox "Pythonスクリプトがエラーコード " & exitCode & " で終了しました。", Buttons:=vbExclamation
+        Call Fin("Pythonスクリプトがエラーコード " & exitCode & " で終了しました。", 3)
     End If
+    
+    
+    Exit Sub  ' 通常の処理が完了したらエラーハンドラをスキップ
+ErrorHandler:
+    Call Fin("エラーです。内容は　 " & Err.Description, 3)
+    Exit Sub
     
 End Sub
