@@ -1,27 +1,29 @@
+Option Explicit
+
 Sub ユニットBLの結果をシートまとめに張り付ける()
-    On Error GoTo ErrorHandler ' エラーハンドリングを設定
-        
-    
+    On Error GoTo ErrorHandler
+            
     'MsgBox "マクロの内容" & vbCrLf & "「シート「ユニット」の項目aとシート「ユニット(BL2)と(BL3)」の項目b、cをシート「まとめ」に貼り付け」" & vbCrLf & "です。", Buttons:=vbInformation
     
-    
+    Dim i As Integer
     Dim TargetUnit As String
+    Dim TargetSheet As String
     Dim Sonzai_flg_BL2 As Boolean: Sonzai_flg_BL2 = False
     Dim Sonzai_flg_BL3 As Boolean: Sonzai_flg_BL3 = False
     Dim Sonzai_flg_Merged As Boolean: Sonzai_flg_Merged = False
     Dim Category As String
-    Dim wb As Workbook
+    Dim BNAME_SHUKEI As String
+    Dim result As Boolean
     
        
     
     ' wb_MATOMEを開く
     Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
     Set wb_MATOME = OpenBook(BNAME_MATOME) ' フルパスを指定
-    If wb_MATOME Is Nothing Then Call Fin
+    If wb_MATOME Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
     wb_MATOME.Activate
     If ActiveWorkbook.Name <> wb_MATOME.Name Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
-        Call Fin
+        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, 3)
     End If
     
     
@@ -87,8 +89,7 @@ Sub ユニットBLの結果をシートまとめに張り付ける()
     Set matches = Nothing
     
     If Hakken = False Then
-        MsgBox "まとめシートの次のシート名が、" & vbCrLf & "「" & TargetSheet & "」" & vbCrLf & "です。" & vbCrLf & "「ユニット」というパターン表現ではありません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
-        Call Fin
+        Call Fin("まとめシートの次のシート名が、" & vbCrLf & "「" & TargetSheet & "」" & vbCrLf & "です。" & vbCrLf & "「ユニット」というパターン表現ではありません。", 3)
     End If
     
     '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -114,13 +115,12 @@ Sub ユニットBLの結果をシートまとめに張り付ける()
     Sonzai_flg_BL3 = SheetExists(wb_MATOME, TargetUnit & "(BL3)")
     Sonzai_flg_Merged = SheetExists(wb_MATOME, TargetUnit)
     If Not Sonzai_flg_Merged Or Not Sonzai_flg_BL2 Or Not Sonzai_flg_BL3 Then
-        MsgBox "ユニット、または、ユニット(BL2) または ユニット(BL3) のシートが出来てません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
-        Call Fin
+        Call Fin("ユニット、または、ユニット(BL2) または ユニット(BL3) のシートが出来てません。", 3)
     End If
     
     
     If MsgBox("このマクロは「シート「ユニット」の項目aとシート「ユニット(BL2)と(BL3)」の項目b、cをシート「まとめ」に貼り付けします。" & vbCrLf & "対処ユニットは「" & TargetUnit & "」です。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
-        Call Fin
+        Call Fin("「No」が選択されました", 1)
     End If
 
     
@@ -131,8 +131,8 @@ Sub ユニットBLの結果をシートまとめに張り付ける()
     '(a)運転時間　期間毎  の部分の処理
     Category = "(a)運転時間　期間毎"
     result = Check_Unit_and_Copy(Category, 2, wb_MATOME.Worksheets(TargetUnit), TargetUnit)
-    If result = False Then Call Fin
-    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Call Fin
+    If result = False Then Call Fin("関数[Check_Unit_and_Copy]が失敗しました", 3)
+    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Call Fin("「No」が選択されました", 1)
     result = Find_targetcell_and_paste(Category, 2, wb_MATOME.Worksheets("まとめ "))
     
     
@@ -142,15 +142,15 @@ Sub ユニットBLの結果をシートまとめに張り付ける()
     '(b)運転時間　シフト毎  の部分の処理
     Category = "(b-1)BL2"
     result = Check_Unit_and_Copy(Category, 2, wb_MATOME.Worksheets(TargetUnit & "(BL2)"), TargetUnit)
-    If result = False Then Call Fin
-    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Call Fin
+    If result = False Then Call Fin("関数[Check_Unit_and_Copy]が失敗しました", 3)
+    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Call Fin("「No」が選択されました", 1)
     result = Find_targetcell_and_paste(Category, 2, wb_MATOME.Worksheets("まとめ "))
     
     '(b)運転時間　シフト毎  の部分の処理
     Category = "(b-2)BL3"
     result = Check_Unit_and_Copy(Category, 2, wb_MATOME.Worksheets(TargetUnit & "(BL3)"), TargetUnit)
-    If result = False Then Call Fin
-    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Call Fin
+    If result = False Then Call Fin("関数[Check_Unit_and_Copy]が失敗しました", 3)
+    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Call Fin("「No」が選択されました", 1)
     result = Find_targetcell_and_paste(Category, 2, wb_MATOME.Worksheets("まとめ "))
 
 
@@ -159,15 +159,15 @@ Sub ユニットBLの結果をシートまとめに張り付ける()
     '(c)運転条件　  の部分の処理
     Category = "(c-1)BL2"
     result = Check_Unit_and_Copy(Category, 2, wb_MATOME.Worksheets(TargetUnit & "(BL2)"), TargetUnit)
-    If result = False Then Call Fin
-    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Call Fin
+    If result = False Then Call Fin("関数[Check_Unit_and_Copy]が失敗しました", 3)
+    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Call Fin("「No」が選択されました", 1)
     result = Find_targetcell_and_paste(Category, 2, wb_MATOME.Worksheets("まとめ "))
  
     '(c)運転条件　  の部分の処理
     Category = "(c-2)BL3"
     result = Check_Unit_and_Copy(Category, 2, wb_MATOME.Worksheets(TargetUnit & "(BL3)"), TargetUnit)
-    If result = False Then Call Fin
-    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Call Fin
+    If result = False Then Call Fin("関数[Check_Unit_and_Copy]が失敗しました", 3)
+    If MsgBox("選択されてる部分をコピーしました。" & vbCrLf & "次はシート「まとめ」に張り付けです。" & vbCrLf & "進みますか？", vbYesNo + vbQuestion, "確認") = vbNo Then Call Fin("「No」が選択されました", 1)
     result = Find_targetcell_and_paste(Category, 2, wb_MATOME.Worksheets("まとめ "))
  
  
@@ -179,12 +179,10 @@ Sub ユニットBLの結果をシートまとめに張り付ける()
     wb_MATOME.Worksheets(TargetUnit).PageSetup.PrintArea = False ' 全ての印刷範囲をクリア
 
     
-    MsgBox "これで終了です。" & vbCrLf & "シート「ユニット(BL*)」は手動で削除して下さい", Buttons:=vbInformation
-    Call Fin
-
+    Call Fin("これで終了です。", 1)
     Exit Sub  ' 通常の処理が完了したらエラーハンドラをスキップ
 ErrorHandler:
-    Call Cleanup
+    Call Fin("エラーです。内容は　 " & Err.Description, 3)
     Exit Sub
     
 End Sub

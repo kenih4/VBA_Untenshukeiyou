@@ -1,20 +1,27 @@
+Option Explicit
+
 Sub ユニットBL2とBL3をマージ()
     On Error GoTo ErrorHandler ' エラーハンドリングを設定
+    Debug.Print "\n\n\n_______Start  @Sub ユニットBL2とBL3をマージ()\n\n\n"
 
+    Dim i As Integer
+    Dim MaxRow As Integer
     Dim TargetUnit As String
+    Dim TargetSheet As String
     Dim Sonzai_flg_BL2 As Boolean: Sonzai_flg_BL2 = False
     Dim Sonzai_flg_BL3 As Boolean: Sonzai_flg_BL3 = False
+    Dim Sonzai_flg_Merged As Boolean: Sonzai_flg_Merged = False
     Dim wb As Workbook
-       
+    Dim BNAME_SHUKEI As String
+    
     
     ' wb_MATOMEを開く
     Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
     Set wb_MATOME = OpenBook("\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm") ' フルパスを指定
-    If wb_MATOME Is Nothing Then Call Fin
-    wb_MATOME.Active
+    If wb_MATOME Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
+    wb_MATOME.Activate
     If ActiveWorkbook.Name <> wb_MATOME.Name Then
-        MsgBox "現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, Buttons:=vbCritical
-        Call Fin
+        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, 3)
     End If
     
             
@@ -33,7 +40,7 @@ Sub ユニットBL2とBL3をマージ()
     Debug.Print "TargetSheet = " & TargetSheet
     
     
-    
+
     
     '「ユニット(BL*)」というパターン表現の場合次ぎすすむ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     Dim Hakken As Boolean
@@ -75,15 +82,11 @@ Sub ユニットBL2とBL3をマージ()
     Set matches = Nothing
     
     If Hakken = False Then
-        MsgBox "まとめシートの次のシート名が、" & vbCrLf & "「" & TargetSheet & "」" & vbCrLf & "です。" & vbCrLf & "「ユニット(BL*)」というパターン表現ではありません。" & vbCrLf & "ユニット(BL2)とユニット(BL3)とう名前のシートを結合したいのでこれではできません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
-        Call Fin
+        Call Fin("まとめシートの次のシート名が、" & vbCrLf & "「" & TargetSheet & "」" & vbCrLf & "です。" & vbCrLf & "「ユニット(BL*)」というパターン表現ではありません。" & vbCrLf & "ユニット(BL2)とユニット(BL3)とう名前のシートを結合したいのでこれではできません。", 3)
     End If
     
     '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    
-    
-    
-    
+        
     
     
     
@@ -98,21 +101,16 @@ Sub ユニットBL2とBL3をマージ()
     Sonzai_flg_BL3 = SheetExists(wb_MATOME, TargetUnit & "(BL3)")
     Sonzai_flg_Merged = SheetExists(wb_MATOME, TargetUnit)
     If Sonzai_flg_Merged Then
-        MsgBox "既に結合されたシートが存在します。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
-        Call Fin
+        Call Fin("既に結合されたシートが存在します。", 3)
     End If
     If Not Sonzai_flg_BL2 Or Not Sonzai_flg_BL3 Then
-        MsgBox "ユニット、または、ユニット(BL2) または ユニット(BL3) のシートが出来てません。" & vbCrLf & " 終了します。", Buttons:=vbExclamation
-        Call Fin
+        Call Fin("ユニット、または、ユニット(BL2) または ユニット(BL3) のシートが出来てません。", 3)
     End If
 
     If MsgBox("このマクロは「SACLA運転状況集計まとめ.xlsm」の" & vbCrLf & "シート「ユニット(BL2)と(BL3)」を結合します。" & vbCrLf & "結合しようとしているユニットは「" & TargetUnit & "」です。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
-        Call Fin
+        Call Fin("「いいえ」が選ばれました", 1)
     End If
         
-    
-    
-    
     
     
     
@@ -126,7 +124,6 @@ Sub ユニットBL2とBL3をマージ()
 
 
 
-    
 
     
     '(a)運転時間　期間毎  の部分の処理
@@ -171,12 +168,11 @@ Sub ユニットBL2とBL3をマージ()
     wb_MATOME.Worksheets(TargetUnit).PageSetup.PrintArea = False ' 全ての印刷範囲をクリア
 
     
-    MsgBox "これで終了です。" & vbCrLf & "シート「ユニット(BL*)」は手動で削除して下さい", Buttons:=vbInformation
-    Call Fin
+    Call Fin("これで終了です。" & vbCrLf & "シート「ユニット(BL*)」は手動で削除して下さい", 3)
 
     Exit Sub  ' 通常の処理が完了したらエラーハンドラをスキップ
 ErrorHandler:
-    Call Cleanup
+    Call Fin("エラーです。内容は　 " & Err.Description, 3)
     Exit Sub
     
 End Sub
