@@ -67,14 +67,13 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
                 RPL(0, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
         Case Else
             Debug.Print "Zzz..."
-            MsgBox "このシートでは特にやることないです。" & vbCrLf & "sheet.name:  " & sheet.Name
-            Call Fin
+            Call Fin("このシートでは特にやることないです。" & vbCrLf & "sheet.name:  " & sheet.Name, 3)
     End Select
     
     
     Debug.Print "Last: " & Cells(Rows.Count, TARGET_COL).End(xlUp).Row
     For i = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
-        Debug.Print "RPL(i, 0) : " & RPL(i, 0) & "  " & RPL(i, 1)
+        Debug.Print "RPL(i, 0) : " & RPL(i, 0) & "  この行が必須貝:" & RPL(i, 1)
     Next
     
     Debug.Print "============================================================================================================"
@@ -88,8 +87,9 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
         
         '必須の貝
         For h = 0 To UBound(RPL, 1) - 1 ' UBound(RPL, 1)の1は行の意味。　2だと列のようだ
-'            Debug.Print "RPL(" & h & ", *) : 「" & RPL(h, 0) & "」   は      " & RPL(h, 1) & " 行目にあります"
-            If i = getLineNum(RPL(h, 0), TARGET_COL, sheet) Then
+            Debug.Print "RPL(" & h & ", *) : 「" & RPL(h, 0) & "」   は      " & RPL(h, 1) & " 行目にあります"
+'            If i = getLineNum(RPL(h, 0), TARGET_COL, sheet) Then
+            If i = RPL(h, 1) Then
                 Debug.Print "必須の貝 " & i & "       Before_PB = " & Before_PB & "    Value: " & Cells(i, 2).Value
                 If i - Before_PB < 10 Then
                     Debug.Print "前の貝とあまりに近すぎるのでパスします。" & i & "       Before_PB = " & Before_PB & "    Value: " & Cells(i, 2).Value
@@ -102,7 +102,9 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
                 End If
             End If
         Next
+        
             
+
             
             
         If (Not IsEmpty(Cells(i, TARGET_COL).Value) And Cells(i, TARGET_COL).MergeCells) Then  '　セルに値が入ってて結合される場合で、
@@ -135,9 +137,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
 '    If MsgBox("終了。プレビュー表示しますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
 '        sheet.PrintPreview
 '    End If
-
-    MsgBox "終了しました。シート「" & sheet.Name & "」" & vbCrLf & "の適切な所に貝いれました", Buttons:=vbInformation
-    Call Fin
+    Call Fin("終了しました。シート「" & sheet.Name & "」" & vbCrLf & "の適切な所に貝いれました", 1)
     Debug.Print "Fin================================================================================================================="
     
 End Sub
@@ -200,8 +200,7 @@ Sub 適切な箇所に改ページを入れる(ByVal sheet As Worksheet)
                 RPL(1, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
         Case Else
             Debug.Print "Zzz..."
-            MsgBox "このシートでは特にやることないです。" & vbCrLf & "sheet.name:  " & sheet.Name
-            Call Fin
+            Call Fin("このシートでは特にやることないです。" & vbCrLf & "sheet.name:  " & sheet.Name, 3)
     End Select
     
     Debug.Print "sheet.Name: " & sheet.Name
@@ -316,7 +315,7 @@ Sub 適切な箇所に改ページを入れる(ByVal sheet As Worksheet)
 '    End If
 
     MsgBox "終了しました。シート「" & sheet.Name & "」" & vbCrLf & "の適切な所に改ページいれました", Buttons:=vbInformation
-    Call Fin
+    Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
     Debug.Print "Fin================================================================================================================="
     
     

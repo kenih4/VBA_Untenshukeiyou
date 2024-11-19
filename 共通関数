@@ -1,25 +1,15 @@
 Option Explicit ' 未定義の変数は使用できないように
 
-
 Public Const BNAME_SOURCE As String = "C:\me\unten\マクロいろいろ.xlsm"
 Public Const workDir As String = "C:\me\unten\OperationSummary"
 Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-
-
-'OLD
-'Public Const BNAME_SOURCE As String = "C:\Users\kenichi\Dropbox\gitdir\VBA運転集計用\マクロいろいろ.xlsm"
-'Public Const workDir As String = "C:\Users\kenichi\Documents\OperationSummary"
-
-
-
-
 
 
 
 'ブックを開く ==============================================================================================================================
 'リモートサーバー上のファイルを開く際、開くのに時間がかかっているためにタイミングの問題でエラーが発生している可能性があります。この場合、待機時間を設けて再試行することで、エラーを回避できることがあります。以下の方法で、指定された時間待機しながらエラーを再試行するコードを実装できます。
 Function OpenBook(ByVal WorkBookName As String) As Workbook
-    Debug.Print "Debug   Start..............................................................................................."
+    Debug.Print "Debug   Start  Function OpenBook..."
     Dim OWB As Workbook
     Dim wb As Workbook
     Dim retryCount As Integer
@@ -27,7 +17,7 @@ Function OpenBook(ByVal WorkBookName As String) As Workbook
 
     ' 開いているブックの中に指定されたパスのブックがあるかを確認
     For Each wb In Workbooks
-       Debug.Print "Debug   wb.Name =  " & wb.Name & " は開かれています"
+       'Debug.Print "Debug   wb.Name =  " & wb.Name & " は開かれています"
        If wb.FullName = WorkBookName Then
            Set OWB = wb
            Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] は既に開かれています"
@@ -118,14 +108,24 @@ End Function
 
 '========================================================================================================
 Sub Cleanup()
-    MsgBox "何らかのエラーが発生が発生しました"
-    Call Fin
+    Call Fin("何らかのエラーが発生が発生しました", 3)
 End Sub
 
 
 
-Sub Fin()
-    MsgBox "終了処理"
+Sub Fin(ByVal Msg As String, ByVal Level As Integer)
+
+    Select Case Level
+        Case 1
+            MsgBox "終了処理:   " & Msg, vbInformation
+        Case 2
+            MsgBox "終了処理:   " & Msg, vbExclamation
+        Case 3
+            MsgBox "終了処理:   " & Msg, vbCritical
+        Case Else
+            Debug.Print "Zzz..."
+    End Select
+    
 '    ActiveWindow.Zoom = 100
     Application.ExecuteExcel4Macro "SHOW.TOOLBAR(""Ribbon"",True)"
     Application.DisplayFullScreen = False
@@ -143,17 +143,36 @@ End Sub
 
 
 '指定さてた文字列が存在する行を取得==============================================================================================================================
-Function getLineNum(ByVal str As String, ByVal TARGET_COL As Integer, ByVal sheetname As Worksheet) As Integer
-    
-    For i = 1 To sheetname.Cells(Rows.Count, TARGET_COL).End(xlUp).Row
-        'Debug.Print "getLineNum　行番号: " & i & "   line_cnt = " & line_cnt & "    Value: " & Cells(i, 2).Value
-        If sheetname.Cells(i, TARGET_COL).Value = str Then '
-            getLineNum = i
-            Exit For
+Function getLineNum(ByVal str As String, ByVal TARGET_COL As Integer, ByVal sheet As Worksheet) As Integer
+'    Dim i As Integer: i = -1
+'    For i = 1 To sheet.Cells(Rows.Count, TARGET_COL).End(xlUp).Row
+'        'Debug.Print "getLineNum　行番号: " & i & "  Value: " & Cells(i, 2).Value
+'        If sheet.Cells(i, TARGET_COL).Value = str Then '
+'            getLineNum = i
+'            Exit Function
+'        End If
+'    Next
+'    getLineNum = -1
+    getLineNum = getLineNum_RS(str, TARGET_COL, 1, sheet.Cells(Rows.Count, TARGET_COL).End(xlUp).Row, sheet)
+End Function
+
+
+'指定さてた文字列が存在する行を取得 Range Specification版==============================================================================================================================
+Function getLineNum_RS(ByVal str As String, ByVal TARGET_COL As Integer, ByVal beginLine As Integer, ByVal endLine As Integer, ByVal sheet As Worksheet) As Integer
+    Dim i As Integer: i = -1
+    getLineNum_RS = i
+    For i = beginLine To endLine
+        'Debug.Print "getLineNum_RS　行番号: " & i & "    Value: " & Cells(i, 2).Value
+        If sheet.Cells(i, TARGET_COL).Value = str Then '
+            getLineNum_RS = i
+            Debug.Print "Hit!!!!!!!!!!!!!!!!!!!!!!!!!   getLineNum_RS　行番号: " & i & "    Value: " & Cells(i, 2).Value
+            Exit Function
         End If
     Next
-
+    Call Fin("@getLineNum_RS    文字列「" & str & "」と一致するセルは見つかりませんでした。", 3)
 End Function
+
+
 
 
 'シート存在を確認==============================================================================================================================
@@ -201,4 +220,32 @@ End Sub
 
 
 
+'エクセルブックが開かれたフォルダを取得==============================================================================================================================
+Function GetWorkbookFolder() As String
+    Dim folderPath As String
+    
+    ' ブックが保存されていない場合、Path は空文字列になる
+    folderPath = ThisWorkbook.Path
+    
+    ' 保存されていない場合、空文字列を返す
+    If folderPath = "" Then
+        GetWorkbookFolder = "" ' 空文字列を返す
+    Else
+        GetWorkbookFolder = folderPath ' フォルダパスを返す
+    End If
+End Function
+
+
+Sub GetWorkbookFolderToCell()
+    ' ThisWorkbook.Path でカレントブックの保存されているパスを取得
+    Dim folderPath As String
+    folderPath = ThisWorkbook.Path
+    
+    ' 保存されている場合、A1セルに表示
+    If folderPath <> "" Then
+        ThisWorkbook.Sheets(1).Range("A1").Value = folderPath
+    Else
+        ThisWorkbook.Sheets(1).Range("A1").Value = "保存されていません"
+    End If
+End Sub
 
