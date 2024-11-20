@@ -1,5 +1,6 @@
 Option Explicit ' 未定義の変数は使用できないように
 
+
 Public Const BNAME_SOURCE As String = "C:\me\unten\マクロいろいろ.xlsm"
 Public Const workDir As String = "C:\me\unten\OperationSummary"
 Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
@@ -9,7 +10,7 @@ Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転�
 'ブックを開く ==============================================================================================================================
 'リモートサーバー上のファイルを開く際、開くのに時間がかかっているためにタイミングの問題でエラーが発生している可能性があります。この場合、待機時間を設けて再試行することで、エラーを回避できることがあります。以下の方法で、指定された時間待機しながらエラーを再試行するコードを実装できます。
 Function OpenBook(ByVal WorkBookName As String) As Workbook
-    Debug.Print "Debug   Start  Function OpenBook..."
+    Debug.Print "Debug---   Start  Function OpenBook(" & WorkBookName & ")"
     Dim OWB As Workbook
     Dim wb As Workbook
     Dim retryCount As Integer
@@ -20,17 +21,18 @@ Function OpenBook(ByVal WorkBookName As String) As Workbook
        'Debug.Print "Debug   wb.Name =  " & wb.Name & " は開かれています"
        If wb.FullName = WorkBookName Then
            Set OWB = wb
-           Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] は既に開かれています"
+           Debug.Print "Debug---   OpenBook.Name =  [" & OWB.Name & "] は既に開かれています"
            Exit For
        End If
     Next wb
+    
     
     On Error Resume Next
     If OWB Is Nothing Then
         Do While retryCount > 0
             Set OWB = Workbooks.Open(WorkBookName, ReadOnly:=False)
             If Err.Number = 0 Then Exit Do  ' 正常に開けたらループを抜ける
-            Debug.Print "エラーが発生しました。再試行します。残り再試行回数: " & retryCount - 1
+            Debug.Print "Debug--- エラーが発生しました。再試行します。残り再試行回数: " & retryCount - 1
             Err.Clear
             retryCount = retryCount - 1
             Application.Wait Now + TimeValue("0:00:05")  ' 5秒待機
@@ -44,13 +46,13 @@ Function OpenBook(ByVal WorkBookName As String) As Workbook
             Set OWB = Nothing
             Err.Clear
         Else
-            Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] を開きました"
+            Debug.Print "Debug---   OpenBook.Name =  [" & OWB.Name & "] を開きました"
         End If
     End If
     On Error GoTo 0  ' エラーハンドリング解除
     
     Set OpenBook = OWB
-    Debug.Print "Debug   OpenBook Finish"
+    Debug.Print "Debug---   Finish  Function OpenBook(" & WorkBookName & ")"
 End Function
 
 
@@ -82,17 +84,17 @@ Function OpenBookOLD(ByVal WorkBookName As String) As Workbook
     If OWB Is Nothing Then
         ' 指定したブックが開かれていない場合、新たに開こうとする
         Set OWB = Workbooks.Open(WorkBookName, ReadOnly:=False) ' SACLA運転状況集計BL*.xlsm　を開こうとすると、なぜかエラーが発生するので以下コメントアウトした
-'        If Err.Number <> 0 Then
-'            ' エラーが発生した場合、エラーメッセージを表示
-'            MsgBox "ブックが見つからないか、開けませんでした。エラー番号: " & Err.Number & vbCrLf & _
-'                   "エラーメッセージ: " & Err.Description & vbCrLf & _
-'                   "ファイル名やパスを確認してください: " & WorkBookName, vbExclamation
-'            Set OWB = Nothing  ' エラー発生時は Nothing を返す
-'            Err.Clear
-'        Else
-'            Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] を開きました"
-'        End If
-        Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] を開きました  開けていない可能性あり　エラー処理をパスしてるので"
+        If Err.Number <> 0 Then
+            ' エラーが発生した場合、エラーメッセージを表示
+            MsgBox "ブックが見つからないか、開けませんでした。エラー番号: " & Err.Number & vbCrLf & _
+                   "エラーメッセージ: " & Err.Description & vbCrLf & _
+                   "ファイル名やパスを確認してください: " & WorkBookName, vbExclamation
+            Set OWB = Nothing  ' エラー発生時は Nothing を返す
+            Err.Clear
+        Else
+            Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] を開きました"
+        End If
+        Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] を開きました   開けていない可能性あり　エラー処理をパスしてるので"
     End If
     On Error GoTo 0  ' エラーハンドリング解除
     
@@ -107,14 +109,9 @@ End Function
 
 
 '========================================================================================================
-Sub Cleanup()
-    Call Fin("何らかのエラーが発生が発生しました", 3)
-End Sub
-
-
-
 Sub Fin(ByVal Msg As String, ByVal Level As Integer)
 
+    Debug.Print "_____Fin(" & Msg & ")_____"
     Select Case Level
         Case 1
             MsgBox "終了処理:   " & Msg, vbInformation
@@ -132,8 +129,7 @@ Sub Fin(ByVal Msg As String, ByVal Level As Integer)
     ' 開いているすべてのブックをループ
     Dim wb As Workbook
     For Each wb In Workbooks
-        ' 各ブックのウィンドウに対してズームを設定
-        wb.Windows(1).Zoom = 100
+        wb.Windows(1).Zoom = 100 ' 各ブックのウィンドウに対してズームを設定
     Next wb
     End
 End Sub
@@ -142,17 +138,8 @@ End Sub
 
 
 
-'指定さてた文字列が存在する行を取得==============================================================================================================================
+'指定さてた文字列が存在する行を取得  シート内全て==============================================================================================================================
 Function getLineNum(ByVal str As String, ByVal TARGET_COL As Integer, ByVal sheet As Worksheet) As Integer
-'    Dim i As Integer: i = -1
-'    For i = 1 To sheet.Cells(Rows.Count, TARGET_COL).End(xlUp).Row
-'        'Debug.Print "getLineNum　行番号: " & i & "  Value: " & Cells(i, 2).Value
-'        If sheet.Cells(i, TARGET_COL).Value = str Then '
-'            getLineNum = i
-'            Exit Function
-'        End If
-'    Next
-'    getLineNum = -1
     getLineNum = getLineNum_RS(str, TARGET_COL, 1, sheet.Cells(Rows.Count, TARGET_COL).End(xlUp).Row, sheet)
 End Function
 

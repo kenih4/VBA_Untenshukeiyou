@@ -21,8 +21,6 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
 
 
 
-
-
 '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     '自動貝が一体何行で入るのかを確認
     Dim AUTO_PB_LINE_CNT As Integer
@@ -66,7 +64,7 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
         Case "Fault集計"
                 ReDim RPL(1, 1) ' 配列サイズ設定
                 RPL(0, 0) = "SACLA Fault間隔(BL3)"
-                RPL(0, 1) = getLineNum(RPL(1, 0), TARGET_COL, sheet)
+                RPL(0, 1) = getLineNum(RPL(0, 0), TARGET_COL, sheet)
         Case Else
             Debug.Print "Zzz..."
             Call Fin("このシートでは特にやることないです。" & vbCrLf & "sheet.name:  " & sheet.Name, 3)
@@ -132,6 +130,29 @@ Sub 適切な箇所に改ページを入れるVer2(ByVal sheet As Worksheet)
         
         add_up = add_up + 1
     Next
+    
+    
+    
+    
+    
+    
+    
+
+    Select Case sheet.Name
+        Case "まとめ "
+            Dim lastRow As Long
+            lastRow = sheet.Cells(Rows.Count, "B").End(xlUp).Row     '列Bの最終行を取得
+            lastRow = lastRow + sheet.Cells(lastRow, "B").MergeArea.Rows.Count '列Bの最終行が結合されている場合があるので、結合行を追加
+            sheet.PageSetup.PrintArea = "A1:N" & lastRow ' 印刷範囲をA1:N最終行に設定
+        Case "Fault集計"
+        Case Else
+            Debug.Print "Zzz..."
+    End Select
+    
+    
+    
+    
+    
     
     sheet.DisplayPageBreaks = True
    
