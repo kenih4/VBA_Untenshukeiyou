@@ -61,8 +61,8 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     Set targetWorkbook = OpenBook(BNAME_SHUKEI) ' フルパスを指定
     If targetWorkbook Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
 
-
-    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, "Module8", "getLineNum_RS", False) ' 共通関数
+    
+    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, "Module8", "RunBatchFile", False) ' 共通関数
     If result Then
         Debug.Print "成功 「sourceWorkbookからtargetWorkbookにmoduleNameを流し込む」（共通関数）"
     Else
@@ -79,14 +79,15 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     
 '
     If MsgBox("流し込んだマクロを実行します。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
+        Debug.Print "<<<<<<ブック「" & targetWorkbook.Name & "」　の　マクロ「" & macroName & "」 を実行します"
         Application.RUN "'" & targetWorkbook.Name & "'!" & macroName, BL
         MsgBox "マクロ「" & macroName & "」 が完了しました！", Buttons:=vbInformation
-        Debug.Print "マクロ「" & macroName & "」 が完了しました！"
+        Debug.Print "マクロ「" & macroName & "」 が完了しました>>>>>>>>>>"
     End If
 
 
     'マクロmacroNameを片づける
-    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, "Module8", "getLineNum_RS", True) ' 共通関数
+    result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, "Module8", "RunBatchFile", True) ' 共通関数
     result = sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(sourceWorkbook, targetWorkbook, dict(macroName), macroName, True)
     
     
@@ -160,8 +161,8 @@ End Function
 
 Function sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(ByVal sourceWorkbook As Workbook, ByVal targetWorkbook As Workbook, ByVal moduleName As String, ByVal macroName As String, ByVal ONLY_DELETE) As Boolean
     ' moduleNameには、追加するモジュールに含まれるマクロ名を指定。
-    ' モジュールを追加するだけ（ONLY_ADD=TRUE）なら、targetWorkbookに既に含まれているかの確認に使うため、moduleNameに含まれるマクロ名ならなんでもいい。
-    
+    ' モジュールを追加するだけ（ONLY_ADD=TRUE）なら、targetWorkbookに既に含まれているかの確認に使うため、moduleNameに含まれるマクロ名ならなんでもいいが、Subの方で！！！！！！！！！！！！！
+        
     On Error GoTo ErrorHandler
     Debug.Print "Debug   Start  sourceWorkbookからtargetWorkbookにmoduleNameを流し込む"
     sourceWorkbookからtargetWorkbookにmoduleNameを流し込む = True
@@ -185,13 +186,14 @@ Function sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(ByVal so
     For Each vbComp In targetWorkbook.VBProject.VBComponents
         If vbComp.Type = vbext_ct_StdModule Or vbComp.Type = vbext_ct_ClassModule Then
             ' モジュールが空でない場合のみ確認
+            ' Debug.Print "Debug  モジュール名 vbComp.CodeModule.Lines(1, vbComp.CodeModule.CountOfLines) = " & vbComp.CodeModule.Lines(1, vbComp.CodeModule.CountOfLines)
             If vbComp.CodeModule.CountOfLines > 0 Then
                 ' モジュールのコードを確認
                 If InStr(vbComp.CodeModule.Lines(1, vbComp.CodeModule.CountOfLines), "Sub " & macroName & "(") > 0 Then
                     exists = True
                     ' モジュールを削除
                     targetWorkbook.VBProject.VBComponents.Remove vbComp
-                    Debug.Print "Debug   モジュールが既に存在したので、削除しました！！！！"
+                    Debug.Print "Debug   モジュールが既に存在したので、削除しました！！！！ " & moduleName & "  " & macroName
                     Exit For
                 End If
             End If
@@ -209,8 +211,6 @@ Function sourceWorkbookからtargetWorkbookにmoduleNameを流し込む(ByVal so
     Set targetModule = targetWorkbook.VBProject.VBComponents.Add(1) ' vbext_ct_StdModule = 1  標準モジュールを追加
     targetModule.CodeModule.AddFromString sourceModule.CodeModule.Lines(1, sourceModule.CodeModule.CountOfLines)
     Debug.Print "Debug   targetWorkbookに、[" & moduleName & "]を追加しました！"
-     
-    
     
     Debug.Print "Debug   Function sourceWorkbookからtargetWorkbookにmoduleNameを流し込む    が  終了"
 
