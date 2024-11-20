@@ -6,6 +6,7 @@ Sub ユニットBL2とBL3をマージ()
 
     Dim i As Integer
     Dim MaxRow As Integer
+    Dim MaxRow_of_TargetUnit As Integer
     Dim TargetUnit As String
     Dim TargetSheet As String
     Dim Sonzai_flg_BL2 As Boolean: Sonzai_flg_BL2 = False
@@ -17,7 +18,7 @@ Sub ユニットBL2とBL3をマージ()
     
     ' wb_MATOMEを開く
     Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    Set wb_MATOME = OpenBook("\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm") ' フルパスを指定
+    Set wb_MATOME = OpenBook(BNAME_MATOME) ' フルパスを指定
     If wb_MATOME Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
     wb_MATOME.Activate
     If ActiveWorkbook.Name <> wb_MATOME.Name Then

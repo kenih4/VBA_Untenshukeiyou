@@ -4,7 +4,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
     On Error GoTo ErrorHandler
 
     Debug.Print "============================================================================================================"
-    Debug.Print "============cp_paste_faulttxt_UNTENZYOKYOSYUKEI============================================================================"
+    Debug.Print "============cp_paste_faulttxt_UNTENZYOKYOSYUKEI============================================================="
     Debug.Print "============================================================================================================"
 
     Dim targetline As Integer
@@ -87,22 +87,45 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
             
             wb_SHUKEI.Windows(1).WindowState = xlMaximized
             wb_SHUKEI.Worksheets("集計記録").Activate
-            
     
     
             wb_SHUKEI.Worksheets("集計記録").Range("C8").End(xlDown).Activate       ' セルC8「開始時間」から最終行へ
             targetline = wb_SHUKEI.Worksheets("集計記録").Range("C8").End(xlDown).Row + 1
             wb_SHUKEI.Worksheets("集計記録").Cells(targetline, 1).Activate
             
-            MsgBox "ここに　Ctrl+Vして、「fault.txt」を貼り付けて下さい。" & vbCrLf & "それで終了です。", Buttons:=vbInformation
+            MsgBox "ここに　Ctrl+Vして、「fault.txt」を貼り付けて下さい。" & vbCrLf & "", Buttons:=vbInformation
+            
+            'wb_SHUKEI.Worksheets("集計記録").Cells(targetline, 1) = tempText  これだと1つのセルの中にtempTextが入ってしまうぅ
+            
+            
             
             If MsgBox("貼り付け終わったらシート「利用時間(User)」にエネルギーなどを手動入力しましょう！！" & vbCrLf & "シフトサマリーを開きますか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
 '                WSH.Run "http://saclaopr19.spring8.or.jp/~summary/display_ui.html?sort=date%20desc%2Cstart%20desc&limit=0%2C100&search_situation=ユーザー運転&&search_root=BL" & BL & "#STATUS", 3 ' 第2引数: 3は最大化    'search_situation=ユーザー運転とすると なぜか2021年のが表示される
                 WSH.RUN "http://saclaopr19.spring8.or.jp/~summary/display_ui.html?sort=date%20desc%2Cstart%20desc&limit=0%2C100&search_root=BL" & BL & "#STATUS", 3
                 Set WSH = Nothing
-'                Set wb_temp = Workbooks.Open("C:\Users\kenichi\Dropbox\gitdir\VBA運転集計用\利用時間テンプ.xlsx", ReadOnly:=False)
             End If
 
+
+
+            '================================================
+'            案1 ダメ
+'            Dim DataObj As Object
+'            Dim ClipText As String
+'            ' クリップボードのデータを取得
+'            Set DataObj = CreateObject("MSForms.DataObject") 'ActiveX コンポーネントはオブジェクトを作成できません
+'            DataObj.GetFromClipboard
+'            ' クリップボードの内容をテキストとして取得
+'            ClipText = DataObj.GetText
+'
+'            ' テキストが空でない場合に貼り付け
+'            If Len(ClipText) > 0 Then
+'                ' アクティブなセルに貼り付け
+'                ActiveCell.Value = ClipText
+'            Else
+'                MsgBox "クリップボードの内容はテキストではありません。", vbExclamation
+'            End If
+            '================================================
+            
 '            Dim CB As Variant, i As Long
 '            CB = Application.ClipboardFormats
 '            If CB(1) = True Then

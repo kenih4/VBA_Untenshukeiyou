@@ -3,9 +3,11 @@ Option Explicit
 Sub 運転集計_形式処理m(BL As Integer)
 
     '/追加部分----------------------------
+    Debug.Print "デバッグ   1   運転集計_形式処理m　STRT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+
+    On Error GoTo ErrorHandler
     Dim BNAME_SHUKEI As String
     Dim wb As Workbook
-    Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
 '    Dim BL As Integer  ' 対象BL
     Dim DOWNTIME_ROW As Integer
     MsgBox "マクロ「運転集計_形式処理m」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & "ひな形シート「運転状況（対象ユニット）」からシート「24-*(BL" & BL & ")」を作成します。", Buttons:=vbInformation
@@ -97,7 +99,6 @@ Sub 運転集計_形式処理m(BL As Integer)
     End If
     
     If MsgBox("今表示さているシート「" & シート名 & "」が作成されたものです。" & vbCrLf & "これを「SACLA運転状況集計まとめ.xlsm」にコピーしますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
-                
         ' wb_MATOMEを開く
         Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
         Set wb_MATOME = OpenBook(BNAME_MATOME) ' フルパスを指定
@@ -108,6 +109,13 @@ Sub 運転集計_形式処理m(BL As Integer)
         wb_MATOME.Worksheets(シート名).Activate
         MsgBox wb_MATOME.Name & "に" & vbCrLf & "シートのコピーが完了しまた。" & vbCrLf & "BL2/BL3両方終わったらマージしましょう！", Buttons:=vbInformation
     End If
+    
+    
+    Call Fin("マクロ終了" & vbCrLf & "！", 1)
+    Exit Sub  ' 通常の処理が完了したらエラーハンドラをスキップ
+ErrorHandler:
+    Call Fin("エラーです。内容は　 " & Err.Description, 3)
+    Exit Sub
     
     '追加部分----------------------------/
     

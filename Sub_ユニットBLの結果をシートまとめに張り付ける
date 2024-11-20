@@ -235,6 +235,7 @@ End Function
 
 '==============================================================================================================================
 Function Find_targetcell_and_paste(ByVal Category As String, ByVal TARGET_COL As Integer, ByVal sheet As Worksheet) As Boolean
+    Dim i As Integer
     
     Find_targetcell_and_paste = False
         
