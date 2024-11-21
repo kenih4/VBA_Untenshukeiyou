@@ -3,18 +3,14 @@ Option Explicit
 Sub Fault集計m(BL As Integer)
 
     '/追加部分----------------------------
-    MsgBox "マクロ「Fault集計m」を実行します。"
-Debug.Print "デバッグ   1   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     On Error GoTo ErrorHandler
-Debug.Print "デバッグ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     Dim i As Integer
     Dim targetline As Integer
     Dim BNAME_SHUKEI As String
     Dim SNAME_FAULT As String
-                Dim beginL As Integer
-                Dim endL As Integer
+    Dim beginL As Integer
+    Dim endL As Integer
     MsgBox "マクロ「Fault集計m」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & "SACLA運転状況集計BL" & BL & ".xlsmにシート「Fault集計(BL" & BL & ")」を作るマクロです。", Buttons:=vbInformation
-Debug.Print "デバッグ   2   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
 
 '    Dim s
 '    s = Application.InputBox("SACLA運転状況集計BL*.xlsmにシート「Fault集計(BL*)」を作るマクロです。" & vbCrLf & "BLを入力してください", "確認")
@@ -44,7 +40,6 @@ Debug.Print "デバッグ   2   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             Debug.Print "Zzz..."
             End
     End Select
-Debug.Print "デバッグ   3   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     
     ' wb_SHUKEIを開く
     Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
@@ -90,14 +85,10 @@ Debug.Print "デバッグ   3   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     Call 高速化処理終了
         
     '/追加部分----------------------------
-    For i = 8 To 10000
-       If wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & i).Value = wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2") Then
-           Debug.Print i & "   Hit " & wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & i).MergeArea.Rows.Count
-           wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & i, "I" & i + wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & i).MergeArea.Rows.Count - 1).Select
-           wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & i, "I" & i + wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & i).MergeArea.Rows.Count - 1).Copy
-           Exit For
-       End If
-    Next
+    Dim UnitLine As Integer
+    UnitLine = getLineNum(wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2"), 2, wb_SHUKEI.Worksheets(SNAME_FAULT))
+    wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & UnitLine, "I" & UnitLine + wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & UnitLine).MergeArea.Rows.Count - 1).Select
+    wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & UnitLine, "I" & UnitLine + wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & UnitLine).MergeArea.Rows.Count - 1).Copy
     
     If MsgBox("選択されてる部分をコピーしました" & vbCrLf & "次は、「SACLA運転状況集計まとめ.xlsm」の「Fault集計」の張り付けです。" & vbCrLf & "ファイルを開きますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
         
@@ -112,54 +103,27 @@ Debug.Print "デバッグ   3   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 Debug.Print "SCSS+"
             Case 2
                 Debug.Print "BL2"
-                'TEST   BL2とBL2を同じやり方にしたい    ==============================
                 beginL = getLineNum("SACLA Fault間隔(BL2)", 2, wb_MATOME.Worksheets("Fault集計"))
                 endL = getLineNum("SACLA Fault間隔(BL3)", 2, wb_MATOME.Worksheets("Fault集計"))
-
-
-                'TEST==============================
-                
-'                For i = 6 To 1000
-'                            If IsEmpty(wb_MATOME.Worksheets("Fault集計").Cells(i, 2).Value) And Not wb_MATOME.Worksheets("Fault集計").Cells(i, 2).MergeCells Then
-'                                targetline = i
-''                                MsgBox "セルが空っぽで、結合されてない、、" & vbCrLf & "", Buttons:=vbInformation
-'                                Exit For
-'                            End If
-'                Next
-                
             Case 3
                 Debug.Print ">>>BL3" 'BL3 の場合はB列の最終行からさかのぼる
-                Dim xlLastRow As Long       'Excel自体の最終行
-'                Dim LastRow As Long         '最終行
-''重い           xlLastRow = wb_MATOME.Worksheets("Fault集計").Cells(wb_MATOME.Worksheets("Fault集計").Rows.Count, 1).Row  'Excelの最終行を取得
-'
-'                xlLastRow = wb_MATOME.Worksheets("Fault集計").UsedRange.Rows(wb_MATOME.Worksheets("Fault集計").UsedRange.Rows.Count).Row 'UsedRangeの注意点　罫線なども含んだ使用されている領域
-'
-'                LastRow = wb_MATOME.Worksheets("Fault集計").Cells(xlLastRow, 2).End(xlUp).Row   'B列の最終行を取得
-'                targetline = LastRow + wb_MATOME.Worksheets("Fault集計").Cells(LastRow, 2).MergeArea.Rows.Count
-'
-                
+                Dim xlLastRow As Long
                 xlLastRow = wb_MATOME.Worksheets("Fault集計").UsedRange.Rows(wb_MATOME.Worksheets("Fault集計").UsedRange.Rows.Count).Row 'UsedRangeの注意点　罫線なども含んだ使用されている領域
-                
                 beginL = getLineNum("SACLA Fault間隔(BL3)", 2, wb_MATOME.Worksheets("Fault集計"))
                 endL = wb_MATOME.Worksheets("Fault集計").Cells(xlLastRow, 2).End(xlUp).Row   'B列の最終行を取得
-                
             Case Else
                 Debug.Print "Zzz..."
                 End
         End Select
         
-        
-        
-        
-                For i = getLineNum_RS("ユニット", 2, beginL, endL, wb_MATOME.Worksheets("Fault集計")) To wb_MATOME.Worksheets("Fault集計").UsedRange.Rows(wb_MATOME.Worksheets("Fault集計").UsedRange.Rows.Count).Row
-                    Debug.Print "i = " & i & "  " & Cells(i, 2).Value
-                    If IsEmpty(wb_MATOME.Worksheets("Fault集計").Cells(i, 2).Value) And Not wb_MATOME.Worksheets("Fault集計").Cells(i, 2).MergeCells Then
-                        targetline = i
-                        'MsgBox "セルが空っぽで、結合されてない、、" & vbCrLf & "", Buttons:=vbInformation
-                        Exit For
-                    End If
-                Next
+        For i = getLineNum_RS("ユニット", 2, beginL, endL, wb_MATOME.Worksheets("Fault集計")) To wb_MATOME.Worksheets("Fault集計").UsedRange.Rows(wb_MATOME.Worksheets("Fault集計").UsedRange.Rows.Count).Row
+            Debug.Print "i = " & i & "  " & Cells(i, 2).Value
+            If IsEmpty(wb_MATOME.Worksheets("Fault集計").Cells(i, 2).Value) And Not wb_MATOME.Worksheets("Fault集計").Cells(i, 2).MergeCells Then
+                targetline = i
+                'MsgBox "セルが空っぽで、結合されてない、、" & vbCrLf & "", Buttons:=vbInformation
+                Exit For
+            End If
+        Next
                 
         wb_MATOME.Worksheets("Fault集計").Cells(targetline, 2).Select
         If MsgBox("ここに貼り付けします。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
