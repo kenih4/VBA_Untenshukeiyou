@@ -10,18 +10,7 @@ Sub Fault集計m(BL As Integer)
     Dim SNAME_FAULT As String
     Dim beginL As Integer
     Dim endL As Integer
-    MsgBox "マクロ「Fault集計m」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & "SACLA運転状況集計BL" & BL & ".xlsmにシート「Fault集計(BL" & BL & ")」を作るマクロです。", Buttons:=vbInformation
-
-'    Dim s
-'    s = Application.InputBox("SACLA運転状況集計BL*.xlsmにシート「Fault集計(BL*)」を作るマクロです。" & vbCrLf & "BLを入力してください", "確認")
-'    If s = False Then
-'        End
-'    ElseIf s = "" Then
-'        MsgBox "何も入力されていません"
-'        End
-'    Else
-'        BL = s
-'    End If
+    MsgBox "マクロ「Fault集計m」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & "SACLA運転状況集計BL" & BL & ".xlsmにシート「Fault集計(BL" & BL & ")」を作るマクロです。", vbInformation, "BL" & BL
 
     Select Case BL
         Case 1
@@ -52,11 +41,13 @@ Sub Fault集計m(BL As Integer)
         Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, 3)
     End If
     
-    
-    
     wb_SHUKEI.Windows(1).WindowState = xlMaximized
     wb_SHUKEI.Worksheets("Fault間隔(ユニット)").Activate
     wb_SHUKEI.Worksheets("Fault間隔(ユニット)").PageSetup.PrintArea = "" ' 20241113追加　印刷範囲が狭かった場合、範囲外が灰色なので選択しても見えないので印刷範囲をクリア
+    
+    If MsgBox("選択されてるユニット(wb_SHUKEI.Worksheets(利用時間（期間）).Range(B2))は    " & wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2") & "   です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進むにはYESを押して下さい", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then
+        Call Fin("「No」が選択されました", 1)
+    End If
     '追加部分----------------------------/
 
     Dim 最終行 As Integer
@@ -90,7 +81,7 @@ Sub Fault集計m(BL As Integer)
     wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & UnitLine, "I" & UnitLine + wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & UnitLine).MergeArea.Rows.Count - 1).Select
     wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & UnitLine, "I" & UnitLine + wb_SHUKEI.Worksheets(SNAME_FAULT).Range("B" & UnitLine).MergeArea.Rows.Count - 1).Copy
     
-    If MsgBox("選択されてる部分をコピーしました" & vbCrLf & "次は、「SACLA運転状況集計まとめ.xlsm」の「Fault集計」の張り付けです。" & vbCrLf & "ファイルを開きますか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+    If MsgBox("選択されてる部分をコピーしました" & vbCrLf & "次は、「SACLA運転状況集計まとめ.xlsm」の「Fault集計」の張り付けです。" & vbCrLf & "ファイルを開きますか？", vbYesNo + vbQuestion, "BL" & BL) = vbYes Then
         
         ' wb_MATOMEを開く
         Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
@@ -126,7 +117,7 @@ Sub Fault集計m(BL As Integer)
         Next
                 
         wb_MATOME.Worksheets("Fault集計").Cells(targetline, 2).Select
-        If MsgBox("ここに貼り付けします。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
+        If MsgBox("ここに貼り付けします。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "BL" & BL) = vbYes Then
             wb_MATOME.Worksheets("Fault集計").Cells(targetline, 2).Insert xlDown
         End If
     

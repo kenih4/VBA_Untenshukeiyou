@@ -78,7 +78,7 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     
     
 '
-    If MsgBox("流し込んだマクロを実行します。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbYes Then
+    If MsgBox("流し込んだマクロを実行します。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "BL" & BL) = vbYes Then
         Debug.Print "<<<<<<ブック「" & targetWorkbook.Name & "」　の　マクロ「" & macroName & "」 を実行します"
         Application.RUN "'" & targetWorkbook.Name & "'!" & macroName, BL
         MsgBox "マクロ「" & macroName & "」 が完了しました！", Buttons:=vbInformation

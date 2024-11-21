@@ -114,11 +114,11 @@ Sub Fin(ByVal Msg As String, ByVal Level As Integer)
     Debug.Print "_____Fin(" & Msg & ")_____"
     Select Case Level
         Case 1
-            MsgBox "終了処理:   " & Msg, vbInformation
+            MsgBox Msg, vbInformation, "終了処理"
         Case 2
-            MsgBox "終了処理:   " & Msg, vbExclamation
+            MsgBox Msg, vbExclamation, "終了処理"
         Case 3
-            MsgBox "終了処理:   " & Msg, vbCritical
+            MsgBox Msg, vbCritical, "終了処理"
         Case Else
             Debug.Print "Zzz..."
     End Select
