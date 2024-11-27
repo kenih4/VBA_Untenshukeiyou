@@ -37,7 +37,7 @@ Sub 運転集計_形式処理m(BL As Integer)
     wb_SHUKEI.Windows(1).WindowState = xlMaximized
     wb_SHUKEI.Worksheets("運転状況(対象ユニット)").Activate
     
-    If MsgBox("選択されてるユニット(wb_SHUKEI.Worksheets(利用時間（期間）).Range(B2))は    " & wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2") & "   です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進むにはYESを押して下さい", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then
+    If MsgBox("選択されてるユニット(シート「利用時間（期間）」のセルB2)は    " & vbCrLf & wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2") & "   です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進むにはYESを押して下さい", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then
         Call Fin("「No」が選択されました", 1)
     End If
     '追加部分----------------------------/
@@ -80,8 +80,11 @@ Sub 運転集計_形式処理m(BL As Integer)
     Call 高速化処理終了
 
     '/追加部分----------------------------
-    If wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value = 0 Then
-        MsgBox "ダウンタイムは　" & wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value & " です。ゼロだとおかしいと思います。" & vbCrLf & "シート「集計記録」に数式が入っていない可能性があります", vbExclamation, "BL" & BL
+    If wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 11).Value = 0 Then
+        MsgBox "ユーザー利用はなかったです。　" & vbCrLf & "本当か、念のため確認した方がいいです。" & vbCrLf & "本当になかった場合、「ユーザー運転無し」と手動で処理すす部分があります。", vbExclamation, "BL" & BL
+        If wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value = 0 Then
+            MsgBox "ダウンタイムは　" & wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value & " です。ゼロだとおかしいと思います。" & vbCrLf & "シート「集計記録」に数式が入っていない可能性があります", vbExclamation, "BL" & BL
+        End If
     End If
     
     If MsgBox("今表示さているシート「" & シート名 & "」が作成されたものです。" & vbCrLf & "これを「SACLA運転状況集計まとめ.xlsm」にコピーしますか？", vbYesNo + vbQuestion, "BL" & BL) = vbYes Then
@@ -95,7 +98,7 @@ Sub 運転集計_形式処理m(BL As Integer)
         MsgBox wb_MATOME.Name & "に" & vbCrLf & "シートのコピーが完了しまた。" & vbCrLf & "BL2/BL3両方終わったらマージしましょう！", Buttons:=vbInformation
     End If
     
-    Call Fin("マクロ終了" & vbCrLf & "！", 1)
+'    Call Fin("マクロ終了" & vbCrLf & "！", 1) ' 親「Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行()」に戻りたいのでコメントアウトした
     Exit Sub  ' 通常の処理が完了したらエラーハンドラをスキップ
 ErrorHandler:
     Call Fin("エラーです。内容は　 " & Err.Description, 3)

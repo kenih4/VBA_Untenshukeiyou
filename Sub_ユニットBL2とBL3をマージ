@@ -109,7 +109,7 @@ Sub ユニットBL2とBL3をマージ()
     End If
 
     If MsgBox("このマクロは「SACLA運転状況集計まとめ.xlsm」の" & vbCrLf & "シート「ユニット(BL2)と(BL3)」を結合します。" & vbCrLf & "結合しようとしているユニットは「" & TargetUnit & "」です。" & vbCrLf & "いいですか？？", vbYesNo + vbQuestion, "確認") = vbNo Then
-        Call Fin("「いいえ」が選ばれました", 1)
+        Call Fin("「No」が選択されました", 1)
     End If
         
     
@@ -117,7 +117,7 @@ Sub ユニットBL2とBL3をマージ()
     
     
     'BL2のシートをコピーしてベースにする
-    wb_MATOME.Worksheets(TargetUnit & "(BL2)").Copy after:=wb_MATOME.Worksheets("まとめ ") ' なぜかSCSS+ログノート用PCで実行すると、「名前'~～'は既に存在します」とメッセージが出る場合がある。とりあえず「はい」で進めるしかないので進めると、出来たシートに条件付き書式でなぜか赤印がつく。
+    wb_MATOME.Worksheets(TargetUnit & "(BL2)").Copy after:=wb_MATOME.Worksheets("まとめ ") ' なぜかSCSS+ログノート用PCで実行すると、「名前'~～'は既に存在します」とメッセージが出る場合がある。とりあえず「はい」で進めるしかないので進めると、出来たシートに条件付き書式でなぜか赤印がつく。OFFICEのプロフェッショナルだと発生する。
     ActiveSheet.Name = TargetUnit
     Cells.Select '　コピーしたことを視覚的に分かりやすくするため。なくてもいい
     MsgBox "シート「" & TargetUnit & "(BL2)" & "」をコピーしました。" & vbCrLf & "これを下地にします。", Buttons:=vbInformation
@@ -169,7 +169,7 @@ Sub ユニットBL2とBL3をマージ()
     wb_MATOME.Worksheets(TargetUnit).PageSetup.PrintArea = False ' 全ての印刷範囲をクリア
 
     
-    Call Fin("これで終了です。" & vbCrLf & "シート「ユニット(BL*)」は手動で削除して下さい", 3)
+    Call Fin("これで終了です。" & vbCrLf & "シート「ユニット(BL*)」は手動で削除して下さい", 1)
 
     Exit Sub  ' 通常の処理が完了したらエラーハンドラをスキップ
 ErrorHandler:

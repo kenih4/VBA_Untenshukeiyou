@@ -45,7 +45,7 @@ Sub Fault集計m(BL As Integer)
     wb_SHUKEI.Worksheets("Fault間隔(ユニット)").Activate
     wb_SHUKEI.Worksheets("Fault間隔(ユニット)").PageSetup.PrintArea = "" ' 20241113追加　印刷範囲が狭かった場合、範囲外が灰色なので選択しても見えないので印刷範囲をクリア
     
-    If MsgBox("選択されてるユニット(wb_SHUKEI.Worksheets(利用時間（期間）).Range(B2))は    " & wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2") & "   です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進むにはYESを押して下さい", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then
+    If MsgBox("選択されてるユニット(シート「利用時間（期間）」のセルB2)は    " & vbCrLf & wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2") & "   です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進むにはYESを押して下さい", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then
         Call Fin("「No」が選択されました", 1)
     End If
     '追加部分----------------------------/
@@ -123,7 +123,7 @@ Sub Fault集計m(BL As Integer)
     
     End If
     
-    Call Fin("マクロ終了" & vbCrLf & "次はマクロ「運転集計_形式処理m」をしましょう！", 1)
+'    Call Fin("マクロ終了" & vbCrLf & "次はマクロ「運転集計_形式処理m」をしましょう！", 1) ' 親「Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行()」に戻りたいのでコメントアウトした
     Exit Sub  ' 通常の処理が完了したらエラーハンドラをスキップ
 ErrorHandler:
     Call Fin("エラーです。内容は　 " & Err.Description, 3)

@@ -14,7 +14,6 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     Dim BL As Integer
     
     BNAME_KEIKAKU = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
-    
 
     
     ' Wb_keikakuを開く
@@ -48,11 +47,10 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
         MsgBox "異常です。終了します。" & vbCrLf & "buttonName = " & buttonName, Buttons:=vbCritical
         End
     End If
-    MsgBox "BL" & BL & vbCrLf & "「計画時間.xlsx」を「SACLA運転状況集計BL" & BL & ".xlsm」にコピーするマクロです。 ", Buttons:=vbInformation
-    
+    MsgBox "「計画時間.xlsx」を「SACLA運転状況集計BL" & BL & ".xlsm」にコピーするマクロです。", vbInformation, "BL" & BL
     
 '    Dim s
-'    s = Application.InputBox("「計画時間.xlsx」を「SACLA運転状況集計BL" & BL & ".xlsm」にコピーするマクロです。 " & vbCrLf & vbCrLf & "BLを入力して下さい。", "確認")
+'    s = Application.InputBox("「計画時間.xlsx」を「SACLA運転状況集計BL" & BL & ".xlsm」にコピーするマクロです。 " & vbCrLf & vbCrLf & "BLを入力して下さい。", "BL" & BL)
 '    If s = False Then
 '        Exit Sub
 '    ElseIf s = "" Then
@@ -95,28 +93,27 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             Wb_keikaku.Worksheets("GUN HV OFF").Activate
             Range(RANGE_GUN_HV_OFF & Cells(Rows.Count, COL_GUN_HV_OFF).End(xlUp).Row).Copy
             Range(RANGE_GUN_HV_OFF & Cells(Rows.Count, COL_GUN_HV_OFF).End(xlUp).Row).Select
-            If MsgBox("選択部分をコピーしました。" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+            If MsgBox("選択部分をコピーしました。" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then Exit Sub
                         
 
 
-
-
+    
             ' wb_SHUKEIを開く
             Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
             Set wb_SHUKEI = OpenBook(BNAME_SHUKEI) ' フルパスを指定
             If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
-            
-            
             wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Activate
             wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Range("C5").End(xlDown).Activate       ' セルC5「GUN HV OFF時間」から最終行へ
             targetline = wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Range("C5").End(xlDown).Row + 1
             wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Cells(targetline, 3).Activate
-            If MsgBox("ここに値「GUN HV OFF時間」を貼り付けていいですか？", vbYesNo + vbQuestion, "GUN HV OFF") = vbYes Then
+            If MsgBox("ここに値「GUN HV OFF時間」を貼り付けていいですか？", vbYesNo + vbQuestion, "BL" & BL) = vbYes Then
+Debug.Print "B4==========================================================================================================="
+                
                 wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Cells(wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Cells(Rows.Count, 3).End(xlUp).Row + 1, 3).PasteSpecial Paste:=xlPasteValues
-                If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+                If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then Exit Sub
             End If
-            
-            
+    
+    Debug.Print "C============================================================================================================"
             
             
             
@@ -125,13 +122,13 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             Wb_keikaku.Worksheets(SNAME_KEIKAKU_BL).Activate
             Range("A2:C" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Select
             Range("A2:C" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Copy
-            If MsgBox("選択部分をコピーしました。" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+            If MsgBox("選択部分をコピーしました。" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then Exit Sub
             wb_SHUKEI.Worksheets(sname).Activate
             wb_SHUKEI.Worksheets(sname).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ
             Debug.Print "wb_SHUKEI Last: " & wb_SHUKEI.Worksheets(sname).Range("B3").End(xlDown).Row
             targetline = wb_SHUKEI.Worksheets(sname).Range("B3").End(xlDown).Row + 1
             wb_SHUKEI.Worksheets(sname).Cells(targetline, 2).Activate
-            If MsgBox("ここに値を貼り付けていいですか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+            If MsgBox("ここに値を貼り付けていいですか？", vbYesNo + vbQuestion, "BL" & BL) = vbYes Then
                 wb_SHUKEI.Worksheets(sname).Cells(targetline, 2).PasteSpecial Paste:=xlPasteValues
             End If
 
@@ -140,13 +137,13 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             Wb_keikaku.Worksheets(SNAME_KEIKAKU_BL).Activate
             Range("D2:D" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Select
             Range("D2:D" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Copy
-            If MsgBox("選択部分をコピーしました。" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+            If MsgBox("選択部分をコピーしました。" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then Exit Sub
             wb_SHUKEI.Worksheets(sname).Activate
             wb_SHUKEI.Worksheets(sname).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ
             wb_SHUKEI.Worksheets(sname).Cells(targetline, 7).Activate
-            If MsgBox("ここに値を貼り付けていいですか？", vbYesNo + vbQuestion, "確認") = vbYes Then
+            If MsgBox("ここに値を貼り付けていいですか？", vbYesNo + vbQuestion, "BL" & BL) = vbYes Then
                 wb_SHUKEI.Worksheets(sname).Cells(targetline, 7).PasteSpecial Paste:=xlPasteValues
-                If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "確認") = vbNo Then Exit Sub
+                If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then Exit Sub
             End If
             
             '「新しいユニット名を計算」
@@ -175,7 +172,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
             
             
             
-            MsgBox "終了しました。" & vbCrLf & "エクセルファイルを　＜保存＞　してらから、" & vbCrLf & "次、getBlFaultSummary.pyに進みましょう！", Buttons:=vbInformation
+            MsgBox "終了しました。" & vbCrLf & "保存してから、" & vbCrLf & "次、getBlFaultSummary.pyに進みましょう！", vbInformation, "BL" & BL
     
     
             If MsgBox("次の準備の為に、 シート「利用時間（期間）」の上の所に、ユニット[" & newunit & "]を入れていいですか？？", vbYesNo + vbQuestion, "newunit") = vbYes Then

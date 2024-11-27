@@ -41,7 +41,7 @@ End Sub
 
 
 
-Sub ボタン17_Click() ' TEST!!!!!!!!!!!!
+Sub ボタン18_Click() ' TEST!!!!!!!!!!!!
 '    Dim wb_MATOME As Workbook    '　ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
 '    Set wb_MATOME = OpenBook("\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm") ' フルパスを指定
 '    If wb_MATOME Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。",3)
@@ -85,15 +85,17 @@ Sub ボタン17_Click() ' TEST!!!!!!!!!!!!
 '    End If
     
     
-    Dim folderPath As String
-    folderPath = GetWorkbookFolder()
-    If folderPath = "" Then
-        MsgBox "このブックはまだ保存されていません。"
-    Else
-        MsgBox "このブックが開かれているフォルダのパス: " & folderPath
-    End If
+'    Dim folderPath As String
+'    folderPath = GetWorkbookFolder()
+'    If folderPath = "" Then
+'        MsgBox "このブックはまだ保存されていません。"
+'    Else
+'        MsgBox "このブックが開かれているフォルダのパス: " & folderPath
+'    End If
     
-    
+    Call ToggleButton
     
 End Sub
+
+
 
