@@ -80,10 +80,15 @@ Sub 運転集計_形式処理m(BL As Integer)
     Call 高速化処理終了
 
     '/追加部分----------------------------
+    If wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 9).Value = 0 Then
+        MsgBox "利用調整運転(BL調整orBL-study)はなかったんですね。　" & vbCrLf & "", vbExclamation, "BL" & BL
+    End If
+    
     If wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 11).Value = 0 Then
-        MsgBox "ユーザー利用はなかったです。　" & vbCrLf & "本当か、念のため確認した方がいいです。" & vbCrLf & "本当になかった場合、「ユーザー運転無し」と手動で処理すす部分があります。", vbExclamation, "BL" & BL
+        MsgBox "利用運転(ユーザー)はなかったんですね。　" & vbCrLf & "" & vbCrLf & "「ユーザー運転無し」と手動で処理しないといけない部分があります。", vbExclamation, "BL" & BL
+    Else
         If wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value = 0 Then
-            MsgBox "ダウンタイムは　" & wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value & " です。ゼロだとおかしいと思います。" & vbCrLf & "シート「集計記録」に数式が入っていない可能性があります", vbExclamation, "BL" & BL
+            MsgBox "ダウンタイムは　" & wb_SHUKEI.Worksheets(シート名).Cells(DOWNTIME_ROW, 12).Value & " です。一回もトリップしてないって事？確認した方がよいです。" & vbCrLf & "シート「集計記録」に数式が入っていない可能性があります", vbExclamation, "BL" & BL
         End If
     End If
     
