@@ -1,0 +1,137 @@
+Sub Final_Check()
+   '
+    On Error GoTo ErrorHandler
+               
+    Dim BL As Integer
+    Dim BNAME_SHUKEI As String
+    Dim DOWNTIME_ROW As Integer
+    Dim Unit As String
+
+    MsgBox "マクロ「Final_Check()」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_MATOME & "のチェックです。", vbInformation, "BL" & BL
+    
+    Dim s
+    s = Application.InputBox("BLを入力して下さい。", "確認")
+    If s = False Then
+        Exit Sub
+    ElseIf s = "" Then
+        MsgBox "何も入力されていません"
+        Exit Sub
+    Else
+        BL = s
+    End If
+    
+    Select Case BL
+        Case 1
+            Debug.Print "SCSS+"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SCSS\SCSS運転状況集計BL1.xlsm"
+        Case 2
+            Debug.Print "BL2"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2.xlsm"
+            DOWNTIME_ROW = 8
+        Case 3
+            Debug.Print ">>>BL3"
+            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL3.xlsm"
+            DOWNTIME_ROW = 9
+        Case Else
+            Debug.Print "Zzz..."
+            End
+    End Select
+
+
+    ' wb_SHUKEIを開く
+    Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    Set wb_SHUKEI = OpenBook(BNAME_SHUKEI, True) ' フルパスを指定
+    If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
+    wb_SHUKEI.Activate
+    If ActiveWorkbook.Name <> wb_SHUKEI.Name Then
+        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, 3)
+    End If
+
+    wb_SHUKEI.Windows(1).WindowState = xlMaximized
+    wb_SHUKEI.Worksheets("運転状況(対象ユニット)").Activate
+
+    Unit = wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2")
+    If MsgBox("チェックするユニット(シート「利用時間（期間）」のセルB2)は    " & vbCrLf & "「 " & Unit & " 」" & vbCrLf & "です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進むにはYESを押して下さい", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then
+        Call Fin("「No」が選択されました。終了します。", 1)
+    End If
+
+'    Debug.Print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "
+'    'End
+'    Unit = "24-14"
+        
+        
+'        ' wb_MATOMEを開く
+        Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+        Set wb_MATOME = OpenBook(BNAME_MATOME, True) ' フルパスを指定
+        If wb_MATOME Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
+
+        wb_MATOME.Worksheets("まとめ ").Activate 'これ大事
+    
+        
+        '　まとめシートの(a)のチェック
+        For i = getLineNum("(a)運転時間　期間毎", 2, wb_MATOME.Worksheets("まとめ ")) To getLineNum("(b)運転時間　シフト毎", 2, wb_MATOME.Worksheets("まとめ "))
+            Debug.Print "i = " & i & "  " & Cells(i, 2).Value
+            
+            If wb_MATOME.Worksheets("まとめ ").Cells(i, 2).Value = Unit Then
+                'MsgBox "ここ、 i = " & vbCrLf & i, Buttons:=vbInformation
+                
+                If BL = 2 Then
+                    DOWNTIME_ROW = i
+                Else
+                    DOWNTIME_ROW = i + 1
+                End If
+                
+                    If wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 9).Value = 0 Then
+                        wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 9).Select
+                        MsgBox "利用調整運転(BL調整orBL-study)はなかったんですね。　" & vbCrLf & "", vbExclamation, "BL" & BL
+                    End If
+                    
+                    If wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 11).Value = 0 Then
+                        wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 11).Select
+                        MsgBox "利用運転(ユーザー)はなかったんですね。　" & vbCrLf & "" & vbCrLf & "「ユーザー運転無し」と手動で処理しないといけない部分があります。", vbExclamation, "BL" & BL
+                    Else
+                        If wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 12).Value = 0 Then
+                            wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 12).Select
+                            MsgBox "ダウンタイムは　" & wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 12).Value & " です。一回もトリップしてないって事？確認した方がよいです。" & vbCrLf & "シート「集計記録」に数式が入っていない可能性があります", vbExclamation, "BL" & BL
+                        End If
+                    End If
+                
+            End If
+        Next
+
+        '　まとめシートの(c)のチェック
+        Dim tmp As String
+        If BL = 2 Then
+            tmp = "(c-1)BL2"
+        Else
+            tmp = "(c-2)BL3"
+        End If
+                
+        For i = getLineNum(tmp, 2, wb_MATOME.Worksheets("まとめ ")) To wb_MATOME.Worksheets("まとめ ").Cells(Rows.Count, "B").End(xlUp).Row
+            'Debug.Print "i = " & i & "  " & Cells(i, 2).Value
+            
+            If wb_MATOME.Worksheets("まとめ ").Cells(i, 2).Value = Unit Then
+                Debug.Print "ここ　i = " & i & "  " & Cells(i, 2).Value
+                'MsgBox "まとめシートの(c)のチェック　ここ、 i = " & vbCrLf & i, Buttons:=vbInformation
+                For j = i To i + wb_MATOME.Worksheets("まとめ ").Cells(i, 2).MergeArea.Rows.Count - 1
+                    Debug.Print "j = " & j & "  " & Cells(j, 2).Value
+                    
+                    For col = 3 To 7
+                        If wb_MATOME.Worksheets("まとめ ").Cells(j, col).Value = 0 Or IsEmpty(wb_MATOME.Worksheets("まとめ ").Cells(j, col).Value) Then
+                            wb_MATOME.Worksheets("まとめ ").Cells(j, col).Select
+                            MsgBox "0 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                        End If
+                    Next
+                    
+                Next
+                Exit For
+            End If
+            
+        Next
+        
+    Call Fin("終了しました。" & vbCrLf & "", 1)
+    Exit Sub ' 通常の処理が完了したらエラーハンドラをスキップ
+ErrorHandler:
+    MsgBox "エラーです。内容は　 " & Err.Description, Buttons:=vbCritical
+    
+End Sub
