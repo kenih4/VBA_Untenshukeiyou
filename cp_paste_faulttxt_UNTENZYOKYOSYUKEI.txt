@@ -78,7 +78,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
     
             ' wb_SHUKEIを開く
             Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-            Set wb_SHUKEI = OpenBook(BNAME_SHUKEI) ' フルパスを指定
+            Set wb_SHUKEI = OpenBook(BNAME_SHUKEI, False) ' フルパスを指定
             If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
             wb_SHUKEI.Activate
             If ActiveWorkbook.Name <> wb_SHUKEI.Name Then
@@ -93,7 +93,7 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer)
             targetline = wb_SHUKEI.Worksheets("集計記録").Range("C8").End(xlDown).Row + 1
             wb_SHUKEI.Worksheets("集計記録").Cells(targetline, 1).Activate
             
-            MsgBox "ここに　Ctrl+Vして、「fault.txt」を貼り付けて下さい。" & vbCrLf & "", vbInformation, "BL" & BL
+            MsgBox "ここに　Ctrl+Vして、「fault.txt」を貼り付けて下さい。" & vbCrLf & "注意点：先に片方のBLを引き渡した場合など、この段階で調整時間（ユニット切替えなど）の時間を確認しておく！！", vbInformation, "BL" & BL
             
             'wb_SHUKEI.Worksheets("集計記録").Cells(targetline, 1) = tempText  これだと1つのセルの中にtempTextが入ってしまうぅ
             
