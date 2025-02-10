@@ -6,8 +6,9 @@ Sub Final_Check()
     Dim BNAME_SHUKEI As String
     Dim DOWNTIME_ROW As Integer
     Dim Unit As String
+    Dim tmp As String
 
-    MsgBox "マクロ「Final_Check()」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_MATOME & "のチェックです。", vbInformation, "BL" & BL
+    MsgBox "マクロ「Final_Check()」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_MATOME & vbCrLf & "のチェックです。" & vbCrLf & "チェックするユニットを確認する為に一旦、SACLA運転状況集計BL*.xlsmを開きます", vbInformation, "BL" & BL
     
     Dim s
     s = Application.InputBox("BLを入力して下さい。", "確認")
@@ -39,25 +40,24 @@ Sub Final_Check()
 
 
     ' wb_SHUKEIを開く
-    Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    Set wb_SHUKEI = OpenBook(BNAME_SHUKEI, True) ' フルパスを指定
-    If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
-    wb_SHUKEI.Activate
-    If ActiveWorkbook.Name <> wb_SHUKEI.Name Then
-        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, 3)
-    End If
+'    Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+'    Set wb_SHUKEI = OpenBook(BNAME_SHUKEI, True) ' フルパスを指定
+'    If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
+'    wb_SHUKEI.Activate
+'    If ActiveWorkbook.Name <> wb_SHUKEI.Name Then
+'        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, 3)
+'    End If
+'
+'    wb_SHUKEI.Windows(1).WindowState = xlMaximized
+'    wb_SHUKEI.Worksheets("利用時間（期間）").Activate
+'
+'    Unit = wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2")
+'    If MsgBox("チェックするユニット(シート「利用時間（期間）」のセルB2)は    " & vbCrLf & "「 " & Unit & " 」" & vbCrLf & "です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進むにはYESを押して下さい", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then
+'        Call Fin("「No」が選択されました。終了します。", 1)
+'    End If
 
-    wb_SHUKEI.Windows(1).WindowState = xlMaximized
-    wb_SHUKEI.Worksheets("運転状況(対象ユニット)").Activate
-
-    Unit = wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2")
-    If MsgBox("チェックするユニット(シート「利用時間（期間）」のセルB2)は    " & vbCrLf & "「 " & Unit & " 」" & vbCrLf & "です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進むにはYESを押して下さい", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then
-        Call Fin("「No」が選択されました。終了します。", 1)
-    End If
-
-'    Debug.Print ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> "
-'    'End
-'    Unit = "24-14"
+    
+    Unit = "24-16"
         
         
 '        ' wb_MATOMEを開く
@@ -101,14 +101,18 @@ Sub Final_Check()
 
 
 
-        MsgBox "まとめシートの(c)のチェック。" & vbCrLf & "", vbInformation, "BL" & BL
-        Dim tmp As String
+
+
+
+        MsgBox "まとめシートの(b)のチェック。" & vbCrLf & "", vbInformation, "BL" & BL
         If BL = 2 Then
-            tmp = "(c-1)BL2"
+            tmp = "(b-1)BL2"
         Else
-            tmp = "(c-2)BL3"
+            tmp = "(b-2)BL3"
         End If
-                
+        Dim Check_col_arr As Variant
+        Check_col_arr = Array(5, 6, 8) ' チェックする列の値を配列にセット
+        
         For i = getLineNum(tmp, 2, wb_MATOME.Worksheets("まとめ ")) To wb_MATOME.Worksheets("まとめ ").Cells(Rows.Count, "B").End(xlUp).Row
             'Debug.Print "i = " & i & "  " & Cells(i, 2).Value
             
@@ -116,13 +120,68 @@ Sub Final_Check()
                 Debug.Print "ここ　i = " & i & "  " & Cells(i, 2).Value
                 'MsgBox "まとめシートの(c)のチェック　ここ、 i = " & vbCrLf & i, Buttons:=vbInformation
                 For j = i To i + wb_MATOME.Worksheets("まとめ ").Cells(i, 2).MergeArea.Rows.Count - 1
-                    Debug.Print "j = " & j & "  " & Cells(j, 2).Value
+                    Debug.Print tmp & "     j = " & j
+                    For Each col In Check_col_arr   '   For col = 5 To 6 '　列 [シフト時間]、[利用率]
+                        wb_MATOME.Worksheets("まとめ ").Cells(j, col).Select
+                        If IsError(Cells(j, col).Value) Then ' セルでエラーが発生しているか確認
+                            If CVErr(Cells(j, col).Value) = CVErr(xlErrNum) Then
+                                MsgBox "#NUM! エラーが発生しています 列 = " & j
+                            Else
+                                MsgBox "他のエラーが発生しています 列 = " & j
+                            End If
+                        Else
+                            'MsgBox "エラーは発生していません"
+                            If wb_MATOME.Worksheets("まとめ ").Cells(j, col).Value = 0 Or IsEmpty(wb_MATOME.Worksheets("まとめ ").Cells(j, col).Value) Then
+                                MsgBox "0 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                        End If
+                    Next col
+                    
+                Next
+                Exit For
+            End If
+            
+        Next
+        
+        
+        
+        
+
+        
+
+
+
+
+        MsgBox "まとめシートの(c)のチェック。" & vbCrLf & "", vbInformation, "BL" & BL
+        If BL = 2 Then
+            tmp = "(c-1)BL2"
+        Else
+            tmp = "(c-2)BL3"
+        End If
+        For i = getLineNum(tmp, 2, wb_MATOME.Worksheets("まとめ ")) To wb_MATOME.Worksheets("まとめ ").Cells(Rows.Count, "B").End(xlUp).Row
+            'Debug.Print "i = " & i & "  " & Cells(i, 2).Value
+            
+            If wb_MATOME.Worksheets("まとめ ").Cells(i, 2).Value = Unit Then
+                Debug.Print "ここ　i = " & i & "  " & Cells(i, 2).Value
+                For j = i To i + wb_MATOME.Worksheets("まとめ ").Cells(i, 2).MergeArea.Rows.Count - 1
+                    Debug.Print tmp & "     j = " & j
                     
                     For col = 3 To 7
-                        If wb_MATOME.Worksheets("まとめ ").Cells(j, col).Value = 0 Or IsEmpty(wb_MATOME.Worksheets("まとめ ").Cells(j, col).Value) Then
-                            wb_MATOME.Worksheets("まとめ ").Cells(j, col).Select
-                            MsgBox "0 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                        wb_MATOME.Worksheets("まとめ ").Cells(j, col).Select
+                        If IsError(Cells(j, col).Value) Then ' セルでエラーが発生しているか確認
+                            If CVErr(Cells(j, col).Value) = CVErr(xlErrNum) Then
+                                MsgBox "#NUM! エラーが発生しています 列 = " & j
+                            Else
+                                MsgBox "他のエラーが発生しています 列 = " & j
+                            End If
+                        Else
+                            'MsgBox "エラーは発生していません"
+                            If wb_MATOME.Worksheets("まとめ ").Cells(j, col).Value = 0 Or IsEmpty(wb_MATOME.Worksheets("まとめ ").Cells(j, col).Value) Then
+                                wb_MATOME.Worksheets("まとめ ").Cells(j, col).Select
+                                MsgBox "0 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
                         End If
+                                            
                     Next
                     
                 Next
@@ -131,11 +190,12 @@ Sub Final_Check()
             
         Next
         
+        
+        
+        
     Call Fin("終了しました。" & vbCrLf & "", 1)
     Exit Sub ' 通常の処理が完了したらエラーハンドラをスキップ
 ErrorHandler:
     MsgBox "エラーです。内容は　 " & Err.Description, Buttons:=vbCritical
     
 End Sub
-
-
