@@ -1,0 +1,96 @@
+Sub Initial_Check()
+
+    On Error GoTo ErrorHandler
+               
+    Dim BL As Integer
+    Dim BNAME_SHUKEI As String
+    Dim DOWNTIME_ROW As Integer
+    Dim Unit As String
+    Dim tmp As String
+
+'
+'    Dim s
+'    s = Application.InputBox("BLを入力して下さい。", "確認")
+'    If s = False Then
+'        Exit Sub
+'    ElseIf s = "" Then
+'        MsgBox "何も入力されていません"
+'        Exit Sub
+'    Else
+'        BL = s
+'    End If
+'
+'    Select Case BL
+'        Case 1
+'            Debug.Print "SCSS+"
+'            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SCSS\SCSS運転状況集計BL1.xlsm"
+'        Case 2
+'            Debug.Print "BL2"
+'            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2.xlsm"
+'            DOWNTIME_ROW = 8
+'        Case 3
+'            Debug.Print ">>>BL3"
+'            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL3.xlsm"
+'            DOWNTIME_ROW = 9
+'        Case Else
+'            Debug.Print "Zzz..."
+'            End
+'    End Select
+    
+    BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2TEST.xlsm"
+    MsgBox "マクロ「Initial_Check()」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_SHUKEI & vbCrLf & "のチェックです。" & vbCrLf & "数式が入っているべきセルに数式が入っているか確認します", vbInformation, "BL" & BL
+
+
+    ' wb_SHUKEIを開く
+    Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    Set wb_SHUKEI = OpenBook(BNAME_SHUKEI, True) ' フルパスを指定
+    If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
+    wb_SHUKEI.Activate
+    If ActiveWorkbook.Name <> wb_SHUKEI.Name Then
+        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, 3)
+    End If
+
+    wb_SHUKEI.Windows(1).WindowState = xlMaximized
+    wb_SHUKEI.Worksheets("運転予定時間").Activate
+
+'    Unit = wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2")
+'    If MsgBox("チェックするユニット(シート「利用時間（期間）」のセルB2)は    " & vbCrLf & "「 " & Unit & " 」" & vbCrLf & "です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進むにはYESを押して下さい", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then
+'        Call Fin("「No」が選択されました。終了します。", 1)
+'    End If
+
+
+        Dim Cnt As Integer
+        Dim StartL As Integer
+        Dim Check_col_arr As Variant
+        Cnt = 0
+        Check_col_arr = Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13) ' チェックする列の値を配列にセット
+'        StartL = wb_SHUKEI.Worksheets("運転予定時間").Cells.SpecialCells(xlCellTypeBlanks).Row
+        StartL = wb_SHUKEI.Worksheets("運転予定時間").Cells(Rows.Count, "B").End(xlUp).Row ' 数式が入っていないB列を指定する。数式が入っているA列を指定すると数式が入っていない最終行になってしまう
+        
+'        MsgBox "StartL" & vbCrLf & StartL, vbInformation, "BL" & BL
+
+        For i = StartL + 1 To StartL + 10
+            For Each col In Check_col_arr
+                wb_SHUKEI.Worksheets("運転予定時間").Cells(i, col).Select
+                If Cells(i, col).HasFormula Then    'If Cells(i, 1).HasFormula And IsEmpty(Cells(i, 1).Value) Then
+                    'Debug.Print "OK:    セル(" & i & ", " & col & ") 数式有"
+                Else
+                    Debug.Print "要確認！　セル(" & i & ", " & col & ") 数式なし"
+                    'MsgBox "要確認！　セル(" & i & ", " & col & ") 数式なし", vbExclamation, "BL" & BL
+                    Cnt = Cnt + 1
+                End If
+            Next col
+        Next
+        If Cnt <> 0 Then
+            MsgBox "数式が入っていないセルが見つかりました！！要確認です", vbExclamation, "BL" & BL
+        End If
+        
+        
+        
+        
+    Call Fin("終了しました。" & vbCrLf & "", 1)
+    Exit Sub ' 通常の処理が完了したらエラーハンドラをスキップ
+ErrorHandler:
+    MsgBox "エラーです。内容は　 " & Err.Description, Buttons:=vbCritical
+    
+End Sub
