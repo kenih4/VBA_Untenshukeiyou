@@ -4,12 +4,13 @@ Option Explicit ' 未定義の変数は使用できないように
 Public Const BNAME_SOURCE As String = "C:\me\unten\マクロいろいろ.xlsm"
 Public Const workDir As String = "C:\me\unten\OperationSummary"
 Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+'Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
 
 
 
 'ブックを開く ==============================================================================================================================
 'リモートサーバー上のファイルを開く際、開くのに時間がかかっているためにタイミングの問題でエラーが発生している可能性があります。この場合、待機時間を設けて再試行することで、エラーを回避できることがあります。以下の方法で、指定された時間待機しながらエラーを再試行するコードを実装できます。
-Function OpenBook(ByVal WorkBookName As String) As Workbook
+Function OpenBook(ByVal WorkBookName As String, ByVal RO As Boolean) As Workbook
     Debug.Print "Debug---   Start  Function OpenBook(" & WorkBookName & ")"
     Dim OWB As Workbook
     Dim wb As Workbook
@@ -30,7 +31,7 @@ Function OpenBook(ByVal WorkBookName As String) As Workbook
     On Error Resume Next
     If OWB Is Nothing Then
         Do While retryCount > 0
-            Set OWB = Workbooks.Open(WorkBookName, ReadOnly:=False)
+            Set OWB = Workbooks.Open(WorkBookName, ReadOnly:=RO)
             If Err.Number = 0 Then Exit Do  ' 正常に開けたらループを抜ける
             Debug.Print "Debug--- エラーが発生しました。再試行します。残り再試行回数: " & retryCount - 1
             Err.Clear
@@ -228,11 +229,12 @@ Sub GetWorkbookFolderToCell()
     Dim folderPath As String
     folderPath = ThisWorkbook.Path
     
-    ' 保存されている場合、A1セルに表示
     If folderPath <> "" Then
-        ThisWorkbook.Sheets(1).Range("A1").Value = folderPath
+        ThisWorkbook.Sheets("手順").Range("A1").Value = folderPath
+        MsgBox "OK: " & vbCrLf & "ワーキングフォルダ = " & folderPath & vbCrLf & "「C:\me\unten」なら問題ないです。", Buttons:=vbInformation
     Else
         ThisWorkbook.Sheets(1).Range("A1").Value = "保存されていません"
+        MsgBox "異常: " & vbCrLf & "ワーキングフォルダ が取得できませんでした", Buttons:=vbCritical
     End If
 End Sub
 
