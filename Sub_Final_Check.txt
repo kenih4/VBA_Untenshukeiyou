@@ -1,17 +1,23 @@
+Option Explicit
+Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
+
 Sub Final_Check()
    '
     On Error GoTo ErrorHandler
                
+    Dim tc As Variant
+    Dim i, j As Integer
+    Dim col As Variant
     Dim BL As Integer
     Dim BNAME_SHUKEI As String
     Dim DOWNTIME_ROW As Integer
     Dim Unit As String
     Dim tmp As String
-
+    Dim Check_col_arr As Variant
     MsgBox "マクロ「Final_Check()」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_MATOME & vbCrLf & "のチェックです。" & vbCrLf & "チェックするユニットを確認する為に一旦、SACLA運転状況集計BL*.xlsmを開きます", vbInformation, "BL" & BL
     
     Dim s
-    s = Application.InputBox("BLを入力して下さい。", "確認")
+    s = Application.InputBox("BLを入力して下さい。", "確認", Type:=1) '  Type:=1 数値のみ
     If s = False Then
         Exit Sub
     ElseIf s = "" Then
@@ -39,7 +45,7 @@ Sub Final_Check()
     End Select
 
 
-    ' wb_SHUKEIを開く
+    ' wb_SHUKEIを開く  [ユニット]を確認するため
 '    Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
 '    Set wb_SHUKEI = OpenBook(BNAME_SHUKEI, True) ' フルパスを指定
 '    If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
@@ -65,8 +71,85 @@ Sub Final_Check()
         Set wb_MATOME = OpenBook(BNAME_MATOME, True) ' フルパスを指定
         If wb_MATOME Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
 
-        wb_MATOME.Worksheets("まとめ ").Activate 'これ大事
-    
+
+
+
+
+        wb_MATOME.Worksheets("Fault集計").Activate 'これ大事
+        MsgBox "Fault集計シートをチェックします。" & vbCrLf & "", vbInformation, "BL" & BL
+        If BL = 2 Then
+            tmp = "SACLA Fault間隔(BL2)"
+        Else
+            tmp = "SACLA Fault間隔(BL3)"
+        End If
+        For i = getLineNum(tmp, 2, wb_MATOME.Worksheets("Fault集計")) To wb_MATOME.Worksheets("Fault集計").Cells(Rows.Count, "B").End(xlUp).Row
+            Debug.Print "i = " & i & "  " & Cells(i, 2).Value
+           If wb_MATOME.Worksheets("Fault集計").Cells(i, 2).Value = Unit Then
+                Debug.Print "この行　i = " & i & " が、ユニット " & Cells(i, 2).Value
+                For j = i To i + wb_MATOME.Worksheets("Fault集計").Cells(i, 2).MergeArea.Rows.Count - 1
+                    
+                    Check_col_arr = Array(3, 4, 7, 8) ' チェックする列の値を配列にセット  シフト開始、終了、Faul間隔、Faul回数
+                    For Each col In Check_col_arr
+                        Set tc = wb_MATOME.Worksheets("Fault集計").Cells(j, col)
+                        tc.Select
+                        Sleep 100 ' msec
+                        Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value
+                        If tc.MergeArea.Columns.Count > 1 Then
+                            Debug.Print "水平方向に結合されています。" & i & "   " & j & "   " & col & "     tc.Value = " & tc.Value & "  " & tc.MergeArea.Columns.Count
+                        Else
+                            If IsError(tc.Value) Then ' セルでエラーが発生しているか確認
+                                If CVErr(tc.Value) = CVErr(xlErrNum) Then
+                                    MsgBox "#NUM! エラーが発生しています 列 = " & j
+                                Else
+                                    MsgBox "他のエラーが発生しています 列 = " & j
+                                End If
+                            Else
+                                If col = 3 Or col = 4 Then '日付
+                                    If IsDate(tc.Value) Then
+                                        If Format(tc.Value, "yyyy/mm/dd hh:mm") <> tc.Text Then
+                                            MsgBox "フォーマットが正しくありません。" & vbCrLf & "正しい形式: 2025/01/28 22:00", vbExclamation, "フォーマットエラー"
+                                        End If
+                                    Else
+                                        MsgBox "有効な日付が入力されていません。", vbCritical, "入力エラー"
+                                    End If
+                                End If
+                                
+                                If col = 7 Then  '
+                                    If Not IsNumeric(tc.Value) Or tc.Value < 0 Then
+                                        MsgBox "有効な時間が入力されていません。", vbCritical, "エラー"
+                                    Else
+                                        If IsDate(CDate(tc.Value)) Then
+                                            Dim fmt As String
+                                            fmt = tc.NumberFormat
+                                            Debug.Print "フォーマットは　" & i & "   " & j & "   " & col & "     tc.Value = " & tc.Value & "  fmt = " & fmt
+                                            If fmt = "h:mm" Or fmt = "hh:mm" Or fmt = "h:mm;@" Or fmt = "hh:mm;@" Then
+                                                Debug.Print "時刻データで正しいフォーマットです。" & i & "   " & j & "   " & col & "     tc.Value = " & tc.Value
+                                            Else
+                                                MsgBox "時刻データですが、フォーマットが異なります。", vbExclamation
+                                            End If
+                                        End If
+                                    End If
+                                End If
+                                
+                                If col = 8 And (tc.Value < 0 Or Not IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then '
+                                    MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                                End If
+                                
+                            End If
+                        End If
+
+                    Next col
+                Next
+                Exit For
+            End If
+        Next
+        
+
+
+
+
+
+        wb_MATOME.Worksheets("まとめ ").Activate 'これ大事======================================================================================
         
         MsgBox "まとめシートの(a)のチェックします。" & vbCrLf & "", vbInformation, "BL" & BL
         For i = getLineNum("(a)運転時間　期間毎", 2, wb_MATOME.Worksheets("まとめ ")) To getLineNum("(b)運転時間　シフト毎", 2, wb_MATOME.Worksheets("まとめ "))
@@ -75,22 +158,52 @@ Sub Final_Check()
             If wb_MATOME.Worksheets("まとめ ").Cells(i, 2).Value = Unit Then
                 'MsgBox "ここ、 i = " & vbCrLf & i, Buttons:=vbInformation
                 
+                Check_col_arr = Array(3, 4, 5, 6) ' チェックする列の値を配列にセット
+                For Each col In Check_col_arr
+                    Set tc = wb_MATOME.Worksheets("まとめ ").Cells(i, col)
+                    tc.Select
+                        Sleep 100 ' msec
+                        If IsError(tc.Value) Then ' セルでエラーが発生しているか確認
+                            If CVErr(tc.Value) = CVErr(xlErrNum) Then
+                                MsgBox "#NUM! エラーが発生しています 列 = "
+                            Else
+                                MsgBox "他のエラーが発生しています 列 = "
+                            End If
+                        Else
+                            'MsgBox "エラーは発生していません"
+                            If col = 3 And (IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then ' 日付
+                                MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                            
+                            If col = 4 And (tc.Value < 0 Or Not IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then '総運転時間(計画）
+                                MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                            
+                            If col = 5 And (tc.Value < 0 Or Not IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then '計画
+                                MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                            
+                            If col = 6 And (tc.Value < 0 Or Not IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then 'ダウンタイム
+                                MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                        End If
+                Next col
+                
                 If BL = 2 Then
                     DOWNTIME_ROW = i
                 Else 'BL3
                     DOWNTIME_ROW = i + 1
                 End If
-                
-                    If wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 9).Value = 0 Then
+                    If wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 9).Value <= 0 Then
                         wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 9).Select
                         MsgBox "利用調整運転(BL調整orBL-study)はなかったんですね。　" & vbCrLf & "", vbExclamation, "BL" & BL
                     End If
                     
-                    If wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 11).Value = 0 Then
+                    If wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 11).Value <= 0 Then
                         wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 11).Select
                         MsgBox "利用運転(ユーザー)はなかったんですね。　" & vbCrLf & "" & vbCrLf & "「ユーザー運転無し」と手動で処理しないといけない部分があります。", vbExclamation, "BL" & BL
                     Else
-                        If wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 12).Value = 0 Then
+                        If wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 12).Value <= 0 Then
                             wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 12).Select
                             MsgBox "ダウンタイムは　" & wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 12).Value & " です。一回もトリップしてないって事？確認した方がよいです。" & vbCrLf & "シート「集計記録」に数式が入っていない可能性があります", vbExclamation, "BL" & BL
                         End If
@@ -110,30 +223,37 @@ Sub Final_Check()
         Else
             tmp = "(b-2)BL3"
         End If
-        Dim Check_col_arr As Variant
-        Check_col_arr = Array(5, 6, 8) ' チェックする列の値を配列にセット
+        
+        Check_col_arr = Array(5, 6, 8) ' チェックする列の値を配列にセット  シフト時間、利用率、ダウンタイム
         
         For i = getLineNum(tmp, 2, wb_MATOME.Worksheets("まとめ ")) To wb_MATOME.Worksheets("まとめ ").Cells(Rows.Count, "B").End(xlUp).Row
-            'Debug.Print "i = " & i & "  " & Cells(i, 2).Value
+            Debug.Print "i = " & i & "  " & Cells(i, 2).Value
             
             If wb_MATOME.Worksheets("まとめ ").Cells(i, 2).Value = Unit Then
-                Debug.Print "ここ　i = " & i & "  " & Cells(i, 2).Value
-                'MsgBox "まとめシートの(c)のチェック　ここ、 i = " & vbCrLf & i, Buttons:=vbInformation
+                Debug.Print "この行　i = " & i & " が、ユニット " & Cells(i, 2).Value
                 For j = i To i + wb_MATOME.Worksheets("まとめ ").Cells(i, 2).MergeArea.Rows.Count - 1
                     Debug.Print tmp & "     j = " & j
-                    For Each col In Check_col_arr   '   For col = 5 To 6 '　列 [シフト時間]、[利用率]
-                        wb_MATOME.Worksheets("まとめ ").Cells(j, col).Select
-                        If IsError(Cells(j, col).Value) Then ' セルでエラーが発生しているか確認
-                            If CVErr(Cells(j, col).Value) = CVErr(xlErrNum) Then
+                    For Each col In Check_col_arr
+                        Set tc = wb_MATOME.Worksheets("まとめ ").Cells(j, col)
+                        tc.Select
+                        Sleep 10 ' msec
+                        If IsError(tc.Value) Then ' セルでエラーが発生しているか確認
+                            MsgBox "DEBUG 列 = " & j
+                            If CVErr(tc.Value) = CVErr(xlErrNum) Then
                                 MsgBox "#NUM! エラーが発生しています 列 = " & j
                             Else
                                 MsgBox "他のエラーが発生しています 列 = " & j
                             End If
                         Else
                             'MsgBox "エラーは発生していません"
-                            If wb_MATOME.Worksheets("まとめ ").Cells(j, col).Value = 0 Or IsEmpty(wb_MATOME.Worksheets("まとめ ").Cells(j, col).Value) Then
-                                MsgBox "0 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            If (col = 5 Or col = 8) And (tc.Value <= 0 Or Not IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then ' シフト時間、　ダウンタイム
+                                MsgBox "0以下 or 文字列 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
                             End If
+                           
+                            If col = 6 And (tc.Value <= 0 Or tc.Value > 1 Or Not IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then '利用率
+                                MsgBox "範囲外 or 文字列 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                            
                         End If
                     Next col
                     
@@ -162,24 +282,42 @@ Sub Final_Check()
             'Debug.Print "i = " & i & "  " & Cells(i, 2).Value
             
             If wb_MATOME.Worksheets("まとめ ").Cells(i, 2).Value = Unit Then
-                Debug.Print "ここ　i = " & i & "  " & Cells(i, 2).Value
+                Debug.Print "この行　i = " & i & " が、ユニット " & Cells(i, 2).Value
                 For j = i To i + wb_MATOME.Worksheets("まとめ ").Cells(i, 2).MergeArea.Rows.Count - 1
                     Debug.Print tmp & "     j = " & j
                     
                     For col = 3 To 7
-                        wb_MATOME.Worksheets("まとめ ").Cells(j, col).Select
-                        If IsError(Cells(j, col).Value) Then ' セルでエラーが発生しているか確認
-                            If CVErr(Cells(j, col).Value) = CVErr(xlErrNum) Then
+                        Set tc = wb_MATOME.Worksheets("まとめ ").Cells(j, col)
+                        tc.Select
+                        Sleep 100 ' msec
+                        If IsError(tc.Value) Then ' セルでエラーが発生しているか確認
+                            If CVErr(tc.Value) = CVErr(xlErrNum) Then
                                 MsgBox "#NUM! エラーが発生しています 列 = " & j
                             Else
                                 MsgBox "他のエラーが発生しています 列 = " & j
                             End If
                         Else
                             'MsgBox "エラーは発生していません"
-                            If wb_MATOME.Worksheets("まとめ ").Cells(j, col).Value = 0 Or IsEmpty(wb_MATOME.Worksheets("まとめ ").Cells(j, col).Value) Then
-                                wb_MATOME.Worksheets("まとめ ").Cells(j, col).Select
-                                MsgBox "0 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            If col = 3 And (tc.Value <= 0 Or tc.Value > 8.2 Or Not IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then 'エネルギー
+                                MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
                             End If
+                            
+                            If col = 4 And (tc.Value <= 0 Or tc.Value > 60 Or Not IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then '繰返し
+                                MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                            
+                            If col = 5 And (tc.Value <= 0 Or tc.Value > 25 Or Not IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then '波長
+                                MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                            
+                            If col = 6 And (tc.Value <= 0 Or tc.Value > 2000 Or Not IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then '強度
+                                MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                            
+                            If col = 7 And (IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then 'ユーザー名
+                                MsgBox "数字 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                            
                         End If
                                             
                     Next
@@ -193,9 +331,31 @@ Sub Final_Check()
         
         
         
+        
+        
+        
+        
+        
     Call Fin("終了しました。" & vbCrLf & "", 1)
     Exit Sub ' 通常の処理が完了したらエラーハンドラをスキップ
 ErrorHandler:
     MsgBox "エラーです。内容は　 " & Err.Description, Buttons:=vbCritical
     
+End Sub
+
+
+
+
+
+
+
+Sub ToggleButton()
+    ' ボタンの外観を変更する
+    If ActiveSheet.Shapes("Button 18").Fill.ForeColor.RGB = RGB(255, 255, 255) Then
+        ActiveSheet.Shapes("Button 18").Fill.ForeColor.RGB = RGB(0, 0, 0)  ' 黒に変更
+        ActiveSheet.Shapes("Button 18").TextFrame.Characters.Text = "押し込み中"
+    Else
+        ActiveSheet.Shapes("Button 18").Fill.ForeColor.RGB = RGB(255, 255, 255)  ' 白に戻す
+        ActiveSheet.Shapes("Button 18").TextFrame.Characters.Text = "押してください"
+    End If
 End Sub
