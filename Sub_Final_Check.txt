@@ -15,6 +15,7 @@ Sub Final_Check()
     Dim tmp As String
     Dim Check_col_arr As Variant
     Dim result As Boolean
+    Dim pattern As String
     
     MsgBox "マクロ「Final_Check()」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_MATOME & vbCrLf & "のチェックです。" & vbCrLf & "チェックするユニットを確認する為に一旦、SACLA運転状況集計BL*.xlsmを開きます", vbInformation, "BL" & BL
     
@@ -94,7 +95,7 @@ Sub Final_Check()
                     For Each col In Check_col_arr
                         Set tc = wb_MATOME.Worksheets("Fault集計").Cells(j, col)
                         tc.Select
-                        Sleep 100 ' msec
+                        Sleep 1 ' msec
                         
                         If tc.MergeArea.Columns.Count > 1 Then
                             Debug.Print "水平方向に結合されています。" & i & "   " & j & "   " & col & "     tc.Value = " & tc.Value & "  " & tc.MergeArea.Columns.Count
@@ -131,36 +132,45 @@ Sub Final_Check()
         MsgBox "まとめシートの(a)のチェックします。" & vbCrLf & "", vbInformation, "BL" & BL
         For i = getLineNum("(a)運転時間　期間毎", 2, wb_MATOME.Worksheets("まとめ ")) To getLineNum("(b)運転時間　シフト毎", 2, wb_MATOME.Worksheets("まとめ "))
             Debug.Print "i = " & i & "  " & Cells(i, 2).Value
-            
+                
             If wb_MATOME.Worksheets("まとめ ").Cells(i, 2).Value = Unit Then
-                
-                Check_col_arr = Array(3, 5, 6, 7) ' チェックする列の値を配列にセット
-                For Each col In Check_col_arr
-                    Set tc = wb_MATOME.Worksheets("まとめ ").Cells(i, col)
-                    tc.Select
-                        Sleep 100 ' msec
-                        If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call Fin("空欄、または、エラーが発生してるセルにがあるので、マクロを終了します。" & vbCrLf & "", 3)
-                        Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗する
-                        
-                        If col = 3 And (IsNumeric(tc.Value) Or IsEmpty(tc.Value)) Then ' 日付
-                           MsgBox "数値 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
-                        End If
-                            
-                        If col = 5 Or col = 6 Or col = 7 Then '総運転時間(計画）,計画, ダウンタイム
-                           result = CheckTimeFormat(tc)
-                        End If
-                Next col
-                
                 If BL = 2 Then
                     DOWNTIME_ROW = i
                 Else 'BL3
                     DOWNTIME_ROW = i + 1
                 End If
+                
+                Check_col_arr = Array(3, 5, 6, 7, 9, 10, 11, 12) ' チェックする列の値を配列にセット
+                For Each col In Check_col_arr
+                    If col >= 9 Then
+                        Set tc = wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, col)
+                    Else
+                        Set tc = wb_MATOME.Worksheets("まとめ ").Cells(i, col)
+                    End If
+                    tc.Select
+                        Sleep 100 ' msec
+                        If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call Fin("空欄、または、エラーが発生してるセルにがあるので、マクロを終了します。" & vbCrLf & "", 3)
+                        Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗する
+                        
+                        If col = 3 Then ' 日付
+                            pattern = "^\d{4}/\d{2}/\d{2} \d{2}:\d{2} - \d{4}/\d{2}/\d{2} \d{2}:\d{2}$" '       別の書式（例: YYYY-MM-DD HH:MM - YYYY-MM-DD HH:MM） pattern = "^\d{4}-\d{2}-\d{2} \d{2}:\d{2} - \d{4}-\d{2}-\d{2} \d{2}:\d{2}$"
+                            If Not IsValidFormat(tc, pattern) Then
+                                MsgBox "セル " & tc.Address(False, False) & " の値が正しい形式ではありません。" & vbCrLf & "正しい形式: YYYY/MM/DD HH:MM - YYYY/MM/DD HH:MM", vbExclamation, "書式エラー"
+                            End If
+                        End If
+                                                
+                        If col = 5 Or col = 6 Or col = 7 Or col = 9 Or col = 10 Or col = 11 Or col = 12 Then '総運転時間(計画）(計画, ダウンタイム), 利用調整運転(計画, ダウンタイム) , 利用運転(計画, ダウンタイム)
+                           result = CheckTimeFormat(tc)
+                        End If
+                        
+                Next col
+                
+
                     If wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 9).Value <= 0 Then
                         wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 9).Select
                         MsgBox "利用調整運転(BL調整orBL-study)はなかったんですね。　" & vbCrLf & "", vbExclamation, "BL" & BL
                     End If
-                    
+
                     If wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 11).Value <= 0 Then
                         wb_MATOME.Worksheets("まとめ ").Cells(DOWNTIME_ROW, 11).Select
                         MsgBox "利用運転(ユーザー)はなかったんですね。　" & vbCrLf & "" & vbCrLf & "「ユーザー運転無し」と手動で処理しないといけない部分があります。", vbExclamation, "BL" & BL
@@ -174,6 +184,8 @@ Sub Final_Check()
             End If
         Next
 
+
+End
 
 
 
@@ -217,6 +229,14 @@ Sub Final_Check()
                                 If col = 6 And (tc.Value <= 0 Or tc.Value > 1 Or Not IsNumeric(tc.Value)) Then  '利用率%
                                     MsgBox "範囲外 or 文字列 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
                                 End If
+                                
+'                                If col = 9 Then
+'                                    If wb_MATOME.Worksheets("まとめ ").Cells(j, 3).Value = "total" Then
+'
+'                                    Else
+'
+'                                    End If
+'                                End If
                                 
                             End If
                     Next col
@@ -336,12 +356,12 @@ Function CheckDateTimeFormat(target As Variant) As Boolean
     CheckDateTimeFormat = False
     If IsDate(target.Value) Then
         If Format(target.Value, "yyyy/mm/dd hh:mm") <> target.Text Then
-            MsgBox "フォーマットが正しくありません。" & vbCrLf & "正しい形式: 2025/01/28 22:00", vbExclamation, "フォーマットエラー"
+            MsgBox "フォーマットが正しくありません。@CheckDateTimeFormat" & vbCrLf & "正しい形式: 2025/01/28 22:00", vbExclamation, "フォーマットエラー"
         Else
             CheckDateTimeFormat = True
         End If
     Else
-        MsgBox "有効な日付が入力されていません。", vbCritical, "入力エラー"
+        MsgBox "有効な日付が入力されていません。@CheckDateTimeFormat", vbCritical, "入力エラー"
     End If
 End Function
 
@@ -373,7 +393,40 @@ End Function
 
 
 
-Sub ToggleButton()
+
+
+
+
+
+
+
+'--------------------------------------------------------------------------------------------------------------------------------------------
+' セルの値が指定したパターンに一致するかチェックする関数
+Function IsValidFormat(cell As Variant, pattern As String) As Boolean
+    Dim regex As Object
+    Set regex = CreateObject("VBScript.RegExp")
+    
+    regex.pattern = pattern
+    regex.IgnoreCase = True
+    regex.Global = False
+    
+    ' 正規表現がマッチするかを判定
+    IsValidFormat = regex.Test(cell.Value)
+    
+    ' オブジェクト解放
+    Set regex = Nothing
+End Function
+
+
+
+
+
+
+
+
+
+
+Sub ToggleButton() '---------------------------------------------------------------------------------
     ' ボタンの外観を変更する
     If ActiveSheet.Shapes("Button 18").Fill.ForeColor.RGB = RGB(255, 255, 255) Then
         ActiveSheet.Shapes("Button 18").Fill.ForeColor.RGB = RGB(0, 0, 0)  ' 黒に変更
