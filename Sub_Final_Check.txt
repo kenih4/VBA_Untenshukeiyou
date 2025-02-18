@@ -91,30 +91,50 @@ Sub Final_Check()
                 Debug.Print "この行　i = " & i & " が、ユニット " & Cells(i, 2).Value
                 For j = i To i + wb_MATOME.Worksheets("Fault集計").Cells(i, 2).MergeArea.Rows.Count - 1
                     
-                    Check_col_arr = Array(3, 4, 7, 8) ' チェックする列の値を配列にセット  シフト開始、終了、Faul間隔、Faul回数
+                    Check_col_arr = Array(3, 4, 5, 6, 7, 8, 9)  'Check_col_arr = Array(3, 4, 7, 8) ' チェックする列の値を配列にセット  シフト開始、終了、Faul間隔、Faul回数
                     For Each col In Check_col_arr
                         Set tc = wb_MATOME.Worksheets("Fault集計").Cells(j, col)
                         tc.Select
                         Sleep 1 ' msec
-                        
-                        If tc.MergeArea.Columns.Count > 1 Then
-                            Debug.Print "水平方向に結合されています。" & i & "   " & j & "   " & col & "     tc.Value = " & tc.Value & "  " & tc.MergeArea.Columns.Count
+                        If tc.MergeArea.Columns.Count > 1 Or tc.MergeArea.Rows(1).Row <> j Then
+                            Debug.Print "水平方向に結合されてる、または、垂直方向に結合されていて先頭です。" & i & "   " & j & "   " & col
                         Else
-                        
+
+'                            If tc.MergeArea.Rows.Count > 1 Then
+'                                'Debug.Print "垂直方向に結合されています。" & i & "   " & j & "   " & col & "     tc.Value = " & tc.Value & "  " & tc.MergeArea.Rows.Count
+'                                If tc.MergeArea.Rows(1).Row = j Then
+'                                    Debug.Print "先頭です。 垂直方向に結合されています。" & i & "   " & j & "   " & col & "     tc.Value = " & tc.Value & "  " & tc.MergeArea.Rows.Count
+'                                Else
+'                                    Debug.Print "垂直方向に結合されていますが、先頭じゃないです。" & i & "   " & j & "   " & col & "     tc.Value = " & tc.Value & "  " & tc.MergeArea.Rows.Count
+'                                End If
+'                            End If
+                                
                             If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call Fin("空欄、または、エラーが発生してるセルにがあるので、マクロを終了します。" & vbCrLf & "", 3)
-                            Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗する
+                            Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗するので、その前でIsCellErrorでチェックする
                                 
-                                If col = 3 Or col = 4 Then
-                                    result = CheckDateTimeFormat(tc)
-                                End If
-                                
-                                If col = 7 Then  '
-                                    result = CheckTimeFormat(tc)
-                                End If
-                                
-                                If col = 8 And (tc.Value < 0 Or Not IsNumeric(tc.Value)) Then '
-                                    MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
-                                End If
+                            If col = 3 Or col = 4 Then ' シフト時間
+                                result = CheckDateTimeFormat(tc)
+                            End If
+                            
+                            If col = 5 And (tc.Value <= 0 Or tc.Value > 8.2 Or Not IsNumeric(tc.Value)) Then  'エネルギー
+                                MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                                                        
+                            If col = 6 And (tc.Value <= 0 Or tc.Value > 25 Or Not IsNumeric(tc.Value)) Then  '波長
+                                MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                            
+                            If col = 7 Then  'Fault間隔時間
+                                result = CheckTimeFormat(tc)
+                            End If
+                                                        
+                            If col = 8 And (tc.Value <= 0 Or Not IsNumeric(tc.Value)) Then  'Fault回数
+                                MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
+                            
+                            If col = 9 And InStr(tc.Value, "G") = 0 Then  'ユーザーグループ
+                                MsgBox "ユーザー名が入る筈なのにGがありませんよ" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
+                            End If
                                 
                          End If
                     Next col
@@ -124,7 +144,7 @@ Sub Final_Check()
         Next
         
 
-'End
+End
 
 
         wb_MATOME.Worksheets("まとめ ").Activate 'これ大事======================================================================================
@@ -150,7 +170,7 @@ Sub Final_Check()
                     tc.Select
                         Sleep 100 ' msec
                         If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call Fin("空欄、または、エラーが発生してるセルにがあるので、マクロを終了します。" & vbCrLf & "", 3)
-                        Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗する
+                        Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗するので、その前でIsCellErrorでチェックする
                         
                         If col = 3 Then ' 日付
                             pattern = "^\d{4}/\d{2}/\d{2} \d{2}:\d{2} - \d{4}/\d{2}/\d{2} \d{2}:\d{2}$" '       別の書式（例: YYYY-MM-DD HH:MM - YYYY-MM-DD HH:MM） pattern = "^\d{4}-\d{2}-\d{2} \d{2}:\d{2} - \d{4}-\d{2}-\d{2} \d{2}:\d{2}$"
@@ -216,7 +236,7 @@ End
                         Else
 
                             If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call Fin("空欄、または、エラーが発生してるセルにがあるので、マクロを終了します。" & vbCrLf & "", 3)
-                            Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗する
+                            Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗するので、その前でIsCellErrorでチェックする
 
                                 If col = 3 Or col = 4 Then
                                     result = CheckDateTimeFormat(tc)
@@ -275,7 +295,7 @@ End
                         tc.Select
                         Sleep 100 ' msec
                         If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call Fin("空欄、または、エラーが発生してるセルにがあるので、マクロを終了します。" & vbCrLf & "", 3)
-                        Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗する
+                        Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗するので、その前でIsCellErrorでチェックする
                         
                             If col = 3 And (tc.Value <= 0 Or tc.Value > 8.2 Or Not IsNumeric(tc.Value)) Then  'エネルギー
                                 MsgBox "範囲外 or 空です。確認した方がいいです。" & "  " & vbCrLf & " ", vbExclamation, "BL" & BL
@@ -353,12 +373,17 @@ End Function
 
 
 Function CheckDateTimeFormat(target As Variant) As Boolean
+    Dim compareDate As Date
     CheckDateTimeFormat = False
     If IsDate(target.Value) Then
         If Format(target.Value, "yyyy/mm/dd hh:mm") <> target.Text Then
             MsgBox "フォーマットが正しくありません。@CheckDateTimeFormat" & vbCrLf & "正しい形式: 2025/01/28 22:00", vbExclamation, "フォーマットエラー"
         Else
             CheckDateTimeFormat = True
+            compareDate = DateSerial(2025, 1, 1) + TimeSerial(12, 30, 0)
+            If target.Value < compareDate Then
+                MsgBox target.Value & " が、 " & compareDate & " より前です。確認した方がいいです。", vbExclamation
+            End If
         End If
     Else
         MsgBox "有効な日付が入力されていません。@CheckDateTimeFormat", vbCritical, "入力エラー"
