@@ -3,8 +3,8 @@ Option Explicit ' 未定義の変数は使用できないように
 
 Public Const BNAME_SOURCE As String = "C:\me\unten\マクロいろいろ.xlsm"
 Public Const workDir As String = "C:\me\unten\OperationSummary"
-Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-'Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
+'Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
 
 
 
@@ -139,6 +139,46 @@ End Sub
 
 
 
+'----------------------------------------------------------------------------------------------------------------------
+'シート内のエラーセルを検出し、メッセージを表示する
+Function CheckForErrors(ByVal sheet As Worksheet) As Boolean
+  Dim cell As Range
+  Dim errorRange As Range
+  CheckForErrors = False
+  
+  If sheet Is Nothing Then
+    MsgBox "' のシート '" & sheet & "' は存在しません。", vbOKOnly + vbCritical
+    Exit Function
+  End If
+
+  For Each cell In sheet.UsedRange
+    'Debug.Print "Debug  Value =  " & cell.Value & "  Row = " & cell.Row & " Columuns = " & cell.Column
+    If IsError(cell.Value) Then
+      ' 最初のエラーセルであれば、errorRangeに設定
+      If errorRange Is Nothing Then
+        Set errorRange = cell
+      Else
+        ' 2つ目以降のエラーセルであれば、errorRangeに追加
+        Set errorRange = Union(errorRange, cell)
+      End If
+    End If
+  Next cell
+  
+
+  ' エラーセルが見つかった場合、メッセージを表示
+  If Not errorRange Is Nothing Then
+    MsgBox "シート '" & sheet.Name & "' にエラーセルがあります。" & vbCrLf & "エラーセル: " & errorRange.Address, vbOKOnly + vbCritical
+  Else
+    MsgBox "安心です。シート '" & sheet.Name & "' にエラーセルはありませんでした。", vbOKOnly + vbInformation
+    CheckForErrors = False
+  End If
+
+  Set errorRange = Nothing
+End Function
+
+
+
+
 '指定さてた文字列が存在する行を取得  シート内全て==============================================================================================================================
 Function getLineNum(ByVal str As String, ByVal TARGET_COL As Integer, ByVal sheet As Worksheet) As Integer
     getLineNum = getLineNum_RS(str, TARGET_COL, 1, sheet.Cells(Rows.Count, TARGET_COL).End(xlUp).Row, sheet)
@@ -164,12 +204,12 @@ End Function
 
 
 'シート存在を確認==============================================================================================================================
-Function SheetExists(wb As Workbook, sname As String) As Boolean
+Function SheetExists(wb As Workbook, Sname As String) As Boolean
     On Error Resume Next ' エラーが発生しても処理を継続
     Dim ws As Worksheet
-    Set ws = wb.Sheets(sname) ' 指定したシートをセット
+    Set ws = wb.Sheets(Sname) ' 指定したシートをセット
     SheetExists = Not ws Is Nothing ' シートが存在すればTrue
-    Debug.Print "@SheetExists   Sheetname: [" & sname & "]  " & SheetExists
+    Debug.Print "@SheetExists   Sheetname: [" & Sname & "]  " & SheetExists
     On Error GoTo 0 ' エラーハンドリングをリセット
 End Function
 
@@ -237,4 +277,12 @@ Sub GetWorkbookFolderToCell()
         MsgBox "異常: " & vbCrLf & "ワーキングフォルダ が取得できませんでした", Buttons:=vbCritical
     End If
 End Sub
+
+
+
+
+
+
+
+
 
