@@ -14,6 +14,8 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     Dim BL As Integer
     Dim Cnt As Integer
     Dim tr As Variant
+    Dim result As Boolean
+
 
     BNAME_KEIKAKU = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
 
@@ -74,9 +76,6 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
 
 
 
-
-
-
     ' wb_SHUKEIを開く
     Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
     Set wb_SHUKEI = OpenBook(BNAME_SHUKEI, False)    ' フルパスを指定
@@ -96,7 +95,9 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     Wb_keikaku.Worksheets("GUN HV OFF").Select    '最前面に表示
 
 
-
+'関数化TEST
+    result = CpPaste(Wb_keikaku.Worksheets("GUN HV OFF"), RANGE_GUN_HV_OFF, COL_GUN_HV_OFF, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"), "C5") ' セル"C5"の一番下の行に張り付ける
+End
 
     '「シート GUN HV OFF」をコピーして貼り付け
     Wb_keikaku.Worksheets("GUN HV OFF").Activate
@@ -186,11 +187,41 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
 
 
     Call Fin("これで終了です。", 1)
-    Exit Sub  ' 通常の処理が完了したらエラーハンドラをスキップ
+    Exit Sub ' 通常の処理が完了したらエラーハンドラをスキップ
 ErrorHandler:
     Call Fin("エラーです。内容は　 " & Err.Description, 3)
     Exit Sub
 
 End Sub
 
+
+
+
+
+
+
+
+
+
+
+Function CpPaste(sheetS As Worksheet, rangeS As String, colS As Integer, sheetT As Worksheet, HeaderCELL As String) As Boolean
+'   rng1 As Range,
+
+    Dim tr As Variant
+    Dim targetCELL As Variant
+    sheetS.Activate
+    Set tr = Range(rangeS & Cells(Rows.Count, colS).End(xlUp).Row)
+    tr.Copy
+    tr.Select
+    If MsgBox("選択部分をコピーしました。" & "行数は " & tr.Rows.Count & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion) = vbNo Then Exit Function
+
+    If Check(Array(2, 6, 7), 3, tr.Rows.Count + 10, sheetT) <> 0 Then Call Fin("貼付け先のシートに数式が入っていない箇所が見つかりました。終了します。" & vbCrLf & "数式を直してから再度行って下さい。", 3)
+    Set targetCELL = sheetT.Cells(sheetT.Range(HeaderCELL).End(xlDown).Row + 1, Range(HeaderCELL).Column)
+    sheetT.Activate    ' これ必要。これないと、次の行で、セルをアクティブにできない
+    targetCELL.Activate
+    If MsgBox("ここに値「GUN HV OFF時間」を貼り付けていいですか？", vbYesNo + vbQuestion) = vbYes Then
+        targetCELL.PasteSpecial Paste:=xlPasteValues
+        If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion) = vbNo Then Exit Function
+    End If
+End Function
 
