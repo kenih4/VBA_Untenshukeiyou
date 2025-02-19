@@ -12,9 +12,10 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     Dim COL_GUN_HV_OFF As Integer
     Dim targetline As Integer
     Dim BL As Integer
+    Dim Cnt As Integer
+    Dim tr As Variant
 
     BNAME_KEIKAKU = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
-
 
     ' Wb_keikakuを開く
     Dim Wb_keikaku As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
@@ -91,39 +92,35 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     '「シート GUN HV OFF」をコピーして貼り付け
     Wb_keikaku.Worksheets("GUN HV OFF").Select    '最前面に表示
     Wb_keikaku.Worksheets("GUN HV OFF").Activate
-    Range(RANGE_GUN_HV_OFF & Cells(Rows.Count, COL_GUN_HV_OFF).End(xlUp).Row).Copy
-    Range(RANGE_GUN_HV_OFF & Cells(Rows.Count, COL_GUN_HV_OFF).End(xlUp).Row).Select
-    If MsgBox("選択部分をコピーしました。" & "行数は " & Range(RANGE_GUN_HV_OFF & Cells(Rows.Count, COL_GUN_HV_OFF).End(xlUp).Row).Rows.Count & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then Exit Sub
-
-
-
+    Set tr = Range(RANGE_GUN_HV_OFF & Cells(Rows.Count, COL_GUN_HV_OFF).End(xlUp).Row)
+    tr.Copy
+    tr.Select
+    If MsgBox("選択部分をコピーしました。" & "行数は " & tr.Rows.Count & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then Exit Sub
 
     ' wb_SHUKEIを開く
     Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
     Set wb_SHUKEI = OpenBook(BNAME_SHUKEI, False)    ' フルパスを指定
     If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
     wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Activate
-    wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Range("C5").End(xlDown).Activate       ' セルC5「GUN HV OFF時間」から最終行へ
+    If Check(Array(2, 6, 7), 3, tr.Rows.Count + 10, wb_SHUKEI.Worksheets("GUN HV OFF時間記録")) <> 0 Then Call Fin("貼付け先のシートに数式が入っていない箇所が見つかりました。終了します。" & vbCrLf & "数式を直してから再度行って下さい。", 3)
     targetline = wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Range("C5").End(xlDown).Row + 1
     wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Cells(targetline, 3).Activate
     If MsgBox("ここに値「GUN HV OFF時間」を貼り付けていいですか？", vbYesNo + vbQuestion, "BL" & BL) = vbYes Then
         wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Cells(wb_SHUKEI.Worksheets("GUN HV OFF時間記録").Cells(Rows.Count, 3).End(xlUp).Row + 1, 3).PasteSpecial Paste:=xlPasteValues
         If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then Exit Sub
     End If
+
     
-    Debug.Print "C============================================================================================================"
-
-
-
     '「シート bl*」をコピーして貼り付け
     Sname = "運転予定時間"
     Wb_keikaku.Worksheets(SNAME_KEIKAKU_BL).Activate
-    Range("A2:C" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Select
-    Range("A2:C" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Copy
-    If MsgBox("選択部分をコピーしました。" & "行数は " & Range("A2:C" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Rows.Count & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then Exit Sub
+    Set tr = Range("A2:C" & Cells(Rows.Count - 1, 1).End(xlUp).Row)
+    tr.Copy
+    tr.Select
+    If MsgBox("選択部分をコピーしました。" & "行数は " & tr.Rows.Count & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then Exit Sub
     wb_SHUKEI.Worksheets(Sname).Activate
-    wb_SHUKEI.Worksheets(Sname).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ
-    Debug.Print "wb_SHUKEI Last: " & wb_SHUKEI.Worksheets(Sname).Range("B3").End(xlDown).Row
+    'いらない？    wb_SHUKEI.Worksheets(Sname).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ
+    If Check(Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2, tr.Rows.Count + 10, wb_SHUKEI.Worksheets("運転予定時間")) <> 0 Then Call Fin("貼付け先のシートに数式が入っていない箇所が見つかりました。終了します。" & vbCrLf & "数式を直してから再度行って下さい。", 3)
     targetline = wb_SHUKEI.Worksheets(Sname).Range("B3").End(xlDown).Row + 1
     wb_SHUKEI.Worksheets(Sname).Cells(targetline, 2).Activate
     If MsgBox("ここに値を貼り付けていいですか？", vbYesNo + vbQuestion, "BL" & BL) = vbYes Then
@@ -133,11 +130,10 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
 
     '「シート bl*の備考列」をコピーして貼り付け
     Wb_keikaku.Worksheets(SNAME_KEIKAKU_BL).Activate
-    Range("D2:D" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Select
-    Range("D2:D" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Copy
-    If MsgBox("選択部分をコピーしました。" & "行数は " & Range("D2:D" & Cells(Rows.Count - 1, 1).End(xlUp).Row).Rows.Count & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then Exit Sub
-    wb_SHUKEI.Worksheets(Sname).Activate
-    wb_SHUKEI.Worksheets(Sname).Range("B3").End(xlDown).Activate       ' セルB3[運転種別]から最終行へ
+    Set tr = Range("D2:D" & Cells(Rows.Count - 1, 1).End(xlUp).Row)
+    tr.Copy
+    tr.Select
+    If MsgBox("選択部分をコピーしました。" & "行数は " & tr.Rows.Count & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then Exit Sub
     wb_SHUKEI.Worksheets(Sname).Cells(targetline, 7).Activate
     If MsgBox("ここに値を貼り付けていいですか？", vbYesNo + vbQuestion, "BL" & BL) = vbYes Then
         wb_SHUKEI.Worksheets(Sname).Cells(targetline, 7).PasteSpecial Paste:=xlPasteValues
