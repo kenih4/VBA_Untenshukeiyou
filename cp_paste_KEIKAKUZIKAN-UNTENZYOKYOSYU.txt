@@ -15,6 +15,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     Dim Cnt As Integer
     Dim tr As Variant
     Dim result As Boolean
+    Dim PasteSheet As Worksheet
 
 
     BNAME_KEIKAKU = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
@@ -96,10 +97,17 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
 
 
     '関数化TEST 惜しいところまでいったが、３つめ、targetlineを更新したくない。
-'    result = CpPaste(Wb_keikaku.Worksheets("GUN HV OFF"), RANGE_GUN_HV_OFF, COL_GUN_HV_OFF, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"), "C5", 3, Array(2, 6, 7), 3)    ' セル"C5"の一番下の行に張り付ける
-'    result = CpPaste(Wb_keikaku.Worksheets(SNAME_KEIKAKU_BL), "A2:C", 1, wb_SHUKEI.Worksheets("運転予定時間"), "B3", 2, Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2)    '
-'    result = CpPaste(Wb_keikaku.Worksheets(SNAME_KEIKAKU_BL), "D2:D", 1, wb_SHUKEI.Worksheets("運転予定時間"), "B3", 7, -1, -1)    ' 前の行で、Check Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2  してるから本来いらないが。。
-'    End
+    Set PasteSheet = wb_SHUKEI.Worksheets("GUN HV OFF時間記録")
+    result = CpPaste(Wb_keikaku.Worksheets("GUN HV OFF"), RANGE_GUN_HV_OFF, COL_GUN_HV_OFF, PasteSheet, PasteSheet.Cells(PasteSheet.Range("C5").End(xlDown).Row + 1, 3), Array(2, 6, 7), 3)
+    
+    Set PasteSheet = wb_SHUKEI.Worksheets("運転予定時間")
+    Dim PasteRow As Integer
+    PasteRow = PasteSheet.Range("B3").End(xlDown).Row + 1
+    result = CpPaste(Wb_keikaku.Worksheets(SNAME_KEIKAKU_BL), "A2:C", 1, PasteSheet, PasteSheet.Cells(PasteRow, 2), Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2)                       '
+
+    Set PasteSheet = wb_SHUKEI.Worksheets("運転予定時間")
+    result = CpPaste(Wb_keikaku.Worksheets(SNAME_KEIKAKU_BL), "D2:D", 1, PasteSheet, PasteSheet.Cells(PasteRow, 7), -1, -1)    ' 前の行で、Check Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2  してるから本来いらないが。。
+    End
 
     '「シート GUN HV OFF」をコピーして貼り付け
     Wb_keikaku.Worksheets("GUN HV OFF").Activate
@@ -204,28 +212,30 @@ End Sub
 
 
 
-Function CpPaste(sheetS As Worksheet, rangeS As String, colS As Integer, sheetT As Worksheet, HeaderCELL As String, PasteCol As Integer, Arr_forCheck As Variant, Col_forCheck As Integer) As Boolean
+Function CpPaste(sheetS As Worksheet, rangeS As String, colS As Integer, sheetT As Worksheet, pasteCELL As Variant, Arr_forCheck As Variant, Col_forCheck As Integer) As Boolean
 '   rng1 As Range,
 '    MsgBox sheetS.Columns(3).Address ' $C:$C
 '    MsgBox sheetS.Range("$A:$A").Find(What:="*", LookIn:=xlValues, SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row    ' 5
 '    MsgBox sheetS.Range("$C:$C").Find(What:="*", LookIn:=xlValues, SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row    ' 2
 '    MsgBox sheetS.Range(Range(HeaderCELL).Columns.Address).Find(What:="*", LookIn:=xlValues, SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row    ' エラー
     Dim tr As Variant
-    Dim targetCELL As Variant
     sheetS.Activate
     Set tr = Range(rangeS & Cells(Rows.Count, colS).End(xlUp).Row)
     tr.Copy
     tr.Select
     If MsgBox("選択部分をコピーしました。" & "行数は " & tr.Rows.Count & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion) = vbNo Then Exit Function
+    Debug.Print "A============================"
     If Col_forCheck > 0 Then
         If Check(Arr_forCheck, Col_forCheck, tr.Rows.Count + 10, sheetT) <> 0 Then Call Fin("貼付け先のシートに数式が入っていない箇所が見つかりました。終了します。" & vbCrLf & "数式を直してから再度行って下さい。", 3)
     End If
-    Set targetCELL = sheetT.Cells(sheetT.Range(HeaderCELL).End(xlDown).Row + 1, PasteCol)
     sheetT.Activate    ' これ必要。これないと、次の行で、セルをアクティブにできない
-    targetCELL.Activate
+    pasteCELL.Activate
+
     If MsgBox("ここに値「GUN HV OFF時間」を貼り付けていいですか？", vbYesNo + vbQuestion) = vbYes Then
-        targetCELL.PasteSpecial Paste:=xlPasteValues
+        pasteCELL.PasteSpecial Paste:=xlPasteValues
         If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion) = vbNo Then Exit Function
     End If
+        Debug.Print "D============================"
+
 End Function
 
