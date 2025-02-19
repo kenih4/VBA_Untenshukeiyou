@@ -8,6 +8,7 @@ Sub Initial_Check()
     Dim BL As Integer
     Dim BNAME_SHUKEI As String
     Dim Cnt As Integer
+    Dim result As Boolean
 
     Dim s
     s = Application.InputBox("BLを入力して下さい。", "確認", Type:=1) '  Type:=1 数値のみ
@@ -48,9 +49,11 @@ Sub Initial_Check()
     End If
     wb_SHUKEI.Windows(1).WindowState = xlMaximized
 
+    Debug.Print "シート全体にエラーがないか確認 "
     Dim ws As Worksheet
     For Each ws In wb_SHUKEI.Worksheets
         Debug.Print ws.Name
+        result = CheckForErrors(ws)
     Next ws
     
     Cnt = Check(Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets("運転予定時間"))

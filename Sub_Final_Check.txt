@@ -2,8 +2,8 @@ Option Explicit
 Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
 Sub Final_Check()
-   '
-    On Error GoTo ErrorHandler
+   
+On Error GoTo ErrorHandler
                
     Dim tc As Variant
     Dim i, j As Integer
@@ -48,33 +48,9 @@ Sub Final_Check()
     End Select
 
 
-    ' wb_SHUKEIを開く  [ユニット]を確認するため
-'    Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-'    Set wb_SHUKEI = OpenBook(BNAME_SHUKEI, True) ' フルパスを指定
-'    If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
-'    wb_SHUKEI.Activate
-'    If ActiveWorkbook.Name <> wb_SHUKEI.Name Then
-'        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, 3)
-'    End If
-'
-'    wb_SHUKEI.Windows(1).WindowState = xlMaximized
-'    wb_SHUKEI.Worksheets("利用時間（期間）").Activate
-'
-'    Unit = wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2")
-'    If MsgBox("チェックするユニット(シート「利用時間（期間）」のセルB2)は    " & vbCrLf & "「 " & Unit & " 」" & vbCrLf & "です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進むにはYESを押して下さい", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then
-'        Call Fin("「No」が選択されました。終了します。", 1)
-'    End If
-
-    
-    
-    
-    
-    
-    
     
     
     Unit = "24-16"
-        
         
 '        ' wb_MATOMEを開く
         Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
@@ -83,11 +59,12 @@ Sub Final_Check()
 
 
 
-
         Debug.Print "シート全体にエラーがないか確認 "
-        result = CheckForErrors(wb_MATOME.Worksheets("Fault集計"))
-        result = CheckForErrors(wb_MATOME.Worksheets("まとめ "))
-
+        Dim ws As Worksheet
+        For Each ws In wb_MATOME.Worksheets
+            Debug.Print ws.Name
+            result = CheckForErrors(ws)
+        Next ws
 
 
 
@@ -169,7 +146,7 @@ Sub Final_Check()
                         Set tc = wb_MATOME.Worksheets("まとめ ").Cells(i, col)
                     End If
                     tc.Select
-                    Sleep 100 ' msec
+                    Sleep 1 ' msec
                     If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call Fin("空欄、または、エラーが発生してるセルにがあるので、マクロを終了します。" & vbCrLf & "", 3)
                     Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗するので、その前でIsCellErrorでチェックする
                     
@@ -229,7 +206,7 @@ Sub Final_Check()
                     For Each col In Check_col_arr
                         Set tc = wb_MATOME.Worksheets("まとめ ").Cells(j, col)
                         tc.Select
-                        Sleep 100 ' msec
+                        Sleep 1 ' msec
                         
                         If tc.MergeArea.Columns.Count > 1 Then
                             Debug.Print "水平方向に結合されています。" & i & "   " & j & "   " & col & "     tc.Value = " & tc.Value & "  " & tc.MergeArea.Columns.Count
@@ -281,8 +258,12 @@ Sub Final_Check()
         Else
             tmp = "(c-2)BL3"
         End If
+        Debug.Print "Debug A"
+        Debug.Print "Debug B" & getLineNum(tmp, 2, wb_MATOME.Worksheets("まとめ "))
+        Debug.Print "Debug C" & wb_MATOME.Worksheets("まとめ ").Cells(Rows.Count, "B").End(xlUp).Row
+        
         For i = getLineNum(tmp, 2, wb_MATOME.Worksheets("まとめ ")) To wb_MATOME.Worksheets("まとめ ").Cells(Rows.Count, "B").End(xlUp).Row
-            'Debug.Print "i = " & i & "  " & Cells(i, 2).Value
+            Debug.Print "DEBUG D    i = " & i & "  " & Cells(i, 2).Value
             
             If wb_MATOME.Worksheets("まとめ ").Cells(i, 2).Value = Unit Then
                 Debug.Print "この行　i = " & i & " が、ユニット " & Cells(i, 2).Value
@@ -292,7 +273,7 @@ Sub Final_Check()
                     For col = 3 To 7
                         Set tc = wb_MATOME.Worksheets("まとめ ").Cells(j, col)
                         tc.Select
-                        Sleep 100 ' msec
+                        Sleep 1 ' msec
                         If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call Fin("空欄、または、エラーが発生してるセルにがあるので、マクロを終了します。" & vbCrLf & "", 3)
                         Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗するので、その前でIsCellErrorでチェックする
                         
