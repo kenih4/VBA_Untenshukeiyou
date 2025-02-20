@@ -4,14 +4,14 @@ Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 Sub Initial_Check()
 
     On Error GoTo ErrorHandler
-               
+
     Dim BL As Integer
     Dim BNAME_SHUKEI As String
     Dim Cnt As Integer
     Dim result As Boolean
 
     Dim s
-    s = Application.InputBox("BLを入力して下さい。", "確認", Type:=1) '  Type:=1 数値のみ
+    s = Application.InputBox("BLを入力して下さい。", "確認", Type:=1)    '  Type:=1 数値のみ
     If s = False Then
         Exit Sub
     ElseIf s = "" Then
@@ -22,26 +22,26 @@ Sub Initial_Check()
     End If
 
     Select Case BL
-        Case 1
-            Debug.Print "SCSS+"
-            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SCSS\SCSS運転状況集計BL1.xlsm"
-        Case 2
-            Debug.Print "BL2"
-            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2.xlsm"
-        Case 3
-            Debug.Print ">>>BL3"
-            BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL3.xlsm"
-        Case Else
-            Debug.Print "Zzz..."
-            End
+    Case 1
+        Debug.Print "SCSS+"
+        BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SCSS\SCSS運転状況集計BL1.xlsm"
+    Case 2
+        Debug.Print "BL2"
+        BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2.xlsm"
+    Case 3
+        Debug.Print ">>>BL3"
+        BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL3.xlsm"
+    Case Else
+        Debug.Print "Zzz..."
+        End
     End Select
-    
-'    BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2TEST.xlsm"
+
+    '    BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2TEST.xlsm"
     MsgBox "マクロ「Initial_Check()」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_SHUKEI & vbCrLf & "のチェックです。" & vbCrLf & "数式が入っているべきセルに数式が入っているか確認します", vbInformation, "BL" & BL
 
     ' wb_SHUKEIを開く
     Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    Set wb_SHUKEI = OpenBook(BNAME_SHUKEI, True) ' フルパスを指定
+    Set wb_SHUKEI = OpenBook(BNAME_SHUKEI, True)    ' フルパスを指定
     If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
     wb_SHUKEI.Activate
     If ActiveWorkbook.Name <> wb_SHUKEI.Name Then
@@ -55,6 +55,8 @@ Sub Initial_Check()
         Debug.Print ws.Name
         result = CheckForErrors(ws)
     Next ws
+
+    
     
     Cnt = Check(Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets("運転予定時間"))
     Cnt = Check(Array(2, 6, 7), 3, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
@@ -79,12 +81,15 @@ End Sub
 
 
 
-
-
-Function Check(arr As Variant, ByVal Retsu_for_Find_last_row As Integer, ByVal Check_row_cnt As Integer, ByVal sheet As Worksheet) As Integer
-    ' arr:  チェックする列を配列にセット
-    ' Retsu_for_Find_last_row:  値の入っている最終行を取得するためのもの。数式が入っていない列を指定する。数式が入っている列を指定すると数式が入っていない最終行になってしまう
-    ' Check_row_cnt:    何行チェックするか。とりあえず多めにしとく
+'後で、要確認！
+'VBAでは、明示的に ByVal も ByRef も指定しない場合、デフォルトで ByRef（参照渡し）になります。
+'つまり､引数として渡した変数の値が変更される可能性がある ので注意が必要です｡
+'Function Check(arr As Variant, ByVal Retsu_for_Find_last_row As Integer, ByVal Check_row_cnt As Integer, ByVal sheet As Worksheet) As Integer
+' StartL , EndLを引数にした方がいい気がする
+Function Check(arr As Variant, Retsu_for_Find_last_row As Integer, Check_row_cnt As Integer, sheet As Worksheet) As Integer
+' arr:  チェックする列を配列にセット
+' Retsu_for_Find_last_row:  値の入っている最終行を取得するためのもの。数式が入っていない列を指定する。数式が入っている列を指定すると数式が入っていない最終行になってしまう
+' Check_row_cnt:    何行チェックするか。とりあえず多めにしとく
     Debug.Print "DEBUG  Start Function Check()-------------"
     Dim result As Boolean
     Dim StartL As Integer
@@ -92,25 +97,26 @@ Function Check(arr As Variant, ByVal Retsu_for_Find_last_row As Integer, ByVal C
     Dim col As Variant
     Check = 0
     sheet.Activate
-    
-'    MsgBox "Columns(Retsu_for_Find_last_row).Address　=     " & Columns(Retsu_for_Find_last_row).Address
-    
-'    StartL = sheet.Range("B:B").Find(What:="*", LookIn:=xlValues, SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row + 1  ' 罫線は無視
-'    StartL = sheet.Range("A:A").Find(What:="*", LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row + 1 ' この方法だと罫線も含んだ最終行になってしまう
-'    StartL = sheet.Cells(Rows.Count, Retsu_for_Find_last_row).End(xlUp).Row + 1
-'    StartL = sheet.Range(Columns(Retsu_for_Find_last_row).Address).Find(What:="*", LookIn:=xlValues, SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row + 1 ' なぜか　シート「利用時間(User)」だけ、「オブジェクト変数またはWithブロック変数が設定されていません」のエラー  問題はここ　Columns(Retsu_for_Find_last_row).Address
-    StartL = sheet.Range(sheet.Columns(Retsu_for_Find_last_row).Address).Find(What:="*", LookIn:=xlValues, SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row + 1 ' TEST
+
+    '    MsgBox "Columns(Retsu_for_Find_last_row).Address　=     " & Columns(Retsu_for_Find_last_row).Address
+
+    '    StartL = sheet.Range("B:B").Find(What:="*", LookIn:=xlValues, SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row + 1  ' 罫線は無視
+    '    StartL = sheet.Range("A:A").Find(What:="*", LookAt:=xlPart, SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row + 1 ' この方法だと罫線も含んだ最終行になってしまう
+    '    StartL = sheet.Cells(Rows.Count, Retsu_for_Find_last_row).End(xlUp).Row + 1
+    '    StartL = sheet.Range(Columns(Retsu_for_Find_last_row).Address).Find(What:="*", LookIn:=xlValues, SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row + 1 ' なぜか　シート「利用時間(User)」だけ、「オブジェクト変数またはWithブロック変数が設定されていません」のエラー  問題はここ　Columns(Retsu_for_Find_last_row).Address
+    StartL = sheet.Range(sheet.Columns(Retsu_for_Find_last_row).Address).Find(What:="*", LookIn:=xlValues, SearchOrder:=xlByRows, SearchDirection:=xlPrevious).Row + 1    ' TEST
 
     sheet.Cells(StartL, arr(0)).Select
     MsgBox "シート「" & sheet.Name & "」のここから、この行に入っている数式が以降 " & Check_row_cnt & " 行に渡って入っているかチェックを始めます。", vbInformation
-    
+
     For Each col In arr
         For i = StartL + 1 To StartL + Check_row_cnt
             sheet.Cells(i, col).Select
-            'Sleep 10 ' msec
+            'Sleep 20 ' msec
             result = CheckSameFormulaType(Cells(StartL, col), Cells(i, col))
             If result = True Then
                 'Debug.Print "OK:    セル(" & i & ", " & col & ") 数式有  " & Cells(i, col).Formula
+                Cells(i, col).Interior.Color = RGB(0, 255, 0)
             Else
                 Debug.Print "要確認！　セル(" & i & ", " & col & ") 数式が入っていないか、数式が異なる"
                 Cells(i, col).Interior.Color = RGB(255, 0, 0)
@@ -121,14 +127,14 @@ Function Check(arr As Variant, ByVal Retsu_for_Find_last_row As Integer, ByVal C
     If Check <> 0 Then
         MsgBox "シート「" & sheet.Name & "」にて、" & vbCrLf & "数式が入っていないか、数式が異なるセルが " & Check & " 箇所、見つかりました！！要確認です", vbCritical
     End If
-    
+
 End Function
 
 
 
 
 Function CheckSameFormulaType(rng1 As Range, rng2 As Range) As Boolean
-    ' セルに数式が入っているか確認
+' セルに数式が入っているか確認
     If rng1.HasFormula And rng2.HasFormula Then
         'Debug.Print "どちらかのセルに数式があり"
         ' R1C1形式で比較して、一致すれば True、異なれば False
@@ -138,5 +144,8 @@ Function CheckSameFormulaType(rng1 As Range, rng2 As Range) As Boolean
         CheckSameFormulaType = False
     End If
 End Function
+
+
+
 
 
