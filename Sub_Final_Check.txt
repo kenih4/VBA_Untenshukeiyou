@@ -82,11 +82,12 @@ Sub Final_Check()
                 For Each col In Check_col_arr
                     Set tc = wb_MATOME.Worksheets("Fault集計").Cells(j, col)
                     tc.Select
-                    Sleep 1    ' msec
+                    tc.Interior.Color = RGB(0, 255, 0)
+                    'Sleep 100    ' msec
                     If tc.MergeArea.Columns.Count > 1 Or tc.MergeArea.Rows(1).Row <> j Then
                         Debug.Print "水平方向に結合されてる、または、垂直方向に結合されていて先頭です。" & i & "   " & j & "   " & col
                     Else
-                        If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call Fin("空欄、または、エラーが発生してるセルにがあるので、マクロを終了します。" & vbCrLf & "", 3)
+                        If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call CMsg("空欄、または、エラーが発生しています", 3, tc)
                         Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value    '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗するので、その前でIsCellErrorでチェックする
 
                         If col = 3 Or col = 4 Then    ' シフト時間
@@ -120,7 +121,7 @@ Sub Final_Check()
         End If
     Next
 
-    
+
 
 
 
@@ -145,8 +146,9 @@ Sub Final_Check()
                     Set tc = wb_MATOME.Worksheets("まとめ ").Cells(i, col)
                 End If
                 tc.Select
-                Sleep 1    ' msec
-                If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call Fin("空欄、または、エラーが発生してるセルにがあるので、マクロを終了します。" & vbCrLf & "", 3)
+                tc.Interior.Color = RGB(0, 255, 0)
+                'Sleep 100    ' msec
+                If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call CMsg("空欄、または、エラーが発生しています", 3, tc)
                 Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value    '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗するので、その前でIsCellErrorでチェックする
 
                 If col = 3 Then    ' 日付
@@ -202,13 +204,13 @@ Sub Final_Check()
                 For Each col In Check_col_arr
                     Set tc = wb_MATOME.Worksheets("まとめ ").Cells(j, col)
                     tc.Select
-                    Sleep 1    ' msec
-
+                    tc.Interior.Color = RGB(0, 255, 0)
+                    'Sleep 100    ' msec
                     If tc.MergeArea.Columns.Count > 1 Then
                         Debug.Print "水平方向に結合されています。" & i & "   " & j & "   " & col & "     tc.Value = " & tc.Value & "  " & tc.MergeArea.Columns.Count
                     Else
 
-                        If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call Fin("空欄、または、エラーが発生してるセルにがあるので、マクロを終了します。" & vbCrLf & "", 3)
+                        If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call CMsg("空欄、または、エラーが発生しています", 3, tc)
                         Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value    '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗するので、その前でIsCellErrorでチェックする
 
                         If col = 5 And (wb_MATOME.Worksheets("まとめ ").Cells(j, 3).Value = "total" And (StrComp(Right(wb_MATOME.Worksheets("まとめ ").Cells(j, 9).Value, 1), "G", vbBinaryCompare) = 0) = False) Then  '' 末尾の1文字が "G" かどうかチェック（大文字・小文字を区別）
@@ -243,7 +245,7 @@ Sub Final_Check()
 
 
 
-    
+
 
 
     MsgBox "まとめシートの(c)のチェック。" & vbCrLf & "", vbInformation, "BL" & BL
@@ -267,8 +269,10 @@ Sub Final_Check()
                 For col = 3 To 7
                     Set tc = wb_MATOME.Worksheets("まとめ ").Cells(j, col)
                     tc.Select
-                    Sleep 1    ' msec
-                    If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call Fin("空欄、または、エラーが発生してるセルにがあるので、マクロを終了します。" & vbCrLf & "", 3)
+                    tc.Interior.Color = RGB(0, 255, 0)
+                    
+                    'Sleep 100    ' msec
+                    If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call CMsg("空欄、または、エラーが発生しています", 3, tc)
                     Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value    '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗するので、その前でIsCellErrorでチェックする
 
                     If col = 3 And (tc.Value <= 0 Or tc.Value > 8.2 Or Not IsNumeric(tc.Value)) Then  'エネルギー
@@ -431,7 +435,6 @@ Function IsValidFormat(cell As Variant, pattern As String) As Boolean
     ' オブジェクト解放
     Set regex = Nothing
 End Function
-
 
 
 
