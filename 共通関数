@@ -1,4 +1,5 @@
 Option Explicit ' 未定義の変数は使用できないように
+Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
 
 Public Const BNAME_SOURCE As String = "C:\me\unten\マクロいろいろ.xlsm"
@@ -19,11 +20,11 @@ Function OpenBook(ByVal WorkBookName As String, ByVal RO As Boolean) As Workbook
 
     ' 開いているブックの中に指定されたパスのブックがあるかを確認
     For Each wb In Workbooks
-       'Debug.Print "Debug   wb.Name =  " & wb.Name & " は開かれています"
-       If wb.FullName = WorkBookName Then
-           Set OWB = wb
-           Debug.Print "Debug---   OpenBook.Name =  [" & OWB.Name & "] は既に開かれています"
-           Exit For
+        'Debug.Print "Debug   wb.Name =  " & wb.Name & " は開かれています"
+        If wb.FullName = WorkBookName Then
+            Set OWB = wb
+            Debug.Print "Debug---   OpenBook.Name =  [" & OWB.Name & "] は既に開かれています"
+            Exit For
        End If
     Next wb
     
@@ -53,6 +54,7 @@ Function OpenBook(ByVal WorkBookName As String, ByVal RO As Boolean) As Workbook
     On Error GoTo 0  ' エラーハンドリング解除
     
     Set OpenBook = OWB
+    
     Debug.Print "Debug---   Finish  Function OpenBook(" & WorkBookName & ")"
 End Function
 
@@ -69,22 +71,22 @@ Function OpenBookOLD(ByVal WorkBookName As String) As Workbook
     Debug.Print "Debug   ブックを開きます。-----------  " & WorkBookName
     Dim OWB As Workbook
     Dim wb As Workbook
-    
+
     ' 開いているブックの中に指定されたパスのブックがあるかを確認
     For Each wb In Workbooks
-       'Debug.Print "Debug   wb.Name =  " & wb.Name & " は開かれています"
-       If wb.FullName = WorkBookName Then
-           Set OWB = wb
-           Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] は既に開かれています"
-           Exit For
-       End If
+        'Debug.Print "Debug   wb.Name =  " & wb.Name & " は開かれています"
+        If wb.FullName = WorkBookName Then
+            Set OWB = wb
+            Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] は既に開かれています"
+            Exit For
+        End If
     Next wb
-    
+
     ' エラーハンドリング開始
     On Error Resume Next
     If OWB Is Nothing Then
         ' 指定したブックが開かれていない場合、新たに開こうとする
-        Set OWB = Workbooks.Open(WorkBookName, ReadOnly:=False) ' SACLA運転状況集計BL*.xlsm　を開こうとすると、なぜかエラーが発生するので以下コメントアウトした
+        Set OWB = Workbooks.Open(WorkBookName, ReadOnly:=False)    ' SACLA運転状況集計BL*.xlsm　を開こうとすると、なぜかエラーが発生するので以下コメントアウトした
         If Err.Number <> 0 Then
             ' エラーが発生した場合、エラーメッセージを表示
             MsgBox "ブックが見つからないか、開けませんでした。エラー番号: " & Err.Number & vbCrLf & _
@@ -98,15 +100,38 @@ Function OpenBookOLD(ByVal WorkBookName As String) As Workbook
         Debug.Print "Debug   OpenBook.Name =  [" & OWB.Name & "] を開きました   開けていない可能性あり　エラー処理をパスしてるので"
     End If
     On Error GoTo 0  ' エラーハンドリング解除
-    
+
     ' 関数の戻り値として設定
     Set OpenBook = OWB
-    
+
     Debug.Print "Debug   OpenBook Finish"
 End Function
 
 
 
+
+
+'========================================================================================================
+Sub CMsg(ByVal Msg As String, ByVal Level As Integer, tc As Variant)
+
+    Debug.Print "_____Msg(" & Msg & ")_____"
+
+    tc.Select
+    Select Case Level
+    Case 1
+        tc.Interior.Color = RGB(0, 255, 255)
+        MsgBox Msg, vbInformation, "お知らせ"
+    Case 2
+        tc.Interior.Color = RGB(255, 255, 0)
+        MsgBox Msg, vbExclamation, "警告"
+    Case 3
+        tc.Interior.Color = RGB(255, 0, 0)
+        MsgBox Msg, vbCritical, "アラート"
+    Case Else
+        Debug.Print "Zzz..."
+    End Select
+    
+End Sub
 
 
 '========================================================================================================
@@ -150,7 +175,8 @@ Function CheckForErrors(ByVal sheet As Worksheet) As Boolean
     MsgBox "' のシート '" & sheet & "' は存在しません。", vbOKOnly + vbCritical
     Exit Function
   End If
-
+  sheet.Activate
+  
   For Each cell In sheet.UsedRange
     'Debug.Print "Debug  Value =  " & cell.Value & "  Row = " & cell.Row & " Columuns = " & cell.Column
     If IsError(cell.Value) Then
@@ -169,7 +195,8 @@ Function CheckForErrors(ByVal sheet As Worksheet) As Boolean
   If Not errorRange Is Nothing Then
     MsgBox "シート '" & sheet.Name & "' にエラーセルがあります。" & vbCrLf & "エラーセル: " & errorRange.Address, vbOKOnly + vbCritical
   Else
-    MsgBox "安心です。シート '" & sheet.Name & "' にエラーセルはありませんでした。", vbOKOnly + vbInformation
+'    MsgBox "安心です。シート '" & sheet.Name & "' にエラーセルはありませんでした。", vbOKOnly + vbInformation
+    Debug.Print "安心です。シート '" & sheet.Name & "' にエラーセルはありませんでした。"
     CheckForErrors = False
   End If
 
@@ -191,7 +218,7 @@ Function getLineNum_RS(ByVal str As String, ByVal TARGET_COL As Integer, ByVal b
     getLineNum_RS = i
     For i = beginLine To endLine
         'Debug.Print "getLineNum_RS　行番号: " & i & "    Value: " & Cells(i, 2).Value
-        If sheet.Cells(i, TARGET_COL).Value = str Then '
+        If sheet.Cells(i, TARGET_COL).Value = str Then ' #DIV/0!などのエラーセルがあると、正しく途中で止まります。
             getLineNum_RS = i
             Debug.Print "Hit!!!!!!!!!!!!!!!!!!!!!!!!!   getLineNum_RS　行番号: " & i & "    Value: " & Cells(i, 2).Value
             Exit Function
@@ -207,7 +234,7 @@ End Function
 Function SheetExists(wb As Workbook, Sname As String) As Boolean
     On Error Resume Next ' エラーが発生しても処理を継続
     Dim ws As Worksheet
-    Set ws = wb.Sheets(Sname) ' 指定したシートをセット
+    Set ws = wb.sheetS(Sname) ' 指定したシートをセット
     SheetExists = Not ws Is Nothing ' シートが存在すればTrue
     Debug.Print "@SheetExists   Sheetname: [" & Sname & "]  " & SheetExists
     On Error GoTo 0 ' エラーハンドリングをリセット
@@ -265,15 +292,15 @@ End Function
 
 
 Sub GetWorkbookFolderToCell()
-    ' ThisWorkbook.Path でカレントブックの保存されているパスを取得
+' ThisWorkbook.Path でカレントブックの保存されているパスを取得
     Dim folderPath As String
     folderPath = ThisWorkbook.Path
-    
+
     If folderPath <> "" Then
-        ThisWorkbook.Sheets("手順").Range("A1").Value = folderPath
+        ThisWorkbook.sheetS("手順").Range("A1").Value = folderPath
         MsgBox "OK: " & vbCrLf & "ワーキングフォルダ = " & folderPath & vbCrLf & "「C:\me\unten」なら問題ないです。", Buttons:=vbInformation
     Else
-        ThisWorkbook.Sheets(1).Range("A1").Value = "保存されていません"
+        ThisWorkbook.sheetS(1).Range("A1").Value = "保存されていません"
         MsgBox "異常: " & vbCrLf & "ワーキングフォルダ が取得できませんでした", Buttons:=vbCritical
     End If
 End Sub
@@ -281,6 +308,20 @@ End Sub
 
 
 
+
+
+
+
+Sub ToggleButton()    '---------------------------------------------------------------------------------
+' ボタンの外観を変更する
+    If ActiveSheet.Shapes("Button 18").Fill.ForeColor.RGB = RGB(255, 255, 255) Then
+        ActiveSheet.Shapes("Button 18").Fill.ForeColor.RGB = RGB(0, 0, 0)  ' 黒に変更
+        ActiveSheet.Shapes("Button 18").TextFrame.Characters.Text = "押し込み中"
+    Else
+        ActiveSheet.Shapes("Button 18").Fill.ForeColor.RGB = RGB(255, 255, 255)  ' 白に戻す
+        ActiveSheet.Shapes("Button 18").TextFrame.Characters.Text = "押してください"
+    End If
+End Sub
 
 
 
