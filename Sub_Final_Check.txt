@@ -1,14 +1,14 @@
 Option Explicit
 Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
-Sub Final_Check()
+Sub Final_Check(BL As Integer)
 '
     On Error GoTo ErrorHandler
 
     Dim tc As Variant
     Dim i, j As Integer
     Dim col As Variant
-    Dim BL As Integer
+    '    Dim BL As Integer
     Dim BNAME_SHUKEI As String
     Dim DOWNTIME_ROW As Integer
     Dim Unit As String
@@ -19,16 +19,16 @@ Sub Final_Check()
 
     MsgBox "マクロ「Final_Check()」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_MATOME & vbCrLf & "のチェックです。" & vbCrLf & "チェックするユニットを確認する為に一旦、SACLA運転状況集計BL*.xlsmを開きます", vbInformation, "BL" & BL
 
-    Dim s
-    s = Application.InputBox("BLを入力して下さい。", "確認", Type:=1)    '  Type:=1 数値のみ
-    If s = False Then
-        Exit Sub
-    ElseIf s = "" Then
-        MsgBox "何も入力されていません"
-        Exit Sub
-    Else
-        BL = s
-    End If
+'    Dim s
+'    s = Application.InputBox("BLを入力して下さい。", "確認", Type:=1)    '  Type:=1 数値のみ
+'    If s = False Then
+'        Exit Sub
+'    ElseIf s = "" Then
+'        MsgBox "何も入力されていません"
+'        Exit Sub
+'    Else
+'        BL = s
+'    End If
 
     Select Case BL
     Case 1
@@ -48,9 +48,24 @@ Sub Final_Check()
     End Select
 
 
+    'Unit = "24-16"
+    'wb_SHUKEIを開く  [ユニット]を確認するため
+    Dim wb_SHUKEI As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    Set wb_SHUKEI = OpenBook(BNAME_SHUKEI, True)    ' フルパスを指定
+    If wb_SHUKEI Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
+    wb_SHUKEI.Activate
+    If ActiveWorkbook.Name <> wb_SHUKEI.Name Then
+        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_SHUKEI, 3)
+    End If
 
+    wb_SHUKEI.Windows(1).WindowState = xlMaximized
+    wb_SHUKEI.Worksheets("利用時間（期間）").Activate
 
-    Unit = "24-16"
+    Unit = wb_SHUKEI.Worksheets("利用時間（期間）").Range("B2")
+    If MsgBox("チェックするユニット(シート「利用時間（期間）」のセルB2)は    " & vbCrLf & "「 " & Unit & " 」" & vbCrLf & "です。 " & vbCrLf & "間違いないですか？" & vbCrLf & "進むにはYESを押して下さい", vbYesNo + vbQuestion, "BL" & BL) = vbNo Then
+        Call Fin("「No」が選択されました。終了します。", 1)
+    End If
+
 
     ' wb_MATOMEを開く
     Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
@@ -229,8 +244,8 @@ Sub Final_Check()
                             Call CMsg("範囲外かもしれないです。確認した方がいいです。", 3, tc)
                         End If
 
-                        If col = 6 And (tc.Value <= 0 Or tc.Value > 1 Or Not IsNumeric(tc.Value)) Then  '利用率%
-                            Call CMsg("範囲外 or 文字列   確認した方がいいです。", 3, tc)
+                        If col = 6 And (tc.Value <= 0.8 Or tc.Value > 1 Or Not IsNumeric(tc.Value)) Then  '利用率%
+                            Call CMsg("利用率低い。または、範囲外 or 文字列   確認した方がいいです。", 3, tc)
                         End If
 
                     End If
@@ -270,7 +285,7 @@ Sub Final_Check()
                     Set tc = wb_MATOME.Worksheets("まとめ ").Cells(j, col)
                     tc.Select
                     tc.Interior.Color = RGB(0, 255, 0)
-                    
+
                     'Sleep 100    ' msec
                     If IsCellErrorType(tc) = False Or IsEmpty(tc.Value) Then Call CMsg("空欄、または、エラーが発生しています", 3, tc)
                     Debug.Print i & "   " & j & "   " & col & "     tc.Value = " & tc.Value    '!!!!!!!!!  セルが#DIV/0!だと ここ、表示で失敗するので、その前でIsCellErrorでチェックする
