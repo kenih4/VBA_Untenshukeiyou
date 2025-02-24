@@ -1,0 +1,94 @@
+
+
+
+Sub check_Initial_Check_BL2_Click()
+    Call Initial_Check(2)
+End Sub
+
+Sub check_Initial_Check_BL3_Click()
+    Call Initial_Check(3)
+End Sub
+
+
+
+
+
+
+
+Sub 計画時間xlsxを出力_Click()
+    Call RunPythonScript("getGunHvOffTime_LOCALTEST.py")
+End Sub
+
+
+
+
+
+
+
+Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI_BL2_Click()
+    Call cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI(2)
+End Sub
+
+Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI_BL3_Click()
+    Call cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI(3)
+End Sub
+
+
+
+Sub faulttxtを出力_BL2_Click()
+    Call RunPythonScript("getBlFaultSummary_LOCALTEST.py bl2")
+End Sub
+
+Sub faulttxtを出力_BL3_Click()
+    Call RunPythonScript("getBlFaultSummary_LOCALTEST.py bl3")
+End Sub
+
+
+
+
+
+
+
+Sub Fault集計m_BL2_Click()
+    Call マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行(2, "Fault集計m")
+End Sub
+
+Sub Fault集計m_BL3_Click()
+    Call マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行(3, "Fault集計m")
+End Sub
+
+
+
+Sub 運転集計_形式処理m_BL2_Click()
+    Call マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行(2, "運転集計_形式処理m")
+End Sub
+
+Sub 運転集計_形式処理m_BL3_Click()
+    Call マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行(3, "運転集計_形式処理m")
+End Sub
+
+
+
+
+
+
+Sub check_Final_Check_BL2_Click()
+    Call Final_Check(2)
+End Sub
+
+Sub check_Final_Check_BL3_Click()
+    Call Final_Check(3)
+End Sub
+
+
+
+Sub Clear_Click()
+    Dim chk As Shape
+    For Each chk In ActiveSheet.Shapes
+        If chk.Type = msoFormControl Then
+            If chk.FormControlType = xlCheckBox Then
+                chk.OLEFormat.Object.Value = xlOff    ' チェックを外す
+            End If
+        End If
+    Next chk
+End Sub
