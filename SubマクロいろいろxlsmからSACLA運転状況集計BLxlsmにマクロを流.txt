@@ -48,7 +48,7 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     
     ' sourceWorkbookを開く
     Dim sourceWorkbook As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    Set sourceWorkbook = OpenBook(BNAME_SOURCE) ' フルパスを指定
+    Set sourceWorkbook = OpenBook(BNAME_SOURCE, False) ' フルパスを指定
     If sourceWorkbook Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
     
 '    For Each vbComp In sourceWorkbook.VBProject.VBComponents
@@ -58,7 +58,7 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
         
     ' targetWorkbookを開く
     Dim targetWorkbook As Workbook
-    Set targetWorkbook = OpenBook(BNAME_SHUKEI) ' フルパスを指定
+    Set targetWorkbook = OpenBook(BNAME_SHUKEI, False) ' フルパスを指定
     If targetWorkbook Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
 
     
