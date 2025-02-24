@@ -1,6 +1,6 @@
 Option Explicit
 
-Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
+Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI(BL As Integer)
     On Error GoTo ErrorHandler
 
     Dim arr() As String
@@ -9,7 +9,7 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     Dim SNAME_KEIKAKU_BL As String
     Dim RANGE_GUN_HV_OFF As String
     Dim COL_GUN_HV_OFF As Integer
-    Dim BL As Integer
+'    Dim BL As Integer
     Dim tr As Variant
     Dim result As Boolean
     Dim PasteSheet As Worksheet
@@ -19,22 +19,22 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI()
     Debug.Print "============================================================================================================"
 
 
-    Dim buttonName As String
-    If TypeName(Application.Caller) = "String" Then
-        buttonName = Application.Caller
-    Else
-        MsgBox "このマクロはシート上のボタンからのみ実行してください。", Buttons:=vbCritical
-        End
-    End If
-
-    If buttonName = "ボタン 6" Then
-        BL = 2
-    ElseIf buttonName = "ボタン 7" Then
-        BL = 3
-    Else
-        MsgBox "異常です。終了します。" & vbCrLf & "buttonName = " & buttonName, Buttons:=vbCritical
-        End
-    End If
+'    Dim buttonName As String
+'    If TypeName(Application.Caller) = "String" Then
+'        buttonName = Application.Caller
+'    Else
+'        MsgBox "このマクロはシート上のボタンからのみ実行してください。", Buttons:=vbCritical
+'        End
+'    End If
+'
+'    If buttonName = "ボタン 6" Then
+'        BL = 2
+'    ElseIf buttonName = "ボタン 7" Then
+'        BL = 3
+'    Else
+'        MsgBox "異常です。終了します。" & vbCrLf & "buttonName = " & buttonName, Buttons:=vbCritical
+'        End
+'    End If
     MsgBox "「計画時間.xlsx」を「SACLA運転状況集計BL" & BL & ".xlsm」にコピーするマクロです。", vbInformation, "BL" & BL
 
     '    Dim s

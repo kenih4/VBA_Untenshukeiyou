@@ -1,25 +1,25 @@
 Option Explicit
 Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
-Sub Initial_Check()
+Sub Initial_Check(BL As Integer)
 
     On Error GoTo ErrorHandler
 
-    Dim BL As Integer
+    '    Dim BL As Integer
     Dim BNAME_SHUKEI As String
     Dim Cnt As Integer
     Dim result As Boolean
 
-    Dim s
-    s = Application.InputBox("BLを入力して下さい。", "確認", Type:=1)    '  Type:=1 数値のみ
-    If s = False Then
-        Exit Sub
-    ElseIf s = "" Then
-        MsgBox "何も入力されていません"
-        Exit Sub
-    Else
-        BL = s
-    End If
+    '    Dim s
+    '    s = Application.InputBox("BLを入力して下さい。", "確認", Type:=1)    '  Type:=1 数値のみ
+    '    If s = False Then
+    '        Exit Sub
+    '    ElseIf s = "" Then
+    '        MsgBox "何も入力されていません"
+    '        Exit Sub
+    '    Else
+    '        BL = s
+    '    End If
 
     Select Case BL
     Case 1
@@ -52,12 +52,11 @@ Sub Initial_Check()
     Debug.Print "シート全体にエラーがないか確認 "
     Dim ws As Worksheet
     For Each ws In wb_SHUKEI.Worksheets
-        Debug.Print ws.Name
         result = CheckForErrors(ws)
     Next ws
 
-    
-    
+
+
     Cnt = Check(Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets("運転予定時間"))
     Cnt = Check(Array(2, 6, 7), 3, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
     Cnt = Check(Array(9, 10, 11, 12, 13, 14, 15), 9, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
@@ -115,8 +114,8 @@ Function Check(arr As Variant, Retsu_for_Find_last_row As Integer, Check_row_cnt
             'Sleep 20 ' msec
             result = CheckSameFormulaType(Cells(StartL, col), Cells(i, col))
             If result = True Then
-                'Debug.Print "OK:    セル(" & i & ", " & col & ") 数式有  " & Cells(i, col).Formula
-                Cells(i, col).Interior.Color = RGB(0, 255, 0)
+                Debug.Print "OK:    セル(" & i & ", " & col & ") 数式有  " & Cells(i, col).Formula
+                'Cells(i, col).Interior.Color = RGB(0, 255, 0)
             Else
                 Debug.Print "要確認！　セル(" & i & ", " & col & ") 数式が入っていないか、数式が異なる"
                 Cells(i, col).Interior.Color = RGB(255, 0, 0)
@@ -144,6 +143,7 @@ Function CheckSameFormulaType(rng1 As Range, rng2 As Range) As Boolean
         CheckSameFormulaType = False
     End If
 End Function
+
 
 
 
