@@ -19,16 +19,16 @@ Sub Final_Check(BL As Integer)
 
     MsgBox "マクロ「Final_Check()」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_MATOME & vbCrLf & "のチェックです。" & vbCrLf & "チェックするユニットを確認する為に一旦、SACLA運転状況集計BL*.xlsmを開きます", vbInformation, "BL" & BL
 
-'    Dim s
-'    s = Application.InputBox("BLを入力して下さい。", "確認", Type:=1)    '  Type:=1 数値のみ
-'    If s = False Then
-'        Exit Sub
-'    ElseIf s = "" Then
-'        MsgBox "何も入力されていません"
-'        Exit Sub
-'    Else
-'        BL = s
-'    End If
+    '    Dim s
+    '    s = Application.InputBox("BLを入力して下さい。", "確認", Type:=1)    '  Type:=1 数値のみ
+    '    If s = False Then
+    '        Exit Sub
+    '    ElseIf s = "" Then
+    '        MsgBox "何も入力されていません"
+    '        Exit Sub
+    '    Else
+    '        BL = s
+    '    End If
 
     Select Case BL
     Case 1
@@ -133,6 +133,8 @@ Sub Final_Check(BL As Integer)
                 Next col
             Next
             Exit For
+        Else
+            MsgBox "異常です。" & vbCrLf & "「" & Unit & "」が見つかれませんでした。", Buttons:=vbCritical
         End If
     Next
 
@@ -192,6 +194,8 @@ Sub Final_Check(BL As Integer)
                 End If
             End If
 
+        Else
+            MsgBox "異常です。" & vbCrLf & "「" & Unit & "」が見つかれませんでした。", Buttons:=vbCritical
         End If
     Next
 
@@ -253,8 +257,9 @@ Sub Final_Check(BL As Integer)
 
             Next
             Exit For
+        Else
+            MsgBox "異常です。" & vbCrLf & "「" & Unit & "」が見つかれませんでした。", Buttons:=vbCritical
         End If
-
     Next
 
 
@@ -314,8 +319,9 @@ Sub Final_Check(BL As Integer)
 
             Next
             Exit For
+        Else
+            MsgBox "異常です。" & vbCrLf & "「" & Unit & "」が見つかれませんでした。", Buttons:=vbCritical
         End If
-
     Next
 
 

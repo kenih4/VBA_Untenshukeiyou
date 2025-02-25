@@ -1,6 +1,6 @@
 Option Explicit
 
-Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行()
+Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行(BL As Integer, macroName As String)
     On Error GoTo ErrorHandler
     Debug.Print "Debug   マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを流し込んで実行"
         
@@ -8,9 +8,9 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     Dim sourceModule As Object
     Dim targetModule As Object
        
-    Dim BL As Integer
+    'Dim BL As Integer
     Dim BNAME_SHUKEI As String
-    Dim macroName As String
+    'Dim macroName As String
     Dim vbComp As VBIDE.vbComponent
     
     Dim dict As Dictionary
@@ -18,29 +18,29 @@ Sub マクロいろいろxlsmからSACLA運転状況集計BLxlsmにマクロを�
     dict.Add "Fault集計m", "Module10"
     dict.Add "運転集計_形式処理m", "Module11"
 
-    Dim buttonName As String
-    If TypeName(Application.Caller) = "String" Then
-        buttonName = Application.Caller
-    Else
-        Call Fin("このマクロはシート上のボタンからのみ実行してください。" & vbCrLf & "終了します。", 3)
-    End If
-    
-    If buttonName = "ボタン 1" Then
-        BL = 2
-        macroName = "Fault集計m"
-    ElseIf buttonName = "ボタン 2" Then
-        BL = 2
-        macroName = "運転集計_形式処理m"
-    ElseIf buttonName = "ボタン 4" Then
-        BL = 3
-        macroName = "Fault集計m"
-    ElseIf buttonName = "ボタン 5" Then
-        BL = 3
-        macroName = "運転集計_形式処理m"
-    Else
-        MsgBox "異常です。終了します。" & vbCrLf & "buttonName = " & buttonName, Buttons:=vbCritical
-        End
-    End If
+'    Dim buttonName As String
+'    If TypeName(Application.Caller) = "String" Then
+'        buttonName = Application.Caller
+'    Else
+'        Call Fin("このマクロはシート上のボタンからのみ実行してください。" & vbCrLf & "終了します。", 3)
+'    End If
+'
+'    If buttonName = "ボタン 1" Then
+'        BL = 2
+'        macroName = "Fault集計m"
+'    ElseIf buttonName = "ボタン 2" Then
+'        BL = 2
+'        macroName = "運転集計_形式処理m"
+'    ElseIf buttonName = "ボタン 4" Then
+'        BL = 3
+'        macroName = "Fault集計m"
+'    ElseIf buttonName = "ボタン 5" Then
+'        BL = 3
+'        macroName = "運転集計_形式処理m"
+'    Else
+'        MsgBox "異常です。終了します。" & vbCrLf & "buttonName = " & buttonName, Buttons:=vbCritical
+'        End
+'    End If
     
     BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL" & BL & ".xlsm"
 

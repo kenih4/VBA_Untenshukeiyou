@@ -4,8 +4,8 @@ Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
 Public Const BNAME_SOURCE As String = "C:\me\unten\マクロいろいろ.xlsm"
 Public Const workDir As String = "C:\me\unten\OperationSummary"
-'Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
-Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
+Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
+'Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
 
 
 
@@ -297,7 +297,7 @@ Sub GetWorkbookFolderToCell()
     folderPath = ThisWorkbook.Path
 
     If folderPath <> "" Then
-        ThisWorkbook.sheetS("手順").Range("A1").Value = folderPath
+        ThisWorkbook.sheetS("手順 (2)").Range("A1").Value = folderPath
         MsgBox "OK: " & vbCrLf & "ワーキングフォルダ = " & folderPath & vbCrLf & "「C:\me\unten」なら問題ないです。", Buttons:=vbInformation
     Else
         ThisWorkbook.sheetS(1).Range("A1").Value = "保存されていません"

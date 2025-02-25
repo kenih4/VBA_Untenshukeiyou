@@ -1,31 +1,31 @@
 Option Explicit
 
-Sub RunPythonScript()
+Sub RunPythonScript(scriptPath As String)
     On Error GoTo ErrorHandler
     
-    Dim scriptPath As String
+'    Dim scriptPath As String
     Dim command As String
     Dim buttonName As String
     Const pythonExe As String = "python"
     Debug.Print "Debug   " & workDir
     
-    If TypeName(Application.Caller) = "String" Then
-        buttonName = Application.Caller
-    Else
-        MsgBox "このマクロはシート上のボタンからのみ実行してください。" & vbCrLf & "終了します。", Buttons:=vbCritical
-        End
-    End If
-    
-    If buttonName = "ボタン 8" Then
-        scriptPath = "getGunHvOffTime_LOCALTEST.py"
-    ElseIf buttonName = "ボタン 9" Then
-        scriptPath = "getBlFaultSummary_LOCALTEST.py bl2"
-    ElseIf buttonName = "ボタン 10" Then
-        scriptPath = "getBlFaultSummary_LOCALTEST.py bl3"
-    Else
-        MsgBox "異常です。終了します。" & vbCrLf & "buttonName = " & buttonName, Buttons:=vbCritical
-        End
-    End If
+'    If TypeName(Application.Caller) = "String" Then
+'        buttonName = Application.Caller
+'    Else
+'        MsgBox "このマクロはシート上のボタンからのみ実行してください。" & vbCrLf & "終了します。", Buttons:=vbCritical
+'        End
+'    End If
+'
+'    If buttonName = "ボタン 8" Then
+'        scriptPath = "getGunHvOffTime_LOCALTEST.py"
+'    ElseIf buttonName = "ボタン 9" Then
+'        scriptPath = "getBlFaultSummary_LOCALTEST.py bl2"
+'    ElseIf buttonName = "ボタン 10" Then
+'        scriptPath = "getBlFaultSummary_LOCALTEST.py bl3"
+'    Else
+'        MsgBox "異常です。終了します。" & vbCrLf & "buttonName = " & buttonName, Buttons:=vbCritical
+'        End
+'    End If
     
     MsgBox "python " & scriptPath & "を" & vbCrLf & "実行します。", Buttons:=vbInformation
     
