@@ -99,6 +99,8 @@ Sub Final_Check(BL As Integer)
         If wb_MATOME.Worksheets("Fault集計").Cells(i, 2).Value = Unit Then
             Debug.Print "この行　i = " & i & " が、ユニット " & Cells(i, 2).Value
             CantFindUnit = CantFindUnit + 1
+            Cells(i, 2).Select
+            Cells(i, 2).Interior.Color = RGB(0, 255, 0)
             For j = i To i + wb_MATOME.Worksheets("Fault集計").Cells(i, 2).MergeArea.Rows.Count - 1
 
                 Check_col_arr = Array(3, 4, 5, 6, 7, 8, 9)  'Check_col_arr = Array(3, 4, 7, 8) ' チェックする列の値を配列にセット  シフト開始、終了、Faul間隔、Faul回数
@@ -145,11 +147,7 @@ Sub Final_Check(BL As Integer)
     Next
 
 
-
-
-    'MsgBox "DEBUGです。" & vbCrLf & "チェック対象のユニット  CantFindUnit : " & CantFindUnit, Buttons:=vbCritical
-
-
+    
 
     wb_MATOME.Worksheets("まとめ ").Activate    'これ大事======================================================================================
 
@@ -159,6 +157,8 @@ Sub Final_Check(BL As Integer)
 
         If wb_MATOME.Worksheets("まとめ ").Cells(i, 2).Value = Unit Then
             CantFindUnit = CantFindUnit + 1
+            Cells(i, 2).Select
+            Cells(i, 2).Interior.Color = RGB(0, 255, 0)
             If BL = 2 Then
                 DOWNTIME_ROW = i
             Else    'BL3
@@ -228,6 +228,8 @@ Sub Final_Check(BL As Integer)
         If wb_MATOME.Worksheets("まとめ ").Cells(i, 2).Value = Unit Then
             Debug.Print "この行　i = " & i & " が、ユニット " & Cells(i, 2).Value
             CantFindUnit = CantFindUnit + 1
+            Cells(i, 2).Select
+            Cells(i, 2).Interior.Color = RGB(0, 255, 0)
             For j = i To i + wb_MATOME.Worksheets("まとめ ").Cells(i, 2).MergeArea.Rows.Count - 1
                 For Each col In Check_col_arr
                     Set tc = wb_MATOME.Worksheets("まとめ ").Cells(j, col)
@@ -289,6 +291,8 @@ Sub Final_Check(BL As Integer)
         If wb_MATOME.Worksheets("まとめ ").Cells(i, 2).Value = Unit Then
             Debug.Print "この行　i = " & i & " が、ユニット " & Cells(i, 2).Value
             CantFindUnit = CantFindUnit + 1
+            Cells(i, 2).Select
+            Cells(i, 2).Interior.Color = RGB(0, 255, 0)
             For j = i To i + wb_MATOME.Worksheets("まとめ ").Cells(i, 2).MergeArea.Rows.Count - 1
 
                 For col = 3 To 7
