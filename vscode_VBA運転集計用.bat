@@ -1,5 +1,5 @@
 @if not "%~0"=="%~dp0.\%~nx0" start /min cmd /c,"%~dp0.\%~nx0" %* & goto :eof
 
-start /b /max code C:\Users\kenichi\Dropbox\gitdir\VBAâ^ì]èWåvóp
+start /b /max code C:\Users\kenic\Dropbox\gitdir\VBAâ^ì]èWåvóp
 
 
