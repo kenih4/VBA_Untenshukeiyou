@@ -55,16 +55,14 @@ Sub Initial_Check(BL As Integer)
         result = CheckForErrors(ws)
     Next ws
 
-
-
     Cnt = Check(Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets("運転予定時間"))
     Cnt = Check(Array(2, 6, 7), 3, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
     Cnt = Check(Array(9, 10, 11, 12, 13, 14, 15), 9, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
     Cnt = Check(Array(7, 8, 9), 3, 500, wb_SHUKEI.Worksheets("集計記録")) ' とりあえず500行くらいチェック
     Cnt = Check(Array(1, 3, 5, 6, 8, 9, 10, 11, 13, 14), 2, 30, wb_SHUKEI.Worksheets("利用時間（期間）")) ' 利用時間（期間） のカッコは全角
-    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 25), 2, 30, wb_SHUKEI.Worksheets("利用時間(User)"))
-    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), 1, 30, wb_SHUKEI.Worksheets("利用時間(シフト)")) '
-    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 2, 30, wb_SHUKEI.Worksheets("Fault間隔(ユニット)"))
+    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 26, 27, 28, 29), 2, 30, wb_SHUKEI.Worksheets("利用時間(User)"))
+    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), 1, 30, wb_SHUKEI.Worksheets("利用時間(シフト)"))
+    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 2, 30, wb_SHUKEI.Worksheets("Fault間隔(ユニット)")) ' シート名に半角スペースが入ってることがあるので注意　正しくしないと「インデックスが有効範囲にありません」とエラーメッセージがでける
         
     Call Fin("終了しました。" & vbCrLf & "", 1)
     Exit Sub ' 通常の処理が完了したらエラーハンドラをスキップ
@@ -115,7 +113,7 @@ Function Check(arr As Variant, Retsu_for_Find_last_row As Integer, Check_row_cnt
             result = CheckSameFormulaType(Cells(StartL, col), Cells(i, col))
             If result = True Then
                 Debug.Print "OK:    セル(" & i & ", " & col & ") 数式有  " & Cells(i, col).Formula
-                'Cells(i, col).Interior.Color = RGB(0, 255, 0)
+                'Cells(i, col).Interior.Color = RGB(0, 255, 0)  色付けると非常に時間が掛かる
             Else
                 Debug.Print "要確認！　セル(" & i & ", " & col & ") 数式が入っていないか、数式が異なる"
                 Cells(i, col).Interior.Color = RGB(255, 0, 0)
