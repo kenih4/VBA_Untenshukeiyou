@@ -2,14 +2,15 @@ Option Explicit
 
 '==============================================================================================================================
 Sub Button14()
-    Call RunBatchFile("C:\Users\kenichi\Documents\operation_log_NEW\vscode_operation_log.bat")
+'    Call RunBatchFile("C:\Users\kenichi\Documents\operation_log_NEW\vscode_operation_log.bat")
+    Call RunBatchFile("C:\Users\kenic\Dropbox\gitdir\vscode_open\vscode_open.bat C:\Users\kenic\Documents\operation_log_NEW")
 End Sub
 
 
 
 Sub ボタン15_Click()
     Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    Set wb_MATOME = OpenBook(BNAME_MATOME) ' フルパスを指定
+    Set wb_MATOME = OpenBook(BNAME_MATOME, False) ' フルパスを指定
     If wb_MATOME Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
         
     Dim Sonzai_flg As Boolean: Sonzai_flg = False
@@ -25,7 +26,7 @@ End Sub
 
 Sub ボタン16_Click()
     Dim wb_MATOME As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
-    Set wb_MATOME = OpenBook(BNAME_MATOME) ' フルパスを指定
+    Set wb_MATOME = OpenBook(BNAME_MATOME, False) ' フルパスを指定
     If wb_MATOME Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
     
     Dim Sonzai_flg As Boolean: Sonzai_flg = False
