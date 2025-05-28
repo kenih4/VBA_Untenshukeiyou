@@ -97,10 +97,20 @@ Sub cp_paste_faulttxt_UNTENZYOKYOSYUKEI(BL As Integer, ROW_COUNT As Integer)
 
 
 
-    If MsgBox("貼り付け終わったらシート「利用時間(User)」にエネルギーなどを手動入力しましょう！！" & vbCrLf & "シフトサマリーを開きますか？？", vbYesNo + vbQuestion, "BL" & BL) = vbYes Then
-        WSH.RUN "http://saclaopr19.spring8.or.jp/~summary/display_ui.html?sort=date%20desc%2Cstart%20desc&limit=0%2C100&search_root=BL" & BL & "#STATUS", 3
-        Set WSH = Nothing
-    End If
+'    If MsgBox("貼り付け終わったらシート「利用時間(User)」にエネルギーなどを手動入力しましょう！！" & vbCrLf & "シフトサマリーを開きますか？？", vbYesNo + vbQuestion, "BL" & BL) = vbYes Then
+'
+'        Dim sourceWorkbook As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+'        Set sourceWorkbook = OpenBook(BNAME_SOURCE, False) ' フルパスを指定
+'        If sourceWorkbook Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
+'        sourceWorkbook.Worksheets("編集用_利用時間(User)").Activate
+'
+'        wb_SHUKEI.Worksheets("利用時間(User)").Activate
+'
+'        Windows.Arrange ArrangeStyle:=xlVertical
+'
+'        WSH.RUN "http://saclaopr19.spring8.or.jp/~summary/display_ui.html?sort=date%20desc%2Cstart%20desc&limit=0%2C100&search_root=BL" & BL & "#STATUS", 3
+'        Set WSH = Nothing
+'    End If
 
 
 
@@ -181,3 +191,15 @@ ErrorHandler:
     Exit Sub
 
 End Sub
+
+
+
+
+
+
+
+
+
+
+
+
