@@ -7,6 +7,7 @@ Sub Initial_Check(BL As Integer)
 
     '    Dim BL As Integer
     Dim BNAME_SHUKEI As String
+    Dim sname As String
     Dim Cnt As Integer
     Dim result As Boolean
 
@@ -55,12 +56,21 @@ Sub Initial_Check(BL As Integer)
         result = CheckForErrors(ws)
     Next ws
 
-    Cnt = Check(Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets("運転予定時間"))
-    Cnt = Check(Array(2, 6, 7), 3, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
+
+'    sname = "運転予定時間"                                シートの存在を確認する処理を追加するとこうなるが、見にくい。。。。。
+'    If Not SheetExists(wb_SHUKEI, sname) Then
+'        MsgBox "シートが存在しません。" & vbCrLf & sname & " 終了します。", Buttons:=vbExclamation
+'    Else
+'        Cnt = Check(Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets(sname))
+'    End If
+
+
+    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets("運転予定時間"))
+    Cnt = Check(Array(2, 3, 4, 5, 6, 7), 3, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
     Cnt = Check(Array(9, 10, 11, 12, 13, 14, 15), 9, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
-    Cnt = Check(Array(7, 8, 9), 3, 500, wb_SHUKEI.Worksheets("集計記録")) ' とりあえず500行くらいチェック
-    Cnt = Check(Array(1, 3, 5, 6, 8, 9, 10, 11, 13, 14), 2, 30, wb_SHUKEI.Worksheets("利用時間（期間）")) ' 利用時間（期間） のカッコは全角
-    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 23, 26, 27, 28, 29), 2, 30, wb_SHUKEI.Worksheets("利用時間(User)"))
+    Cnt = Check(Array(2, 3, 4, 6, 7, 8, 9), 3, 500, wb_SHUKEI.Worksheets("集計記録")) ' とりあえず500行くらいチェック    E列(Fault)もチェックしたいが、ここは特殊　最終行の2行目から変な数式が入ってるがいるのか？
+    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14), 2, 30, wb_SHUKEI.Worksheets("利用時間（期間）")) ' 利用時間（期間） のカッコは全角
+    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29), 2, 30, wb_SHUKEI.Worksheets("利用時間(User)"))
     Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), 1, 30, wb_SHUKEI.Worksheets("利用時間(シフト)"))
     Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 2, 30, wb_SHUKEI.Worksheets("Fault間隔(ユニット)")) ' シート名に半角スペースが入ってることがあるので注意　正しくしないと「インデックスが有効範囲にありません」とエラーメッセージがでける
         
@@ -93,7 +103,9 @@ Function Check(arr As Variant, Retsu_for_Find_last_row As Integer, Check_row_cnt
     Dim i As Integer
     Dim col As Variant
     Check = 0
+    
     sheet.Activate
+
 
     '    MsgBox "Columns(Retsu_for_Find_last_row).Address　=     " & Columns(Retsu_for_Find_last_row).Address
 
@@ -130,17 +142,24 @@ End Function
 
 
 
+
+
 Function CheckSameFormulaType(rng1 As Range, rng2 As Range) As Boolean
-' セルに数式が入っているか確認
-    If rng1.HasFormula And rng2.HasFormula Then
-        'Debug.Print "どちらかのセルに数式があり"
-        ' R1C1形式で比較して、一致すれば True、異なれば False
-        CheckSameFormulaType = (rng1.FormulaR1C1 = rng2.FormulaR1C1)
-    Else
-        'Debug.Print "どちらかのセルに数式が無し"
-        CheckSameFormulaType = False
-    End If
+    CheckSameFormulaType = (rng1.FormulaR1C1 = rng2.FormulaR1C1)
 End Function
+
+'Function CheckSameFormulaType(rng1 As Range, rng2 As Range) As Boolean
+'' セルに数式が入っているか確認
+'    If rng1.HasFormula And rng2.HasFormula Then
+'        'Debug.Print "どちらかのセルに数式があり"
+'        ' R1C1形式で比較して、一致すれば True、異なれば False
+'        CheckSameFormulaType = (rng1.FormulaR1C1 = rng2.FormulaR1C1)
+'    Else
+'        'Debug.Print "どちらかのセルに数式が無し"
+'        CheckSameFormulaType = False
+'    End If
+'End Function
+
 
 
 
