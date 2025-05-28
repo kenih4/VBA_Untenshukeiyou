@@ -231,12 +231,12 @@ End Function
 
 
 'シート存在を確認==============================================================================================================================
-Function SheetExists(wb As Workbook, Sname As String) As Boolean
+Function SheetExists(wb As Workbook, sname As String) As Boolean
     On Error Resume Next ' エラーが発生しても処理を継続
     Dim ws As Worksheet
-    Set ws = wb.sheetS(Sname) ' 指定したシートをセット
+    Set ws = wb.sheetS(sname) ' 指定したシートをセット
     SheetExists = Not ws Is Nothing ' シートが存在すればTrue
-    Debug.Print "@SheetExists   Sheetname: [" & Sname & "]  " & SheetExists
+    Debug.Print "@SheetExists   Sheetname: [" & sname & "]  " & SheetExists
     On Error GoTo 0 ' エラーハンドリングをリセット
 End Function
 
@@ -244,16 +244,17 @@ End Function
 
 
 
-'シート存在を確認 Not Use ==============================================================================================================================
-Function flgExsistSheet(ByVal WorkSheetName As String) As Boolean
-Dim sht As Worksheet
+
+'ActiveWorkbookシート存在を確認 Not Use ==============================================================================================================================
+Function SheetExist_ActiveWorkbook(ByVal WorkSheetName As String) As Boolean
+  Dim sht As Worksheet
   For Each sht In ActiveWorkbook.Worksheets
     If sht.Name = WorkSheetName Then
         flgExsistSheet = True
         Exit Function
     End If
   Next sht
-flgExsistSheet = False
+  flgExsistSheet = False
 End Function
 
 
@@ -295,13 +296,21 @@ Sub GetWorkbookFolderToCell()
 ' ThisWorkbook.Path でカレントブックの保存されているパスを取得
     Dim folderPath As String
     folderPath = ThisWorkbook.Path
-
+'    MsgBox folderPath
+    
     If folderPath <> "" Then
-        ThisWorkbook.sheetS("手順 (2)").Range("A1").Value = folderPath
-        MsgBox "OK: " & vbCrLf & "ワーキングフォルダ = " & folderPath & vbCrLf & "「C:\me\unten」なら問題ないです。", Buttons:=vbInformation
+        ThisWorkbook.sheetS("手順").Range("A1").Value = folderPath
+        
+'        MsgBox folderPath
+        If folderPath = "C:\me\unten" Then
+            MsgBox "OK: " & vbCrLf & "ワーキングフォルダ = " & folderPath, Buttons:=vbInformation
+        Else
+            MsgBox "チェック: " & vbCrLf & "ワーキングフォルダ = " & folderPath & vbCrLf & "ワーキングフォルダが「C:\me\unten」でありません！！", Buttons:=vbInformation
+        End If
+        
     Else
-        ThisWorkbook.sheetS(1).Range("A1").Value = "保存されていません"
-        MsgBox "異常: " & vbCrLf & "ワーキングフォルダ が取得できませんでした", Buttons:=vbCritical
+        ThisWorkbook.sheetS(1).Range("A1").Value = "ワーキングフォルダが取得できませんでした"
+        MsgBox "異常: " & vbCrLf & "ワーキングフォルダが取得できませんでした", Buttons:=vbCritical
     End If
 End Sub
 
