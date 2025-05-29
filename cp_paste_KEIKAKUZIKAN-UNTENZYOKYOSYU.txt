@@ -4,18 +4,14 @@ Sub cp_paste_KEIKAKUZIKAN_UNTENZYOKYOSYUKEI(BL As Integer)
     On Error GoTo ErrorHandler
 
     Dim arr() As String
-    Dim BNAME_KEIKAKU As String
     Dim BNAME_SHUKEI As String
     Dim SNAME_KEIKAKU_BL As String
     Dim RANGE_GUN_HV_OFF As String
     Dim COL_GUN_HV_OFF As Integer
-'    Dim BL As Integer
     Dim tr As Variant
     Dim result As Boolean
     Dim PasteSheet As Worksheet
     Dim PasteRow As Integer
-
-    BNAME_KEIKAKU = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
     Debug.Print "============================================================================================================"
 
 
@@ -166,7 +162,7 @@ Function CpPaste(sheetS As Worksheet, rangeS As String, colS As Integer, sheetT 
     sheetT.Activate    ' これ必要。これないと、次の行で、セルをアクティブにできない
     pasteCELL.Activate
 
-    If MsgBox("ここに値「GUN HV OFF時間」を貼り付けていいですか？", vbYesNo + vbQuestion) = vbYes Then
+    If MsgBox("ここに貼り付けていいですか？", vbYesNo + vbQuestion) = vbYes Then
         pasteCELL.PasteSpecial Paste:=xlPasteValues
         If MsgBox("貼り付けましたがOKですか？？" & vbCrLf & "次に進むにはYes", vbYesNo + vbQuestion) = vbNo Then Exit Function
     End If

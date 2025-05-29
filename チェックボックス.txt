@@ -7,7 +7,6 @@ End Sub
 
 Sub check_Initial_Check_BL3_Click()
    Call Initial_Check(3)
-   'Call Test(3)
 End Sub
 
 
@@ -22,6 +21,18 @@ End Sub
 
 
 
+
+
+
+
+
+Sub 計画時間xlsx_Check_BL2_Click()
+    Call 計画時間xlsx_Check(2)
+End Sub
+
+Sub 計画時間xlsx_Check_BL3_Click()
+    Call 計画時間xlsx_Check(3)
+End Sub
 
 
 

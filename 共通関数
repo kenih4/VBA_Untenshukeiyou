@@ -2,6 +2,8 @@ Option Explicit ' 未定義の変数は使用できないように
 Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
 
+
+Public Const BNAME_KEIKAKU As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
 Public Const BNAME_SOURCE As String = "C:\me\unten\マクロいろいろ.xlsm"
 Public Const workDir As String = "C:\me\unten\OperationSummary"
 Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
@@ -314,6 +316,26 @@ Sub GetWorkbookFolderToCell()
     End If
 End Sub
 
+
+
+
+
+
+' 循環参照を検出
+Sub CheckCircularReference()
+    Application.Calculate ' 先に計算を実行  Application.CircularReference は、計算後に値を返すため、計算がまだ実行されていない場合には使えない為
+
+    On Error Resume Next ' エラーを無視
+    Dim circRef As Range
+    Set circRef = Application.CircularReference
+    On Error GoTo 0 ' エラー処理を戻す
+
+    If circRef Is Nothing Then
+'        MsgBox "循環参照は見つかりませんでした。", vbInformation
+    Else
+        MsgBox "循環参照が見つかりました: " & circRef.Address, vbExclamation
+    End If
+End Sub
 
 
 

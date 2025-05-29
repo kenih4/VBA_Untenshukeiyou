@@ -168,3 +168,109 @@ End Function
 
 
 
+
+
+
+
+
+
+Sub 計画時間xlsx_Check(BL As Integer)
+    On Error GoTo ErrorHandler
+
+    Dim i As Integer
+    Dim LineSta As Integer
+    Dim LineSto As Integer
+    Dim result As Boolean
+    Dim pattern As String
+    pattern = "^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}$"    '       別の書式（例: YYYY-MM-DD HH:MM - YYYY-MM-DD HH:MM） pattern = "^\d{4}-\d{2}-\d{2} \d{2}:\d{2} - \d{4}-\d{2}-\d{2} \d{2}:\d{2}$"
+
+
+    Select Case BL
+    Case 1
+        Debug.Print "SCSS+"
+    Case 2
+        Debug.Print "BL2"
+    Case 3
+        Debug.Print ">>>BL3"
+    Case Else
+        Debug.Print "Zzz..."
+        End
+    End Select
+
+    '    BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2TEST.xlsm"
+    MsgBox "マクロ「KEIKAKUZIKAN_Check()」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_KEIKAKU & vbCrLf & "のチェックです。" & vbCrLf & "確認します", vbInformation, "BL" & BL
+
+
+    ' wb_KEIKAKUを開く
+    Dim wb_KEIKAKU As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    Set wb_KEIKAKU = OpenBook(BNAME_KEIKAKU, True)    ' フルパスを指定
+    wb_KEIKAKU.Activate
+    If wb_KEIKAKU Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
+    If ActiveWorkbook.Name <> wb_KEIKAKU.Name Then
+        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_KEIKAKU, 3)
+    End If
+
+    Debug.Print "シート全体にエラーがないか確認 "
+    Dim ws As Worksheet
+    For Each ws In wb_KEIKAKU.Worksheets
+        result = CheckForErrors(ws)
+    Next ws
+
+    wb_KEIKAKU.Windows(1).WindowState = xlMaximized
+    wb_KEIKAKU.Worksheets("bl" & BL).Select    '最前面に表示
+
+
+    wb_KEIKAKU.Worksheets("bl" & BL).Activate    'これ大事
+    LineSta = 2 ' getLineNum("運転種別", 1, wb_KEIKAKU.Worksheets("bl" & BL)) + 1
+    LineSto = wb_KEIKAKU.Worksheets("bl" & BL).Cells(Rows.Count, "A").End(xlUp).Row
+    
+    
+    For i = LineSta To LineSto
+'       Debug.Print "この行　i = " & i & " が、" & Cells(i, 2).Value & "    " & Cells(i, 3).Value & "   " & Cells(i, 4).Value
+        If InStr(Cells(i, 4).Value, "FCBT") > 0 Or InStr(Cells(i, 4).Value, "大学院") > 0 Or InStr(Cells(i, 4).Value, "基盤") > 0 Or InStr(Cells(i, 4).Value, "BL") > 0 Then
+            Call CMsg("変だぞ！！！" & vbCrLf & "FCBTの運転種別がユーザー運転になってる事を確認。" & vbCrLf & "基盤開発プログラムや、大学院生プログラムはBLstudyになります！！" & vbCrLf & "BL studeyが紛れ込んでるぞ！！", 2, Cells(i, 4))
+        End If
+        
+        
+        
+        If Not IsValidFormat(Cells(i, 2), pattern) Then
+            Call CMsg("正しい形式ではありません。" & vbCrLf & "正しい形式: YYYY/MM/DD HH:MM:SS", 3, Cells(i, 2))
+        End If
+                    
+        If Not IsValidFormat(Cells(i, 3), pattern) Then
+            Call CMsg("正しい形式ではありません。" & vbCrLf & "正しい形式: YYYY/MM/DD HH:MM:SS", 3, Cells(i, 3))
+        End If
+                    
+        
+        
+        If (Cells(i, 3).Value - Cells(i, 2).Value) <= 0 Then
+            Call CMsg("時間がおかしいぞ！　STOP日時の方が古い" & vbCrLf & "~~~", 3, Cells(i, 3))
+        End If
+        
+        
+        If (Cells(i, 3).Value - Cells(LineSta, 2).Value) <= 0 Then
+            Call CMsg("時間がおかしいぞ！　ユニット開始の時間より古い日時です。" & vbCrLf & "~~~", 3, Cells(i, 3))
+        End If
+        
+        
+        If i = LineSto Then
+            If (Cells(i, 3).Value - Cells(i, 2).Value) <> 14 Then
+                Call CMsg("1ユニット、2週間じゃないんですね" & vbCrLf & "~~~", 1, Cells(i, 3))
+            End If
+        End If
+
+    Next
+
+
+
+    Call Fin("チェック終了しました。" & vbCrLf & "", 1)
+    Exit Sub ' 通常の処理が完了したらエラーハンドラをスキップ
+ErrorHandler:
+    MsgBox "エラーです。内容は　 " & Err.Description, Buttons:=vbCritical
+    
+End Sub
+
+
+
+
+

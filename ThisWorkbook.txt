@@ -1,3 +1,5 @@
+Option Explicit
+
 Private Sub Workbook_SheetSelectionChange(ByVal Sh As Object, ByVal Target As Range)
     Application.ScreenUpdating = True
 End Sub
@@ -5,5 +7,10 @@ End Sub
 
 Private Sub Workbook_Open()
     'MsgBox "ワークブックが開かれました！"
+    ThisWorkbook.sheetS("手順").Activate
+    
     Call GetWorkbookFolderToCell
+    
+    Call CheckCircularReference
+    
 End Sub
