@@ -57,14 +57,22 @@ Sub Initial_Check(BL As Integer)
     Next ws
 
 
-    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI, "運転予定時間")
-    Cnt = Check(Array(2, 3, 4, 5, 6, 7), 3, 30, wb_SHUKEI, "GUN HV OFF時間記録")
-    Cnt = Check(Array(9, 10, 11, 12, 13, 14, 15), 9, 30, wb_SHUKEI, "GUN HV OFF時間記録")
-    Cnt = Check(Array(2, 3, 4, 6, 7, 8, 9), 3, 500, wb_SHUKEI, "集計記録") ' とりあえず500行くらいチェック    E列(Fault)もチェックしたいが、ここは特殊　最終行の2行目から変な数式が入ってるがいるのか？
-    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14), 2, 30, wb_SHUKEI, "利用時間（期間）") ' 利用時間（期間） のカッコは全角
-    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29), 2, 30, wb_SHUKEI, "利用時間(User)")
-    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), 1, 30, wb_SHUKEI, "利用時間(シフト)")
-    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 2, 30, wb_SHUKEI, "Fault間隔(ユニット)") ' シート名に半角スペースが入ってることがあるので注意　正しくしないと「インデックスが有効範囲にありません」とエラーメッセージがでける
+'    sname = "運転予定時間"                                シートの存在を確認する処理を追加するとこうなるが、見にくい。。。。。
+'    If Not SheetExists(wb_SHUKEI, sname) Then
+'        MsgBox "シートが存在しません。" & vbCrLf & sname & " 終了します。", Buttons:=vbExclamation
+'    Else
+'        Cnt = Check(Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets(sname))
+'    End If
+
+
+    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets("運転予定時間"))
+    Cnt = Check(Array(2, 3, 4, 5, 6, 7), 3, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
+    Cnt = Check(Array(9, 10, 11, 12, 13, 14, 15), 9, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
+    Cnt = Check(Array(2, 3, 4, 6, 7, 8, 9), 3, 500, wb_SHUKEI.Worksheets("集計記録")) ' とりあえず500行くらいチェック    E列(Fault)もチェックしたいが、ここは特殊　最終行の2行目から変な数式が入ってるがいるのか？
+    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14), 2, 30, wb_SHUKEI.Worksheets("利用時間（期間）")) ' 利用時間（期間） のカッコは全角
+    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29), 2, 30, wb_SHUKEI.Worksheets("利用時間(User)"))
+    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), 1, 30, wb_SHUKEI.Worksheets("利用時間(シフト)"))
+    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 2, 30, wb_SHUKEI.Worksheets("Fault間隔(ユニット)")) ' シート名に半角スペースが入ってることがあるので注意　正しくしないと「インデックスが有効範囲にありません」とエラーメッセージがでける
         
     Call Fin("終了しました。" & vbCrLf & "", 1)
     Exit Sub ' 通常の処理が完了したらエラーハンドラをスキップ
@@ -85,7 +93,7 @@ End Sub
 'つまり､引数として渡した変数の値が変更される可能性がある ので注意が必要です｡
 'Function Check(arr As Variant, ByVal Retsu_for_Find_last_row As Integer, ByVal Check_row_cnt As Integer, ByVal sheet As Worksheet) As Integer
 ' StartL , EndLを引数にした方がいい気がする
-Function Check(arr As Variant, Retsu_for_Find_last_row As Integer, Check_row_cnt As Integer, wb As Workbook, sname As String) As Integer
+Function Check(arr As Variant, Retsu_for_Find_last_row As Integer, Check_row_cnt As Integer, sheet As Worksheet) As Integer
 ' arr:  チェックする列を配列にセット
 ' Retsu_for_Find_last_row:  値の入っている最終行を取得するためのもの。数式が入っていない列を指定する。数式が入っている列を指定すると数式が入っていない最終行になってしまう
 ' Check_row_cnt:    何行チェックするか。とりあえず多めにしとく
@@ -94,18 +102,8 @@ Function Check(arr As Variant, Retsu_for_Find_last_row As Integer, Check_row_cnt
     Dim StartL As Integer
     Dim i As Integer
     Dim col As Variant
-    Dim sheet As Worksheet
     Check = 0
     
-    
-    
-    If Not SheetExists(wb, sname) Then
-        MsgBox "シートが存在しません。スペース等が入ってたりしませんか？？" & vbCrLf & "シート名「" & sname & "」" & vbCrLf & "終了します。", Buttons:=vbCritical
-        End
-    End If
-
-
-    Set sheet = wb.sheetS(sname) ' 指定したシートをセット
     sheet.Activate
 
 
@@ -140,6 +138,11 @@ Function Check(arr As Variant, Retsu_for_Find_last_row As Integer, Check_row_cnt
     End If
 
 End Function
+
+
+
+
+'------------------------------------------------------------
 
 
 
@@ -227,7 +230,7 @@ Sub 計画時間xlsx_Check(BL As Integer)
     
     For i = LineSta To LineSto
 '       Debug.Print "この行　i = " & i & " が、" & Cells(i, 2).Value & "    " & Cells(i, 3).Value & "   " & Cells(i, 4).Value
-        If InStr(Cells(i, 4).Value, "FCBT") > 0 Or InStr(Cells(i, 4).Value, "大学院") > 0 Or InStr(Cells(i, 4).Value, "基盤") > 0 Or InStr(Cells(i, 4).Value, "BL") > 0 Then
+        If InStr(Cells(i, 4).Value, "プログラム") > 0 Or InStr(Cells(i, 4).Value, "FCBT") > 0 Or InStr(Cells(i, 4).Value, "大学院") > 0 Or InStr(Cells(i, 4).Value, "基盤") > 0 Or InStr(Cells(i, 4).Value, "BL") > 0 Then
             Call CMsg("変だぞ！！！" & vbCrLf & "FCBTの運転種別がユーザー運転になってる事を確認。" & vbCrLf & "基盤開発プログラムや、大学院生プログラムはBLstudyになります！！" & vbCrLf & "BL studeyが紛れ込んでるぞ！！", 2, Cells(i, 4))
         End If
         
