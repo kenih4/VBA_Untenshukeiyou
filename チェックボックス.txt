@@ -16,15 +16,21 @@ End Sub
 
 
 Sub 計画時間xlsxを出力_Click()
+    MsgBox "出力しするユニットは" & vbCrLf & "   「 " & ThisWorkbook.sheetS("手順").Cells(4, 5) & " 」" & vbCrLf & ThisWorkbook.sheetS("手順").Cells(4, 6) & "    ～　　" & vbCrLf & ThisWorkbook.sheetS("手順").Cells(4, 7) & " っす", vbInformation, "BL" & BL
+
+    Dim fileNum As Integer
+    fileNum = FreeFile
+    Open "C:\me\unten\OperationSummary\dt_beg.txt" For Output As #fileNum
+    Print #fileNum, Format(ThisWorkbook.sheetS("手順").Cells(4, 6).Value, "yyyy/mm/dd hh:nn");
+    Close #fileNum
+    
+    fileNum = FreeFile
+    Open "C:\me\unten\OperationSummary\dt_end.txt" For Output As #fileNum
+    Print #fileNum, Format(ThisWorkbook.sheetS("手順").Cells(4, 7).Value, "yyyy/mm/dd hh:nn");
+    Close #fileNum
+    
     Call RunPythonScript("getGunHvOffTime_LOCALTEST.py")
 End Sub
-
-
-
-
-
-
-
 
 Sub 計画時間xlsx_Check_BL2_Click()
     Call 計画時間xlsx_Check(2)
@@ -33,6 +39,10 @@ End Sub
 Sub 計画時間xlsx_Check_BL3_Click()
     Call 計画時間xlsx_Check(3)
 End Sub
+
+
+
+
 
 
 
