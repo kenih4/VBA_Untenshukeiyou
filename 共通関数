@@ -3,6 +3,7 @@ Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
 
 
+Public Const UNITROW As Integer = 14
 Public Const BNAME_KEIKAKU As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
 Public Const BNAME_SOURCE As String = "C:\me\unten\マクロいろいろ.xlsm"
 Public Const workDir As String = "C:\me\unten\OperationSummary"
@@ -14,6 +15,7 @@ Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転�
 'ブックを開く ==============================================================================================================================
 'リモートサーバー上のファイルを開く際、開くのに時間がかかっているためにタイミングの問題でエラーが発生している可能性があります。この場合、待機時間を設けて再試行することで、エラーを回避できることがあります。以下の方法で、指定された時間待機しながらエラーを再試行するコードを実装できます。
 Function OpenBook(ByVal WorkBookName As String, ByVal RO As Boolean) As Workbook
+    
     Debug.Print "Debug---   Start  Function OpenBook(" & WorkBookName & ")"
     Dim OWB As Workbook
     Dim wb As Workbook
@@ -29,7 +31,6 @@ Function OpenBook(ByVal WorkBookName As String, ByVal RO As Boolean) As Workbook
             Exit For
        End If
     Next wb
-    
     
     On Error Resume Next
     If OWB Is Nothing Then
@@ -188,18 +189,18 @@ Function CheckForErrors(ByVal sheet As Worksheet) As Boolean
       Else
         ' 2つ目以降のエラーセルであれば、errorRangeに追加
         Set errorRange = Union(errorRange, cell)
+        cell.Select
       End If
     End If
   Next cell
-  
 
   ' エラーセルが見つかった場合、メッセージを表示
   If Not errorRange Is Nothing Then
-    MsgBox "シート '" & sheet.Name & "' にエラーセルがあります。" & vbCrLf & "エラーセル: " & errorRange.Address, vbOKOnly + vbCritical
+        MsgBox "シート '" & sheet.Name & "' にエラーセルがあります。" & vbCrLf & "エラーセル: " & errorRange.Address, vbOKOnly + vbCritical
   Else
 '    MsgBox "安心です。シート '" & sheet.Name & "' にエラーセルはありませんでした。", vbOKOnly + vbInformation
-    Debug.Print "安心です。シート '" & sheet.Name & "' にエラーセルはありませんでした。"
-    CheckForErrors = False
+        Debug.Print "安心です。シート '" & sheet.Name & "' にエラーセルはありませんでした。"
+        CheckForErrors = False
   End If
 
   Set errorRange = Nothing
@@ -210,7 +211,7 @@ End Function
 
 '指定さてた文字列が存在する行を取得  シート内全て==============================================================================================================================
 Function getLineNum(ByVal str As String, ByVal TARGET_COL As Integer, ByVal sheet As Worksheet) As Integer
-    getLineNum = getLineNum_RS(str, TARGET_COL, 1, sheet.Cells(Rows.Count, TARGET_COL).End(xlUp).Row, sheet)
+    getLineNum = getLineNum_RS(str, TARGET_COL, 1, sheet.Cells(Rows.Count, TARGET_COL).End(xlUp).ROW, sheet)
 End Function
 
 
@@ -283,7 +284,7 @@ Function GetWorkbookFolder() As String
     Dim folderPath As String
     
     ' ブックが保存されていない場合、Path は空文字列になる
-    folderPath = ThisWorkbook.Path
+    folderPath = ThisWorkbook.path
     
     ' 保存されていない場合、空文字列を返す
     If folderPath = "" Then
@@ -297,7 +298,7 @@ End Function
 Sub GetWorkbookFolderToCell()
 ' ThisWorkbook.Path でカレントブックの保存されているパスを取得
     Dim folderPath As String
-    folderPath = ThisWorkbook.Path
+    folderPath = ThisWorkbook.path
 '    MsgBox folderPath
     
     If folderPath <> "" Then
@@ -355,6 +356,56 @@ Sub ToggleButton()    '---------------------------------------------------------
 End Sub
 
 
+
+
+
+
+' シートに文字列が存在するか確認する
+Function CheckStringInSheet(ByVal ws As Worksheet, ByVal searchString As String) As Boolean
+    Dim foundCell As Range
+
+    Set foundCell = ws.Cells.Find(What:=searchString, LookIn:=xlValues, LookAt:=xlPart, MatchCase:=False)
+    
+    If foundCell Is Nothing Then
+        CheckStringInSheet = False
+    Else
+        CheckStringInSheet = True
+    End If
+    
+End Function
+
+
+
+
+
+' ネットワーク上のファイルにアクセスできるか確認　「Microsoft Scripting Runtime」が必要======================================================
+Function CheckServerAccess_FSO(ByVal fullNetworkFilePath As String) As Boolean
+    Dim fso As Object
+    
+    ' デフォルトでは失敗と設定
+    CheckServerAccess_FSO = False
+    
+    ' Microsoft Scripting Runtime への参照設定が必要です。
+    ' VBAエディタで「ツール」>「参照設定」>「Microsoft Scripting Runtime」にチェックを入れてください。
+    On Error GoTo ErrorHandler ' エラーハンドリングを設定
+    
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    
+    ' 引数として受け取ったファイルパスの存在を直接確認します。
+    If fso.FileExists(fullNetworkFilePath) Then
+        CheckServerAccess_FSO = True ' アクセス成功
+    End If
+    
+    ' 後処理
+    Set fso = Nothing
+    Exit Function ' 正常終了時はエラーハンドラをスキップ
+    
+ErrorHandler:
+    ' エラーが発生した場合（例：パスが不正、権限がないなど）
+    ' Debug.Print "エラー発生: " & Err.Description ' デバッグ用にエラーメッセージを表示
+    CheckServerAccess_FSO = False ' エラー時はアクセス失敗
+    Set fso = Nothing ' オブジェクトの解放を忘れずに
+End Function
 
 
 

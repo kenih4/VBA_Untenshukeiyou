@@ -18,19 +18,18 @@ End Sub
 Sub 計画時間xlsxを出力_Click()
     On Error GoTo ErrorHandler
     
-    Const ROW As Integer = 19
     Dim fileNum As Integer
-    
-    If MsgBox("出力するユニットは" & vbCrLf & "   「 " & ThisWorkbook.sheetS("手順").Cells(ROW, 5) & " 」" & vbCrLf & ThisWorkbook.sheetS("手順").Cells(ROW, 6) & "    ～　　" & vbCrLf & ThisWorkbook.sheetS("手順").Cells(ROW, 7) & vbCrLf & "開始しますか？", vbYesNo) = vbNo Then Exit Sub
-        
+
+    If MsgBox("出力するユニットは" & vbCrLf & "   「 " & ThisWorkbook.sheetS("手順").Range("E" & UNITROW) & " 」" & vbCrLf & ThisWorkbook.sheetS("手順").Range("F" & UNITROW) & "    ～　　" & vbCrLf & ThisWorkbook.sheetS("手順").Range("G" & UNITROW) & vbCrLf & "開始しますか？", vbYesNo) = vbNo Then Exit Sub
+
     fileNum = FreeFile
     Open workDir & "\dt_beg.txt" For Output As #fileNum
-    Print #fileNum, Format(ThisWorkbook.sheetS("手順").Cells(ROW, 6).Value, "yyyy/mm/dd hh:nn");
+    Print #fileNum, Format(ThisWorkbook.sheetS("手順").Cells(UNITROW, 6).Value, "yyyy/mm/dd hh:nn");
     Close #fileNum
     
     fileNum = FreeFile
     Open workDir & "\dt_end.txt" For Output As #fileNum
-    Print #fileNum, Format(ThisWorkbook.sheetS("手順").Cells(ROW, 7).Value, "yyyy/mm/dd hh:nn");
+    Print #fileNum, Format(ThisWorkbook.sheetS("手順").Cells(UNITROW, 7).Value, "yyyy/mm/dd hh:nn");
     Close #fileNum
     
     Call RunPythonScript("getGunHvOffTime_LOCALTEST.py")
