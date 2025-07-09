@@ -55,24 +55,39 @@ Sub Initial_Check(BL As Integer)
     For Each ws In wb_SHUKEI.Worksheets
         result = CheckForErrors(ws)
     Next ws
-
-
-'    sname = "運転予定時間"                                シートの存在を確認する処理を追加するとこうなるが、見にくい。。。。。
+    
+    
+    If Check_exixt("運転予定時間", wb_SHUKEI) = True Then Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets("運転予定時間"))
+    If Check_exixt("GUN HV OFF時間記録", wb_SHUKEI) = True Then Cnt = Check(Array(2, 3, 4, 5, 6, 7), 3, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
+    If Check_exixt("GUN HV OFF時間記録", wb_SHUKEI) = True Then Cnt = Check(Array(9, 10, 11, 12, 13, 14, 15), 9, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
+    If Check_exixt("集計記録", wb_SHUKEI) = True Then Cnt = Check(Array(2, 3, 4, 6, 7, 8, 9), 3, 500, wb_SHUKEI.Worksheets("集計記録")) ' とりあえず500行くらいチェック    E列(Fault)もチェックしたいが、ここは特殊　最終行の2行目から変な数式が入ってるがいるのか？
+    If Check_exixt("利用時間（期間）", wb_SHUKEI) = True Then Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14), 2, 30, wb_SHUKEI.Worksheets("利用時間（期間）")) ' 利用時間（期間） のカッコは全角
+    If Check_exixt("利用時間（期間）", wb_SHUKEI) = True Then Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29), 2, 30, wb_SHUKEI.Worksheets("利用時間(User)"))
+    If Check_exixt("利用時間(シフト)", wb_SHUKEI) = True Then Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), 1, 30, wb_SHUKEI.Worksheets("利用時間(シフト)"))
+    If Check_exixt("Fault間隔(ユニット)", wb_SHUKEI) = True Then Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 2, 30, wb_SHUKEI.Worksheets("Fault間隔(ユニット)")) ' シート名に半角スペースが入ってることがあるので注意　正しくしないと「インデックスが有効範囲にありません」とエラーメッセージがでける
+    
+    'シートの存在を確認する処理を追加するとこうなるが、見にくい。。。。。
+'    sname = "運転予定時間"
 '    If Not SheetExists(wb_SHUKEI, sname) Then
 '        MsgBox "シートが存在しません。" & vbCrLf & sname & " 終了します。", Buttons:=vbExclamation
 '    Else
-'        Cnt = Check(Array(1, 3, 5, 6, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets(sname))
+'        If CheckStringInSheet(wb_SHUKEI.Worksheets(sname), ThisWorkbook.sheetS("手順").Range("E" & UNITROW)) Then
+'            wb_SHUKEI.Worksheets(sname).Activate
+'            MsgBox "今から出力しようとしているユニットが既にシート上に存在しますけど、、、　確認して下さい。　 ", Buttons:=vbCritical
+'        Else
+'            Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets(sname))
+'        End If
 '    End If
 
 
-    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets("運転予定時間"))
-    Cnt = Check(Array(2, 3, 4, 5, 6, 7), 3, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
-    Cnt = Check(Array(9, 10, 11, 12, 13, 14, 15), 9, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
-    Cnt = Check(Array(2, 3, 4, 6, 7, 8, 9), 3, 500, wb_SHUKEI.Worksheets("集計記録")) ' とりあえず500行くらいチェック    E列(Fault)もチェックしたいが、ここは特殊　最終行の2行目から変な数式が入ってるがいるのか？
-    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14), 2, 30, wb_SHUKEI.Worksheets("利用時間（期間）")) ' 利用時間（期間） のカッコは全角
-    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29), 2, 30, wb_SHUKEI.Worksheets("利用時間(User)"))
-    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), 1, 30, wb_SHUKEI.Worksheets("利用時間(シフト)"))
-    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 2, 30, wb_SHUKEI.Worksheets("Fault間隔(ユニット)")) ' シート名に半角スペースが入ってることがあるので注意　正しくしないと「インデックスが有効範囲にありません」とエラーメッセージがでける
+'    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13), 2, 30, wb_SHUKEI.Worksheets("運転予定時間"))
+'    Cnt = Check(Array(2, 3, 4, 5, 6, 7), 3, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
+'    Cnt = Check(Array(9, 10, 11, 12, 13, 14, 15), 9, 30, wb_SHUKEI.Worksheets("GUN HV OFF時間記録"))
+'    Cnt = Check(Array(2, 3, 4, 6, 7, 8, 9), 3, 500, wb_SHUKEI.Worksheets("集計記録")) ' とりあえず500行くらいチェック    E列(Fault)もチェックしたいが、ここは特殊　最終行の2行目から変な数式が入ってるがいるのか？
+'    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14), 2, 30, wb_SHUKEI.Worksheets("利用時間（期間）")) ' 利用時間（期間） のカッコは全角
+'    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29), 2, 30, wb_SHUKEI.Worksheets("利用時間(User)"))
+'    Cnt = Check(Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16), 1, 30, wb_SHUKEI.Worksheets("利用時間(シフト)"))
+'    Cnt = Check(Array(2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12), 2, 30, wb_SHUKEI.Worksheets("Fault間隔(ユニット)")) ' シート名に半角スペースが入ってることがあるので注意　正しくしないと「インデックスが有効範囲にありません」とエラーメッセージがでける
         
     Call Fin("終了しました。" & vbCrLf & "", 1)
     Exit Sub ' 通常の処理が完了したらエラーハンドラをスキップ
@@ -84,6 +99,21 @@ End Sub
 
 
 
+Function Check_exixt(sname As String, wb As Workbook) As Boolean
+
+    Check_exixt = False
+    If Not SheetExists(wb, sname) Then
+        MsgBox "シートが存在しません。" & vbCrLf & sname & " 終了します。", Buttons:=vbCritical
+    Else
+        If CheckStringInSheet(wb.Worksheets(sname), ThisWorkbook.sheetS("手順").Range("E" & UNITROW)) Then
+            wb.Worksheets(sname).Activate
+            MsgBox "今から出力しようとしているユニットが既にシート上に存在しますけど、、、　確認して下さい。　 ", Buttons:=vbCritical
+        Else
+            Check_exixt = True
+        End If
+    End If
+    
+End Function
 
 
 
@@ -186,8 +216,9 @@ Sub 計画時間xlsx_Check(BL As Integer)
     Dim LineSto As Integer
     Dim result As Boolean
     Dim pattern As String
-    pattern = "^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}$"    '       別の書式（例: YYYY-MM-DD HH:MM - YYYY-MM-DD HH:MM） pattern = "^\d{4}-\d{2}-\d{2} \d{2}:\d{2} - \d{4}-\d{2}-\d{2} \d{2}:\d{2}$"
-
+'    pattern = "^\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}$"    '       別の書式（例: YYYY-MM-DD HH:MM - YYYY-MM-DD HH:MM） pattern = "^\d{4}-\d{2}-\d{2} \d{2}:\d{2} - \d{4}-\d{2}-\d{2} \d{2}:\d{2}$"
+'    pattern = "^\d{4}/\d{1,2}/\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}$"    '   時間が一桁の場合もあるのでそれに対応
+    pattern = "^\d{4}/\d{1,2}/\d{1,2}[ ]{1,2}\d{1,2}:\d{1,2}:\d{1,2}$"  ' スペースの数も1つ、または2つでもマッチするようにしたいです。
 
     Select Case BL
     Case 1
@@ -233,13 +264,24 @@ Sub 計画時間xlsx_Check(BL As Integer)
 '       Debug.Print "この行　i = " & i & " が、" & Cells(i, 2).Value & "    " & Cells(i, 3).Value & "   " & Cells(i, 4).Value
         Rows(i).Interior.Color = RGB(0, 205, 0)
         
-        If Not IsValidFormat(Cells(i, 2), pattern) Then
-            Call CMsg("正しい形式ではありません。" & vbCrLf & "正しい形式: YYYY/MM/DD HH:MM:SS", 3, Cells(i, 2))
+        
+        
+        If Not IsDateTimeFormatRegEx(Cells(i, 2)) Then
+            Call CMsg("日時の形式ではありません。もしかしたら日付オンリーのUNIXTIMEかもしれません。" & vbCrLf & "セルの書式設定を文字列にすると確認できます。", 3, Cells(i, 2))
         End If
+
+        If Not IsDateTimeFormatRegEx(Cells(i, 3)) Then
+            Call CMsg("日時の形式ではありません。もしかしたら日付オンリーのUNIXTIMEかもしれません。" & vbCrLf & "セルの書式設定を文字列にすると確認できます。", 3, Cells(i, 3))
+        End If
+
+        
+'        If Not IsValidFormat(Cells(i, 2), pattern) Then
+'            Call CMsg("A正しい形式ではありません。" & vbCrLf & "正しい形式: YYYY/MM/DD HH:MM:SS", 3, Cells(i, 2))
+'        End If
                     
-        If Not IsValidFormat(Cells(i, 3), pattern) Then
-            Call CMsg("正しい形式ではありません。" & vbCrLf & "正しい形式: YYYY/MM/DD HH:MM:SS", 3, Cells(i, 3))
-        End If
+'        If Not IsValidFormat(Cells(i, 3), pattern) Then
+'            Call CMsg("B正しい形式ではありません。" & vbCrLf & "正しい形式: YYYY/MM/DD HH:MM:SS", 3, Cells(i, 3))
+'        End If
         
         
         If (Cells(i, 3).Value - Cells(i, 2).Value) <= 0 Then
@@ -283,3 +325,34 @@ End Sub
 
 
 
+
+'======  日付パターンマッチ　=======================================================
+'  セルの書式設定で、文字列にすると、生のUNIXTIMEになる。
+'　この関数では、日付と時間のUNIXTIMEはTure、日付のみのUNIXTIMEはFalseとなる
+Function IsDateTimeFormatRegEx(ByVal targetString As String) As Boolean
+'    Debug.Print IsDateTimeFormatRegEx("2023/1/1 9:0:0")      ' True
+'    Debug.Print IsDateTimeFormatRegEx("2023/12/31 23:59:59")  ' True
+'    Debug.Print IsDateTimeFormatRegEx("2025/7/9 1:52:43")   ' True
+'    Debug.Print IsDateTimeFormatRegEx("2023/01/01 09:00:00") ' True
+'    Debug.Print IsDateTimeFormatRegEx("2023/2/29 12:30:00")  ' True (うるう年考慮なし、日付の妥当性はこの正規表現では厳密にチェックしない)
+'    Debug.Print IsDateTimeFormatRegEx("2023/13/01 00:00:00") ' False (月が13)
+'    Debug.Print IsDateTimeFormatRegEx("2023/01/32 00:00:00") ' False (日が32)
+'    Debug.Print IsDateTimeFormatRegEx("2023/1/1 24:0:0")     ' False (時が24)
+'    Debug.Print IsDateTimeFormatRegEx("2023/1/1 9:60:0")     ' False (分が60)
+'    Debug.Print IsDateTimeFormatRegEx("2023-1-1 9:0:0")     ' False (区切り文字が異なる)
+'    Debug.Print IsDateTimeFormatRegEx("ABCDEFG")            ' False
+    
+    Dim regEx As Object
+    Set regEx = CreateObject("VBScript.RegExp") ' または New RegExp
+
+    With regEx
+        .pattern = "^\d{4}/(0?[1-9]|1[0-2])/(0?[1-9]|[12]\d|3[01])\s([01]?\d|2[0-3]):([0-5]?\d):([0-5]?\d)$"
+        .IgnoreCase = False ' 大文字・小文字を区別しない場合はTrue
+        .Global = False     ' 文字列全体で最初のマッチングのみを検索する場合はFalse
+                            ' 文字列内のすべてのマッチを検索する場合はTrue
+    End With
+
+    IsDateTimeFormatRegEx = regEx.Test(targetString)
+
+    Set regEx = Nothing
+End Function
