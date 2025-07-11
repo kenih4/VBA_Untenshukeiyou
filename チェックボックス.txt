@@ -20,11 +20,11 @@ Sub 計画時間xlsxを出力_Click()
     
     Dim fileNum As Integer
 
-    If MsgBox("出力するユニットは" & vbCrLf & "   「 " & ThisWorkbook.sheetS("手順").Range("E" & UNITROW) & " 」" & vbCrLf & ThisWorkbook.sheetS("手順").Range("F" & UNITROW) & "    ～　　" & vbCrLf & ThisWorkbook.sheetS("手順").Range("G" & UNITROW) & vbCrLf & "開始しますか？", vbYesNo) = vbNo Then Exit Sub
-
+    If MsgBox("出力するユニットは" & vbCrLf & "   「 " & ThisWorkbook.sheetS("手順").Range("D" & UNITROW) & " 」" & vbCrLf & ThisWorkbook.sheetS("手順").Range("E" & UNITROW) & "    ～　　" & vbCrLf & ThisWorkbook.sheetS("手順").Range("G" & UNITROW) & vbCrLf & "開始しますか？", vbYesNo) = vbNo Then Exit Sub
+    
     fileNum = FreeFile
     Open workDir & "\dt_beg.txt" For Output As #fileNum
-    Print #fileNum, Format(ThisWorkbook.sheetS("手順").Cells(UNITROW, 6).Value, "yyyy/mm/dd hh:nn");
+    Print #fileNum, Format(ThisWorkbook.sheetS("手順").Cells(UNITROW, 5).Value, "yyyy/mm/dd hh:nn");
     Close #fileNum
     
     fileNum = FreeFile
@@ -42,10 +42,12 @@ End Sub
 
 Sub 計画時間xlsx_Check_BL2_Click()
     Call 計画時間xlsx_Check(2)
+    Call 計画時間xlsx_GUN_HV_OFF_Check(2)
 End Sub
 
 Sub 計画時間xlsx_Check_BL3_Click()
     Call 計画時間xlsx_Check(3)
+    Call 計画時間xlsx_GUN_HV_OFF_Check(3)
 End Sub
 
 

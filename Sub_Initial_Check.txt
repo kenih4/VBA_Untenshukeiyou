@@ -71,7 +71,7 @@ Sub Initial_Check(BL As Integer)
 '    If Not SheetExists(wb_SHUKEI, sname) Then
 '        MsgBox "シートが存在しません。" & vbCrLf & sname & " 終了します。", Buttons:=vbExclamation
 '    Else
-'        If CheckStringInSheet(wb_SHUKEI.Worksheets(sname), ThisWorkbook.sheetS("手順").Range("E" & UNITROW)) Then
+'        If CheckStringInSheet(wb_SHUKEI.Worksheets(sname), ThisWorkbook.sheetS("手順").Range("D" & UNITROW)) Then
 '            wb_SHUKEI.Worksheets(sname).Activate
 '            MsgBox "今から出力しようとしているユニットが既にシート上に存在しますけど、、、　確認して下さい。　 ", Buttons:=vbCritical
 '        Else
@@ -105,7 +105,7 @@ Function Check_exixt(sname As String, wb As Workbook) As Boolean
     If Not SheetExists(wb, sname) Then
         MsgBox "シートが存在しません。" & vbCrLf & sname & " 終了します。", Buttons:=vbCritical
     Else
-        If CheckStringInSheet(wb.Worksheets(sname), ThisWorkbook.sheetS("手順").Range("E" & UNITROW)) Then
+        If CheckStringInSheet(wb.Worksheets(sname), ThisWorkbook.sheetS("手順").Range("D" & UNITROW)) Then
             wb.Worksheets(sname).Activate
             MsgBox "今から出力しようとしているユニットが既にシート上に存在しますけど、、、　確認して下さい。　 ", Buttons:=vbCritical
         Else
@@ -233,7 +233,7 @@ Sub 計画時間xlsx_Check(BL As Integer)
     End Select
 
     '    BNAME_SHUKEI = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計BL2TEST.xlsm"
-    MsgBox "マクロ「KEIKAKUZIKAN_Check()」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_KEIKAKU & vbCrLf & "のチェックです。" & vbCrLf & "確認します", vbInformation, "BL" & BL
+    MsgBox "マクロ「計画時間xlsx_Check」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_KEIKAKU & vbCrLf & "のチェックです。" & vbCrLf & "確認します", vbInformation, "BL" & BL
 
 
     ' wb_KEIKAKUを開く
@@ -267,11 +267,11 @@ Sub 計画時間xlsx_Check(BL As Integer)
         
         
         If Not IsDateTimeFormatRegEx(Cells(i, 2)) Then
-            Call CMsg("日時の形式ではありません。もしかしたら日付オンリーのUNIXTIMEかもしれません。" & vbCrLf & "セルの書式設定を文字列にすると確認できます。", 3, Cells(i, 2))
+            Call CMsg("日時の形式ではありません。もしかしたら日付オンリーのUNIXTIMEかも。" & vbCrLf & "セルの書式設定を文字列にすると確認できます。", 3, Cells(i, 2))
         End If
 
         If Not IsDateTimeFormatRegEx(Cells(i, 3)) Then
-            Call CMsg("日時の形式ではありません。もしかしたら日付オンリーのUNIXTIMEかもしれません。" & vbCrLf & "セルの書式設定を文字列にすると確認できます。", 3, Cells(i, 3))
+            Call CMsg("日時の形式ではありません。もしかしたら日付オンリーのUNIXTIMEかも。" & vbCrLf & "セルの書式設定を文字列にすると確認できます。", 3, Cells(i, 3))
         End If
 
         
@@ -285,7 +285,7 @@ Sub 計画時間xlsx_Check(BL As Integer)
         
         
         If (Cells(i, 3).Value - Cells(i, 2).Value) <= 0 Then
-            Call CMsg("時間がおかしいぞ！　STOP日時の方が古い" & vbCrLf & "~~~", 3, Cells(i, 3))
+            Call CMsg("時間がおかしいぞ！　ENDの方が古い" & vbCrLf & "~~~", 3, Cells(i, 3))
         End If
         
         
@@ -320,6 +320,99 @@ ErrorHandler:
     MsgBox "エラーです。内容は　 " & Err.Description, Buttons:=vbCritical
     
 End Sub
+
+
+
+
+
+Sub 計画時間xlsx_GUN_HV_OFF_Check(BL As Integer)
+    On Error GoTo ErrorHandler
+
+    Dim i As Integer
+    Dim LineSta As Integer
+    Dim LineSto As Integer
+    Dim Retsu_GUN_HV_OFF As Integer
+    Dim Retsu_GUN_HV_ON As Integer
+    Dim result As Boolean
+'    Dim pattern As String  使わない
+'    pattern = "^\d{4}/\d{1,2}/\d{1,2}[ ]{1,2}\d{1,2}:\d{1,2}:\d{1,2}$"  ' スペースの数も1つ、または2つでもマッチするようにしたいです。
+
+    Select Case BL
+    Case 1
+        Debug.Print "SCSS+"
+    Case 2
+        Debug.Print "BL2"
+    Case 3
+        Debug.Print ">>>BL3"
+    Case Else
+        Debug.Print "Zzz..."
+        End
+    End Select
+
+    MsgBox "マクロ「計画時間xlsx_GUN_HV_OFF_Check」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & BNAME_KEIKAKU & vbCrLf & "のチェックです。" & vbCrLf & "確認します", vbInformation, "BL" & BL
+
+
+    ' wb_KEIKAKUを開く
+    Dim wb_KEIKAKU As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    Set wb_KEIKAKU = OpenBook(BNAME_KEIKAKU, True)    ' フルパスを指定
+    wb_KEIKAKU.Activate
+    If wb_KEIKAKU Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
+    If ActiveWorkbook.Name <> wb_KEIKAKU.Name Then
+        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_KEIKAKU, 3)
+    End If
+
+    Debug.Print "シート全体にエラーがないか確認 "
+    Dim ws As Worksheet
+    For Each ws In wb_KEIKAKU.Worksheets
+        result = CheckForErrors(ws)
+    Next ws
+
+    wb_KEIKAKU.Windows(1).WindowState = xlMaximized
+    wb_KEIKAKU.Worksheets("bl" & BL).Select    '最前面に表示
+
+
+    wb_KEIKAKU.Worksheets("GUN HV OFF").Activate    'これ大事
+    LineSta = 3
+    If BL = 2 Then
+        LineSto = wb_KEIKAKU.Worksheets("GUN HV OFF").Cells(Rows.Count, "A").End(xlUp).ROW
+        Retsu_GUN_HV_OFF = 1
+        Retsu_GUN_HV_ON = 2
+    Else
+        LineSto = wb_KEIKAKU.Worksheets("GUN HV OFF").Cells(Rows.Count, "G").End(xlUp).ROW
+        Retsu_GUN_HV_OFF = 7
+        Retsu_GUN_HV_ON = 8
+    End If
+    
+    
+    For i = LineSta To LineSto
+        Debug.Print "この行　i = " & i & " が、" & Cells(i, 2).Value & "    " & Cells(i, 3).Value & "   " & Cells(i, 4).Value
+        Cells(i, Retsu_GUN_HV_OFF).Interior.Color = RGB(0, 205, 0)
+        Cells(i, Retsu_GUN_HV_ON).Interior.Color = RGB(0, 205, 0)
+                
+        If Not IsDateTimeFormatRegEx(Cells(i, Retsu_GUN_HV_OFF)) Then
+            Call CMsg("日時の形式ではありません。もしかしたら日付オンリーのUNIXTIMEかも。" & vbCrLf & "セルの書式設定を文字列にすると確認できます。", 3, Cells(i, 2))
+        End If
+
+        If Not IsDateTimeFormatRegEx(Cells(i, Retsu_GUN_HV_ON)) Then
+            Call CMsg("日時の形式ではありません。もしかしたら日付オンリーのUNIXTIMEかも。" & vbCrLf & "セルの書式設定を文字列にすると確認できます。", 3, Cells(i, 3))
+        End If
+                
+        
+        If (Cells(i, Retsu_GUN_HV_ON).Value - Cells(i, Retsu_GUN_HV_OFF).Value) <= 0 Then
+            Call CMsg("時間がおかしいぞ！　ENDの方が古い" & vbCrLf & "~~~", 3, Cells(i, 3))
+        End If
+               
+        Debug.Print "Debug<<<   Cells(i, 4) [ " & Cells(i, 4) & " ]"
+    Next
+
+
+
+    Call Fin("チェック終了しました。" & vbCrLf & "", 1)
+    Exit Sub ' 通常の処理が完了したらエラーハンドラをスキップ
+ErrorHandler:
+    MsgBox "エラーです。内容は　 " & Err.Description, Buttons:=vbCritical
+End Sub
+
 
 
 

@@ -160,7 +160,7 @@ Sub Fin(ByVal Msg As String, ByVal Level As Integer)
     For Each wb In Workbooks
         wb.Windows(1).Zoom = 100 ' 各ブックのウィンドウに対してズームを設定
     Next wb
-    End
+'    End   これいる？？？
 End Sub
 
 
@@ -377,35 +377,6 @@ End Function
 
 
 
-
-' ネットワーク上のファイルにアクセスできるか確認　「Microsoft Scripting Runtime」が必要======================================================
-Function CheckServerAccess_FSO(ByVal fullNetworkFilePath As String) As Boolean
-    Dim fso As Object
-    
-    ' デフォルトでは失敗と設定
-    CheckServerAccess_FSO = False
-    
-    ' Microsoft Scripting Runtime への参照設定が必要です。
-    ' VBAエディタで「ツール」>「参照設定」>「Microsoft Scripting Runtime」にチェックを入れてください。
-    On Error GoTo ErrorHandler ' エラーハンドリングを設定
-    
-    Set fso = CreateObject("Scripting.FileSystemObject")
-    
-    ' 引数として受け取ったファイルパスの存在を直接確認します。
-    If fso.FileExists(fullNetworkFilePath) Then
-        CheckServerAccess_FSO = True ' アクセス成功
-    End If
-    
-    ' 後処理
-    Set fso = Nothing
-    Exit Function ' 正常終了時はエラーハンドラをスキップ
-    
-ErrorHandler:
-    ' エラーが発生した場合（例：パスが不正、権限がないなど）
-    ' Debug.Print "エラー発生: " & Err.Description ' デバッグ用にエラーメッセージを表示
-    CheckServerAccess_FSO = False ' エラー時はアクセス失敗
-    Set fso = Nothing ' オブジェクトの解放を忘れずに
-End Function
 
 
 
