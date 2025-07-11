@@ -419,6 +419,90 @@ End Sub
 
 
 
+
+
+Sub 運転集計記録_Check(BL As String, sname As String)
+    On Error GoTo ErrorHandler
+
+    Dim i As Integer
+    Dim LineSta As Integer
+    Dim LineSto As Integer
+    Dim Retsu_end As Integer
+    Dim Retsu_start As Integer
+    Dim result As Boolean
+    Dim wb_name As String
+'    Dim sname As String
+
+    Select Case BL
+    Case "SCSS"
+        Debug.Print "SCSS+"
+    Case "SACLA"
+        Debug.Print "SACLA"
+        wb_name = BNAME_UNTENSHUKEIKIROKU_SACLA
+    Case Else
+        Debug.Print "Zzz..."
+        End
+    End Select
+
+    MsgBox "マクロ「運転集計記録_Check」を実行します。" & vbCrLf & "このマクロは、" & vbCrLf & wb_name & vbCrLf & "のチェックです。" & vbCrLf & "確認します", vbInformation, "BL" & BL
+
+'    sname = "停止時間"
+    Retsu_end = 2
+    Retsu_start = 3
+
+    Dim wb As Workbook    ' ちゃんと宣言しないと、関数SheetExistsの引数が異なると怒られる
+    Set wb = OpenBook(wb_name, True)    ' フルパスを指定
+    wb.Activate
+    If wb Is Nothing Then Call Fin("ブックが開けませんでした。パスの異なる同じ名前のブックが既に開かれてる可能性があります。", 3)
+    If ActiveWorkbook.Name <> wb.Name Then
+        Call Fin("現在アクティブなブック名が異常です。終了します。" & vbCrLf & "ActiveWorkbook.Name:  " & ActiveWorkbook.Name & vbCrLf & "BNAME_SHUKEI:  " & BNAME_KEIKAKU, 3)
+    End If
+
+    'Debug.Print "シート全体にエラーがないか確認 "
+    'Dim ws As Worksheet
+    'For Each ws In wb.Worksheets
+    '    result = CheckForErrors(ws)
+    'Next ws
+    
+    wb.Windows(1).WindowState = xlMaximized
+    wb.Worksheets(sname).Select    '最前面に表示
+
+    wb.Worksheets(sname).Activate    'これ大事
+    LineSta = 4
+    LineSto = wb.Worksheets(sname).Cells(Rows.Count, "B").End(xlUp).ROW
+   
+    
+    For i = LineSta To LineSto
+        Debug.Print "この行　i = " & i & " が、" & Cells(i, 2).Value & "    " & Cells(i, 3).Value & "   " & Cells(i, 4).Value
+        Cells(i, Retsu_end).Interior.Color = RGB(0, 205, 0)
+        Cells(i, Retsu_start).Interior.Color = RGB(0, 205, 0)
+                
+        If Not IsDateTimeFormatRegEx(Cells(i, Retsu_end)) Then
+            Call CMsg("日時の形式ではありません。もしかしたら日付オンリーのUNIXTIMEかも。" & vbCrLf & "セルの書式設定を文字列にすると確認できます。", 3, Cells(i, 2))
+        End If
+
+        If Not IsDateTimeFormatRegEx(Cells(i, Retsu_start)) Then
+            Call CMsg("日時の形式ではありません。もしかしたら日付オンリーのUNIXTIMEかも。" & vbCrLf & "セルの書式設定を文字列にすると確認できます。", 3, Cells(i, 3))
+        End If
+                
+        
+        If (Cells(i, Retsu_start).Value - Cells(i, Retsu_end).Value) <= 0 Then
+            Call CMsg("時間がおかしいぞ！　ENDの方が古い" & vbCrLf & "~~~", 3, Cells(i, 3))
+        End If
+               
+        Debug.Print "Debug<<<   Cells(i, 4) [ " & Cells(i, 4) & " ]"
+    Next
+        
+    Call Fin("チェック終了しました。" & vbCrLf & "", 1)
+    Exit Sub ' 通常の処理が完了したらエラーハンドラをスキップ
+ErrorHandler:
+    MsgBox "エラーです。内容は　 " & Err.Description, Buttons:=vbCritical
+End Sub
+
+
+
+
+
 '======  日付パターンマッチ　=======================================================
 '  セルの書式設定で、文字列にすると、生のUNIXTIMEになる。
 '　この関数では、日付と時間のUNIXTIMEはTure、日付のみのUNIXTIMEはFalseとなる
