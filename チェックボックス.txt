@@ -1,6 +1,20 @@
 
 
 
+
+Sub SACLA運転集計記録の確認()
+'    If Check_checkbox_status("CheckBox_Untenshukeikiroku") = True Then
+'        Debug.Print "チェックが入ってたので終了"
+'        End
+'    Else
+'        Debug.Print "チェックが入なかったよ"
+'    End If
+'    MsgBox "GO"
+    Call 運転集計記録_Check("SACLA", "停止時間")
+    Call 運転集計記録_Check("SACLA", "調整時間")
+End Sub
+
+
 Sub check_Initial_Check_BL2_Click()
    Call Initial_Check(2)
 End Sub
@@ -23,16 +37,15 @@ Sub 計画時間xlsxを出力_Click()
     If MsgBox("出力するユニットは" & vbCrLf & "   「 " & ThisWorkbook.sheetS("手順").Range("D" & UNITROW) & " 」" & vbCrLf & ThisWorkbook.sheetS("手順").Range("E" & UNITROW) & "    ～　　" & vbCrLf & ThisWorkbook.sheetS("手順").Range("G" & UNITROW) & vbCrLf & "開始しますか？", vbYesNo) = vbNo Then Exit Sub
     
     fileNum = FreeFile
-    Open workDir & "\dt_beg.txt" For Output As #fileNum
+    Open OperationSummaryDir & "\dt_beg.txt" For Output As #fileNum
     Print #fileNum, Format(ThisWorkbook.sheetS("手順").Cells(UNITROW, 5).Value, "yyyy/mm/dd hh:nn");
     Close #fileNum
     
     fileNum = FreeFile
-    Open workDir & "\dt_end.txt" For Output As #fileNum
+    Open OperationSummaryDir & "\dt_end.txt" For Output As #fileNum
     Print #fileNum, Format(ThisWorkbook.sheetS("手順").Cells(UNITROW, 7).Value, "yyyy/mm/dd hh:nn");
     Close #fileNum
-    
-    Call RunPythonScript("getGunHvOffTime_LOCALTEST.py")
+    Call RunPythonScript("getGunHvOffTime_LOCALTEST.py", OperationSummaryDir)
     
     Exit Sub ' 通常の処理が完了したらエラーハンドラをスキップ
 ErrorHandler:
@@ -68,11 +81,11 @@ End Sub
 
 
 Sub faulttxtを出力_BL2_Click()
-    Call RunPythonScript("getBlFaultSummary_LOCALTEST.py bl2")
+    Call RunPythonScript("getBlFaultSummary_LOCALTEST.py bl2", OperationSummaryDir)
 End Sub
 
 Sub faulttxtを出力_BL3_Click()
-    Call RunPythonScript("getBlFaultSummary_LOCALTEST.py bl3")
+    Call RunPythonScript("getBlFaultSummary_LOCALTEST.py bl3", OperationSummaryDir)
 End Sub
 
 
@@ -130,6 +143,7 @@ End Sub
 Sub Clear_Click()
     Dim chk As Shape
     For Each chk In ActiveSheet.Shapes
+        Debug.Print chk.Name
         If chk.Type = msoFormControl Then
             If chk.FormControlType = xlCheckBox Then
                 chk.OLEFormat.Object.Value = xlOff    ' チェックを外す

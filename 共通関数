@@ -3,10 +3,11 @@ Declare PtrSafe Sub Sleep Lib "kernel32" (ByVal dwMilliseconds As Long)
 
 
 
-Public Const UNITROW As Integer = 14
+Public Const UNITROW As Integer = 18
+Public Const BNAME_UNTENSHUKEIKIROKU_SACLA As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転集計記録.xlsm"
 Public Const BNAME_KEIKAKU As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\計画時間.xlsx"
 Public Const BNAME_SOURCE As String = "C:\me\unten\マクロいろいろ.xlsm"
-Public Const workDir As String = "C:\me\unten\OperationSummary"
+Public Const OperationSummaryDir As String = "C:\me\unten\OperationSummary"
 Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめ.xlsm"
 'Public Const BNAME_MATOME As String = "\\saclaopr18.spring8.or.jp\common\運転状況集計\最新\SACLA\SACLA運転状況集計まとめTEST.xlsm"
 
@@ -372,6 +373,32 @@ Function CheckStringInSheet(ByVal ws As Worksheet, ByVal searchString As String)
         CheckStringInSheet = True
     End If
     
+End Function
+
+
+
+
+
+
+
+Function Check_checkbox_status(obj_name) As Boolean
+    Dim chk As Shape
+    Check_checkbox_status = False
+    For Each chk In ActiveSheet.Shapes
+'        Debug.Print chk.Name
+        If chk.Type = msoFormControl Then
+            If chk.FormControlType = xlCheckBox Then
+                Debug.Print "Checked checkbox:  " & chk.Name
+                If chk.Name = obj_name Then
+                    Debug.Print "Checked!  True @Check_checkbox_status"
+                    'chk.OLEFormat.Object.Value = xlOff
+                    Check_checkbox_status = True
+                End If
+            Else
+                'Debug.Print "Checked checkbox:  " & chk.Name
+            End If
+        End If
+    Next chk
 End Function
 
 

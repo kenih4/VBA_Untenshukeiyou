@@ -1,6 +1,6 @@
 Option Explicit
 
-Sub RunPythonScript(scriptPath As String)
+Sub RunPythonScript(scriptPath As String, workDir As String)
     On Error GoTo ErrorHandler
     
 '    Dim scriptPath As String
@@ -51,3 +51,4 @@ ErrorHandler:
     Exit Sub
     
 End Sub
+
