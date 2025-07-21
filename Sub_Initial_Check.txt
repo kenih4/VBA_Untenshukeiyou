@@ -254,7 +254,6 @@ Sub 計画時間xlsx_Check(BL As Integer)
     wb_KEIKAKU.Windows(1).WindowState = xlMaximized
     wb_KEIKAKU.Worksheets("bl" & BL).Select    '最前面に表示
 
-
     wb_KEIKAKU.Worksheets("bl" & BL).Activate    'これ大事
     LineSta = 2 ' getLineNum("運転種別", 1, wb_KEIKAKU.Worksheets("bl" & BL)) + 1
     LineSto = wb_KEIKAKU.Worksheets("bl" & BL).Cells(Rows.Count, "A").End(xlUp).ROW
@@ -312,6 +311,8 @@ Sub 計画時間xlsx_Check(BL As Integer)
 
     Next
 
+    
+    Call CheckScheduleContinuity(wb_KEIKAKU.Worksheets("bl" & BL))
 
 
     Call Fin("チェック終了しました。" & vbCrLf & "", 1)
@@ -533,3 +534,31 @@ Function IsDateTimeFormatRegEx(ByVal targetString As String) As Boolean
 
     Set regEx = Nothing
 End Function
+
+
+
+
+
+'======  A列に予定種類、B列に開始時間、C列に終了時間が記載されている場合に、B列の開始時間が前の予定のC列の終了時間と一致しない場合に警告を表示　=======================================================
+Sub CheckScheduleContinuity(sheet As Worksheet)
+    Dim lastRow As Long
+    Dim i As Long
+    Dim prevEndTime As Date
+    
+    lastRow = sheet.Cells(sheet.Rows.Count, "A").End(xlUp).ROW - 1 ' 最終行の一行手前までチェック
+    
+    For i = 2 To lastRow
+        Debug.Print "DEBUG: " & Cells(i, 2).Value
+        ' 前の予定の終了時間を取得
+        If i > 2 Then
+            If sheet.Cells(i, 2).Value <> prevEndTime Then
+                Cells(i, 2).Font.Color = RGB(255, 5, 5)
+                MsgBox "警告: " & sheet.Cells(i, 1).Value & " の開始時間が前の予定の終了時間と一致しません。", vbCritical
+            End If
+        End If
+        
+        ' 現在の予定の終了時間を保存
+        prevEndTime = sheet.Cells(i, 3).Value
+    Next i
+End Sub
+
